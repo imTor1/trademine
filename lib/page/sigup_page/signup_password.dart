@@ -1,9 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/sigup_page/signup_profile.dart';
+import 'package:trademine/services/constants/api_constants.dart';
+import 'package:trademine/utils/snackbar.dart';
+import 'package:trademine/services/auth_service.dart';
+import 'package:trademine/page/loading_page/loading_screen.dart';
+
 
 class SignUpPassword extends StatefulWidget {
   const SignUpPassword({super.key});
@@ -15,8 +17,9 @@ class SignUpPassword extends StatefulWidget {
 class _SignUpPasswordState extends State<SignUpPassword> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _password_confirm = TextEditingController();
-  final url = Uri.parse('http://localhost:3000/api/register/set-password');
+  final url = Uri.parse(ApiConstants.register_password);
   var _obScureText = true;
+  bool _isLoading = false;
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -26,30 +29,26 @@ class _SignUpPasswordState extends State<SignUpPassword> {
 
   Future<void> ApiConnect() async {
     try {
+      LoadingScreen.show(context);
+      setState(() {
+        _isLoading = true;
+      });
       final storage = FlutterSecureStorage();
       String? email = await storage.read(key: 'email');
-      final response = await http.post(
-        url,
-        body: {'email': email.toString(), 'password': _password.text},
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
-        await storage.write(key: 'token-register', value: token);
+      final register_token = await AuthService.PasswordRegister(email.toString(), _password_confirm.text);
+      await storage.write(key: 'token-register', value: register_token);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => SignUpProfile()),
         );
-      } else {
-        print('connect error');
-      }
+
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('ERROR: $e', style: TextStyle(color: Colors.red)),
-        ),
-      );
+      FocusScope.of(context).unfocus();
+      LoadingScreen.hide(context);
+      AppSnackbar.showError(context, e.toString());
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

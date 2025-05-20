@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:trademine/page/sigup_page/signup_password.dart';
+import 'package:trademine/services/auth_service.dart';
+import 'package:trademine/page/loading_page/loading_screen.dart';
+import 'package:trademine/utils/snackbar.dart';
+
 
 class SignUpOtp extends StatefulWidget {
   const SignUpOtp({super.key});
@@ -11,12 +14,12 @@ class SignUpOtp extends StatefulWidget {
 }
 
 class SignupOtpState extends State<SignUpOtp> {
-  final _url = Uri.parse('http://localhost:3000/api/register/verify-otp');
   final List<TextEditingController> _otp = List.generate(
     6,
-    (index) => TextEditingController(),
+        (index) => TextEditingController(),
   );
   bool isChecked = false;
+  bool _isLoading = false;
 
   String getOtpCode() {
     return _otp.map((c) => c.text).join();
@@ -24,32 +27,36 @@ class SignupOtpState extends State<SignUpOtp> {
 
   Future<void> ApiConnect(String otp) async {
     try {
-      final storage = FlutterSecureStorage();
-      String? email = await storage.read(key: 'email');
-      final pass = otp.toString();
-      final response = await http.post(
-        _url,
-        body: {'email': email, "otp": pass},
-      );
+      setState(() {
+        _isLoading = true;
+      });
+      FocusScope.of(context).unfocus();
+      LoadingScreen.show(context);
 
-      if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SignUpPassword()),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('ERROR: $e', style: TextStyle(color: Colors.red)),
-        ),
+      final storage = FlutterSecureStorage();
+      String? _email = await storage.read(key: 'email');
+      final fullotp = otp.toString();
+      final token = await AuthService.OTPRegister(_email.toString(), fullotp);
+      await storage.write(key: 'regis_token', value: token);
+
+      LoadingScreen.hide(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SignUpPassword()),
       );
+    } catch (e) {
+      FocusScope.of(context).unfocus();
+      LoadingScreen.hide(context);
+      AppSnackbar.showError(context, e.toString());
+
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 
   @override
   void dispose() {
-    // อย่าลืม dispose controller เมื่อไม่ใช้แล้ว
     for (var controller in _otp) {
       controller.dispose();
     }
@@ -85,8 +92,8 @@ class SignupOtpState extends State<SignUpOtp> {
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto', // ตั้งชื่อฟอนต์
-                    letterSpacing: -1, // ระยะห่างระหว่างตัวอักษร
+                    fontFamily: 'Roboto',
+                    letterSpacing: -1,
                   ),
                 ),
 
@@ -170,19 +177,11 @@ class SignupOtpState extends State<SignUpOtp> {
 
                 const SizedBox(height: 15),
                 ElevatedButton(
-                  onPressed:
-                      isChecked
+                  onPressed:_isLoading ?null : isChecked
                           ? () {
                             String fullOTP = getOtpCode();
                             if (fullOTP.length != 6) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Please enter the complete OTP in all fields.',
-                                  ),
-                                ),
-                              );
-                              return;
+                              AppSnackbar.showError(context, 'Please enter the complete OTP in all fields.');
                             } else {
                               ApiConnect(getOtpCode());
                             }

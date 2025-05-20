@@ -1,33 +1,29 @@
-import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'package:trademine/page/loading_page/loading.dart';
+import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/sigup_page/signup_email.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:trademine/theme/app_styles.dart';
+import 'package:trademine/utils/snackbar.dart';
+import 'package:email_validator/email_validator.dart';
+import 'package:trademine/services/auth_service.dart';
 
-class LoginApp extends StatefulWidget {
-  const LoginApp({super.key});
+class LoginPage  extends StatefulWidget {
+  const LoginPage ({super.key});
 
   @override
-  State<LoginApp> createState() => _LoginAppState();
+  State<LoginPage > createState() => _LoginAppState();
 }
 
-class _LoginAppState extends State<LoginApp> {
-  final url = Uri.parse('http://localhost:3000/api/login');
+class _LoginAppState extends State<LoginPage > {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   var _obScureText = true;
   bool _isLoading = false;
   bool gmailAccount = false;
-
-  final Color _primaryColor = const Color(0xffFCA311);
-  final Color _accentColor = const Color(0xff2D9CDB);
-  final Color _errorColor = const Color(0xffEB5757);
-  final Color _backgroundColor = const Color(0xffE5E5E5);
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -35,81 +31,43 @@ class _LoginAppState extends State<LoginApp> {
     });
   }
 
-  bool _isValidEmail(String email) {
-    final emailRegExp = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    return emailRegExp.hasMatch(email);
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: _errorColor,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+  bool _isValidEmail(String email) => EmailValidator.validate(email);
 
   Future<void> ApiConnect() async {
-    if (_email.text.isEmpty) {
-      _showErrorSnackBar('Email is Empty');
-      return;
-    }
 
-    if (!_isValidEmail(_email.text)) {
-      _showErrorSnackBar('Email Type is not Correct');
-      return;
-    }
-
-    if (_password.text.isEmpty) {
-      _showErrorSnackBar('Password is Empty');
+    if(_email.text.isEmpty && _password.text.isEmpty){
+      AppSnackbar.showError(context, "Please enter your email address and password.");
+    } else if (_email.text.isEmpty) {
+      AppSnackbar.showError(context, "Please enter your email address.");
+    } else if (!_isValidEmail(_email.text)) {
+      AppSnackbar.showError(context, "Please enter a valid email address.");
+    } else if (_password.text.isEmpty) {
+      AppSnackbar.showError(context, "Please enter your password.");
       return;
     }
 
     setState(() {
       _isLoading = true;
     });
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const Dialog(
-          backgroundColor: Colors.transparent,
-          child: LottieLoading(),
-        );
-      },
-    );
+    FocusScope.of(context).unfocus();
+    LoadingScreen.show(context);
 
     try {
-      final response = await http.post(
-        url,
-        body: {'email': _email.text, 'password': _password.text},
-      );
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final token = data['token'];
-        final storage = FlutterSecureStorage();
-        await storage.write(key: 'auth_token', value: token);
-        _email.clear();
-        _password.clear();
+      final token = await AuthService.Login(_email.text, _password.text);
+      final storage = FlutterSecureStorage();
+      await storage.write(key: 'auth_token', value: token);
 
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).clearSnackBars();
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => NavigationBarPage()),
-        );
-      } else {
-        Navigator.pop(context);
-        _showErrorSnackBar('Fail to Connect Server : ${response.statusCode}');
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      ScaffoldMessenger.of(context).clearSnackBars();
+      LoadingScreen.hide(context);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => NavigationBarPage()),
+      );
+
     } catch (e) {
-      Navigator.pop(context);
-      _showErrorSnackBar('Fail to Connect Server | Check You Internet');
+      FocusScope.of(context).unfocus();
+      LoadingScreen.hide(context);
+      AppSnackbar.showError(context, e.toString());
       setState(() {
         _isLoading = false;
       });
@@ -167,7 +125,7 @@ class _LoginAppState extends State<LoginApp> {
                   decoration: InputDecoration(
                     hintText: 'Email',
                     filled: true,
-                    fillColor: _backgroundColor,
+                    fillColor: AppColor.backgroundColor,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
@@ -191,7 +149,7 @@ class _LoginAppState extends State<LoginApp> {
                       ),
                     ),
                     filled: true,
-                    fillColor: _backgroundColor,
+                    fillColor: AppColor.backgroundColor,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
@@ -211,8 +169,8 @@ class _LoginAppState extends State<LoginApp> {
                       'Forget Password?',
                       style: TextStyle(
                         decoration: TextDecoration.underline,
-                        decorationColor: _errorColor,
-                        color: _errorColor,
+                        decorationColor: AppColor.errorColor,
+                        color: AppColor.errorColor,
                         letterSpacing: 0,
                         fontSize: 13,
                       ),
@@ -227,7 +185,7 @@ class _LoginAppState extends State<LoginApp> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: _primaryColor,
+                    backgroundColor: AppColor.primaryColor,
                   ),
                   child: Text(
                     'LOGIN',
@@ -262,7 +220,7 @@ class _LoginAppState extends State<LoginApp> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: _accentColor,
+                    backgroundColor: AppColor.blueColor,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -302,7 +260,9 @@ class _LoginAppState extends State<LoginApp> {
                     const SizedBox(width: 3),
                     GestureDetector(
                       onTap: () {
-                        Navigator.push(
+                        _email.clear();
+                        _password.clear();
+                        Navigator.pushReplacement(
                           context,
                           PageRouteBuilder(
                             pageBuilder:
@@ -334,9 +294,9 @@ class _LoginAppState extends State<LoginApp> {
                       child: Text(
                         'Sign Up',
                         style: TextStyle(
-                          color: _errorColor,
+                          color: AppColor.errorColor,
                           decoration: TextDecoration.underline,
-                          decorationColor: _errorColor,
+                          decorationColor: AppColor.errorColor,
                         ),
                       ),
                     ),

@@ -6,6 +6,11 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/signin_page/login.dart';
+import 'package:trademine/services/constants/api_constants.dart';
+import 'package:trademine/utils/snackbar.dart';
+import 'package:trademine/page/loading_page/loading_screen.dart';
+import 'package:trademine/services/auth_service.dart';
+
 
 class SignUpProfile extends StatefulWidget {
   const SignUpProfile({super.key});
@@ -15,12 +20,12 @@ class SignUpProfile extends StatefulWidget {
 }
 
 class _SignupProfileState extends State<SignUpProfile> {
-  final _url = Uri.parse('http://localhost:3000/api/set-profile');
   final _birthdayController = TextEditingController();
   File? _imageFile;
   String? selectedGender;
   DateTime? _selectedDate;
   final _username = TextEditingController();
+  bool _isLoading = false;
 
   final List<String> optionsGender = ['Male', 'Female', 'Other'];
 
@@ -58,36 +63,33 @@ class _SignupProfileState extends State<SignUpProfile> {
 
   Future<void> ApiConnect() async {
     try {
+      setState(() {
+        _isLoading = true;
+      });
+      FocusScope.of(context).unfocus();
+      LoadingScreen.show(context);
+
       final storage = FlutterSecureStorage();
       String? token = await storage.read(key: 'token-register');
-
-      final request =
-          http.MultipartRequest('POST', _url)
-            ..headers['Authorization'] = 'Bearer $token'
-            ..fields['newUsername'] = _username.text
-            ..fields['birthday'] = DateFormat(
-              'dd/MM/yyyy',
-            ).format(_selectedDate!)
-            ..fields['gender'] = selectedGender!
-            ..files.add(
-              await http.MultipartFile.fromPath('picture', _imageFile!.path),
-            );
-      final response = await request.send();
-      if (response.statusCode == 200) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => LoginApp()),
-        );
-        await storage.delete(key: 'token-register');
-      } else {
-        print('Server Error : ${response.statusCode}');
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('ERROR: $e', style: TextStyle(color: Colors.red)),
-        ),
+      LoadingScreen.hide(context);
+      await AuthService.ProfileRegister(
+        token.toString(),
+        _username.text,
+        _selectedDate!,
+        selectedGender!,
+        _imageFile!,
       );
+      Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage ()),);
+
+    } catch (e) {
+        FocusScope.of(context).unfocus();
+        LoadingScreen.hide(context);
+        AppSnackbar.showError(context, e.toString());
+        setState(() {
+          _isLoading = false;
+        });
     }
   }
 
