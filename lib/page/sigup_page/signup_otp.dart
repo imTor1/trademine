@@ -1,0 +1,214 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'package:trademine/page/sigup_page/signup_password.dart';
+
+class SignUpOtp extends StatefulWidget {
+  const SignUpOtp({super.key});
+
+  @override
+  State<SignUpOtp> createState() => SignupOtpState();
+}
+
+class SignupOtpState extends State<SignUpOtp> {
+  final _url = Uri.parse('http://localhost:3000/api/register/verify-otp');
+  final List<TextEditingController> _otp = List.generate(
+    6,
+    (index) => TextEditingController(),
+  );
+  bool isChecked = false;
+
+  String getOtpCode() {
+    return _otp.map((c) => c.text).join();
+  }
+
+  Future<void> ApiConnect(String otp) async {
+    try {
+      final storage = FlutterSecureStorage();
+      String? email = await storage.read(key: 'email');
+      final pass = otp.toString();
+      final response = await http.post(
+        _url,
+        body: {'email': email, "otp": pass},
+      );
+
+      if (response.statusCode == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SignUpPassword()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('ERROR: $e', style: TextStyle(color: Colors.red)),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    // อย่าลืม dispose controller เมื่อไม่ใช้แล้ว
+    for (var controller in _otp) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          child: Padding(
+            padding: EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: Icon(Icons.arrow_back),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Enter Your OTP',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Roboto', // ตั้งชื่อฟอนต์
+                    letterSpacing: -1, // ระยะห่างระหว่างตัวอักษร
+                  ),
+                ),
+
+                Text(
+                  'Enter the OTP sent your email.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    fontFamily: 'Roboto',
+                    letterSpacing: -1,
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: List.generate(6, (index) {
+                    return Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                        child: TextFormField(
+                          onChanged: (value) {
+                            if (value.length == 1 && index < 5) {
+                              FocusScope.of(context).nextFocus();
+                            } else if (value.isEmpty && index > 0) {
+                              FocusScope.of(context).previousFocus();
+                            }
+                            bool allFilled = _otp.every(
+                              (controller) => controller.text.length == 1,
+                            );
+                            setState(() {
+                              isChecked = allFilled;
+                            });
+                          },
+                          autofocus: index == 0,
+                          controller: _otp[index],
+                          textAlign: TextAlign.center,
+                          keyboardType: TextInputType.number,
+                          maxLength: 1,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 24,
+                          ),
+                          decoration: InputDecoration(
+                            counterText: "",
+                            fillColor: Color(0xffE5E5E5),
+                            filled: true,
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 30.0,
+                            ),
+                            border: OutlineInputBorder(),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide.none,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {},
+                        child: Text(
+                          'Resent OTP\t',
+                          style: TextStyle(fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 15),
+                ElevatedButton(
+                  onPressed:
+                      isChecked
+                          ? () {
+                            String fullOTP = getOtpCode();
+                            if (fullOTP.length != 6) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Please enter the complete OTP in all fields.',
+                                  ),
+                                ),
+                              );
+                              return;
+                            } else {
+                              ApiConnect(getOtpCode());
+                            }
+                          }
+                          : null,
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    backgroundColor: Color(0xffFCA311),
+                  ),
+                  child: Text(
+                    'SEND OTP',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
