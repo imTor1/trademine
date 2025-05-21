@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/sigup_page/signup_email.dart';
@@ -45,13 +46,11 @@ class _LoginAppState extends State<LoginPage > {
       AppSnackbar.showError(context, "Please enter your password.");
       return;
     }
-
     setState(() {
       _isLoading = true;
     });
-    FocusScope.of(context).unfocus();
     LoadingScreen.show(context);
-
+    FocusScope.of(context).unfocus();
     try {
       final token = await AuthService.Login(_email.text, _password.text);
       final storage = FlutterSecureStorage();
@@ -59,7 +58,7 @@ class _LoginAppState extends State<LoginPage > {
 
       ScaffoldMessenger.of(context).clearSnackBars();
       LoadingScreen.hide(context);
-      Navigator.pushReplacement(
+      Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => NavigationBarPage()),
       );
@@ -164,7 +163,9 @@ class _LoginAppState extends State<LoginPage > {
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
-                    onTap: () {},
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> ForgetpasswordEmail()));
+                    },
                     child: Text(
                       'Forget Password?',
                       style: TextStyle(

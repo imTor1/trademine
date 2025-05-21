@@ -57,21 +57,19 @@ class _SignupProfileState extends State<SignUpProfile> {
       setState(() {
         _imageFile = File(pickedFile.path);
       });
-      print(_imageFile);
     }
   }
 
   Future<void> ApiConnect() async {
-    try {
-      setState(() {
-        _isLoading = true;
-      });
-      FocusScope.of(context).unfocus();
-      LoadingScreen.show(context);
+    setState(() {
+      _isLoading = true;
+    });
+    LoadingScreen.show(context);
+    FocusScope.of(context).unfocus();
 
+    try {
       final storage = FlutterSecureStorage();
       String? token = await storage.read(key: 'token-register');
-      LoadingScreen.hide(context);
       await AuthService.ProfileRegister(
         token.toString(),
         _username.text,
@@ -79,7 +77,8 @@ class _SignupProfileState extends State<SignUpProfile> {
         selectedGender!,
         _imageFile!,
       );
-      Navigator.push(
+      LoadingScreen.hide(context);
+      Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage ()),);
 
@@ -91,6 +90,13 @@ class _SignupProfileState extends State<SignUpProfile> {
           _isLoading = false;
         });
     }
+  }
+
+  @override
+  void dispose() {
+    _birthdayController.dispose();
+    _username.dispose();
+    super.dispose();
   }
 
   @override
@@ -191,11 +197,6 @@ class _SignupProfileState extends State<SignUpProfile> {
                         onTap: () => _pickDate(context),
                         readOnly: true,
                         decoration: InputDecoration(
-                          labelText: 'Brithday',
-                          labelStyle: TextStyle(
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold,
-                          ),
                           hintText:
                               _selectedDate != null
                                   ? DateFormat(
@@ -216,6 +217,7 @@ class _SignupProfileState extends State<SignUpProfile> {
                       ),
                     ),
                     SizedBox(width: 20),
+
                     Expanded(
                       flex: 1,
                       child: DropdownButtonFormField(
@@ -226,7 +228,7 @@ class _SignupProfileState extends State<SignUpProfile> {
                             optionsGender.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value),
+                                child: Text(value,style: TextStyle(fontWeight: FontWeight.w400,color: Color(0xff606060))),
                               );
                             }).toList(),
                         onChanged: (newGender) {
@@ -241,16 +243,15 @@ class _SignupProfileState extends State<SignUpProfile> {
                 ),
                 const SizedBox(height: 40),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_imageFile == null ||
-                        _selectedDate == null ||
+                  onPressed: _isLoading? null:() {
+                    if (
+                    _selectedDate == null ||
                         selectedGender == null ||
                         _username.text.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Missing required fields')),
-                      );
-                      return;
-                    } else {
+                      AppSnackbar.showError(context, 'Missing required fields');
+                    } else if(_imageFile == null){
+                      AppSnackbar.showError(context, 'Missing required Profile');
+                    }else{
                       ApiConnect();
                     }
                   },

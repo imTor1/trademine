@@ -154,8 +154,8 @@ final policy = '''Introduction
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto', // ตั้งชื่อฟอนต์
-                    letterSpacing: -1, // ระยะห่างระหว่างตัวอักษร
+                    fontFamily: 'Roboto',
+                    letterSpacing: -1,
                   ),
                 ),
 

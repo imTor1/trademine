@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/page/sigup_page/signup_profile.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 import 'package:trademine/utils/snackbar.dart';
-import 'package:trademine/services/auth_service.dart';
+import 'package:trademine/services/forgetpassword_service.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 
 
-class SignUpPassword extends StatefulWidget {
-  const SignUpPassword({super.key});
+class ForgetpasswordPassword extends StatefulWidget {
+  const ForgetpasswordPassword({super.key});
 
   @override
-  State<SignUpPassword> createState() => _SignUpPasswordState();
+  State<ForgetpasswordPassword> createState() => _ForgetpasswordPasswordState();
 }
 
-class _SignUpPasswordState extends State<SignUpPassword> {
+class _ForgetpasswordPasswordState extends State<ForgetpasswordPassword> {
   final TextEditingController _password = TextEditingController();
   final TextEditingController _password_confirm = TextEditingController();
   final url = Uri.parse(ApiConstants.register_password);
@@ -26,20 +27,21 @@ class _SignUpPasswordState extends State<SignUpPassword> {
       _obScureText = !_obScureText;
     });
   }
+
   Future<void> ApiConnect() async {
-    LoadingScreen.show(context);
-    setState(() {
-      _isLoading = true;
-    });
     try {
+      LoadingScreen.show(context);
+      setState(() {
+        _isLoading = true;
+      });
       final storage = FlutterSecureStorage();
       String? email = await storage.read(key: 'email');
       final register_token = await AuthService.PasswordRegister(email.toString(), _password_confirm.text);
       await storage.write(key: 'token-register', value: register_token);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SignUpProfile()),
-        );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => LoginPage()),
+      );
 
     } catch (e) {
       FocusScope.of(context).unfocus();
@@ -50,6 +52,7 @@ class _SignUpPasswordState extends State<SignUpPassword> {
       });
     }
   }
+
 
   @override
   void dispose() {
@@ -149,7 +152,7 @@ class _SignUpPasswordState extends State<SignUpPassword> {
 
                 const SizedBox(height: 40),
                 ElevatedButton(
-                  onPressed: _isLoading ?null : () {
+                  onPressed: () {
                     if (_password.text == _password_confirm.text) {
                       ApiConnect();
                     } else {
