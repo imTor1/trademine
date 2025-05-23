@@ -30,28 +30,28 @@ class NavigationBarState extends State<NavigationBarPage>
 
   final List<Map<String, dynamic>> _navItems = [
     {
-      'icon': 'assets/home.png',
-      'activeIcon': 'assets/home.png',
+      'icon': 'assets/navbar_icon/home.png',
+      'activeIcon': 'assets/navbar_icon/home.png',
       'label': 'Home',
     },
     {
-      'icon': 'assets/trademine_mini.png',
-      'activeIcon': 'assets/trademine_mini.png',
+      'icon': 'assets/navbar_icon/news.png',
+      'activeIcon': 'assets/navbar_icon/news.png',
       'label': 'News',
     },
     {
-      'icon': 'assets/trademine_mini.png',
-      'activeIcon': 'assets/trademine_mini.png',
+      'icon': 'assets/navbar_icon/trade.png',
+      'activeIcon': 'assets/navbar_icon/trade.png',
       'label': 'Trade',
     },
     {
-      'icon': 'assets/trademine_mini.png',
-      'activeIcon': 'assets/trademine_mini.png',
+      'icon': 'assets/navbar_icon/activity.png',
+      'activeIcon': 'assets/navbar_icon/activity.png',
       'label': 'Activity',
     },
     {
-      'icon': 'assets/trademine_mini.png',
-      'activeIcon': 'assets/trademine_mini.png',
+      'icon': 'assets/navbar_icon/me.png',
+      'activeIcon': 'assets/navbar_icon/me.png',
       'label': 'Me',
     },
   ];
@@ -59,7 +59,6 @@ class NavigationBarState extends State<NavigationBarPage>
   @override
   void initState() {
     super.initState();
-
     _controller = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -89,19 +88,28 @@ class NavigationBarState extends State<NavigationBarPage>
     final colorScheme = Theme.of(context).colorScheme;
     final primaryColor = Color(0xffFCA311);
     final secondaryColor = Color(0xffAAAAAA);
-
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
-      bottomNavigationBar: Container(
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+        Container(
+        height: 5,
+        child: Row(
+          children: List.generate(_navItems.length, (index) {
+            return Expanded(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                color: _selectedIndex == index ? primaryColor : Colors.transparent,
+              ),
+            );
+          }),
+        ),
+      ),
+      Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
+          color: Colors.white.withOpacity(0.5),
         ),
         child: SafeArea(
           child: Padding(
@@ -111,13 +119,13 @@ class NavigationBarState extends State<NavigationBarPage>
               children: List.generate(_navItems.length, (index) {
                 final item = _navItems[index];
                 final isSelected = _selectedIndex == index;
-
                 return Expanded(
                   child: InkWell(
                     onTap: () => _navigateToPage(index),
                     customBorder: const CircleBorder(),
-                    splashColor: primaryColor.withOpacity(0.1),
-                    highlightColor: primaryColor.withOpacity(0.05),
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
+                    hoverColor: Colors.transparent,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -125,52 +133,29 @@ class NavigationBarState extends State<NavigationBarPage>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Image.asset(
-                                isSelected ? item['activeIcon'] : item['icon'],
-                                width: 24,
-                                height: 24,
-                                color:
-                                    isSelected ? primaryColor : secondaryColor,
-                              ),
-                              if (isSelected)
-                                FadeTransition(
-                                  opacity: _animation,
-                                  child: Container(
-                                    width: 32,
-                                    height: 32,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: primaryColor.withOpacity(0.1),
-                                    ),
-                                  ),
+                              alignment: Alignment.center,
+                              children: [
+                                Image.asset(
+                                  isSelected ? item['activeIcon'] : item['icon'],
+                                  width: 30,
+                                  height: 30,
+                                  color:
+                                  isSelected ? primaryColor : secondaryColor,
                                 ),
-                            ],
+                              ]
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 3),
                           Text(
                             item['label'],
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight:
-                                  isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                              isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
                               color: isSelected ? primaryColor : secondaryColor,
                             ),
                           ),
-                          if (isSelected)
-                            AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              margin: const EdgeInsets.only(top: 4),
-                              height: 3,
-                              width: 20,
-                              decoration: BoxDecoration(
-                                color: primaryColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
                         ],
                       ),
                     ),
@@ -181,6 +166,8 @@ class NavigationBarState extends State<NavigationBarPage>
           ),
         ),
       ),
+
+  ]),
     );
   }
 }

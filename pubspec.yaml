@@ -72,6 +72,7 @@ flutter:
     - assets/
     - assets/avatar/
     - assets/lottie/
+    - assets/navbar_icon/
 
 
   # An image asset can refer to one or more resolution-specific "variants", see

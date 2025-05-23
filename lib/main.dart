@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/page/sigup_page/signup_profile.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TradeMine',
       theme: ThemeData(fontFamily: 'Roboto'),
-      home: Stack(children: [LoginPage()]),
+      home: Stack(children: [NavigationBarPage()]),
     );
   }
 

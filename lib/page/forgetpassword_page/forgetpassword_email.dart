@@ -8,8 +8,6 @@ import 'package:trademine/services/forgetpassword_service.dart';
 import 'package:email_validator/email_validator.dart';
 
 
-
-
 class ForgetpasswordEmail extends StatefulWidget {
   const ForgetpasswordEmail({super.key});
 

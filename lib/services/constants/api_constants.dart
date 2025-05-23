@@ -6,5 +6,7 @@ class ApiConstants {
   static const String register_password = "$baseUrl/api/register/set-password";
   static const String register_profile = "$baseUrl/api/set-profile";
   static const String forgetpassword_email = "$baseUrl/api/forgot-password";
+  static const String profile = "$baseUrl/api/users/:userId/profile";
+
 
 }
