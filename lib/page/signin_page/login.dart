@@ -4,22 +4,19 @@ import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/sigup_page/signup_email.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:trademine/services/auth_service.dart';
 
-class LoginPage  extends StatefulWidget {
-  const LoginPage ({super.key});
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
 
   @override
-  State<LoginPage > createState() => _LoginAppState();
+  State<LoginPage> createState() => _LoginAppState();
 }
 
-class _LoginAppState extends State<LoginPage > {
+class _LoginAppState extends State<LoginPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
   var _obScureText = true;
@@ -35,9 +32,11 @@ class _LoginAppState extends State<LoginPage > {
   bool _isValidEmail(String email) => EmailValidator.validate(email);
 
   Future<void> ApiConnect() async {
-
-    if(_email.text.isEmpty && _password.text.isEmpty){
-      AppSnackbar.showError(context, "Please enter your email address and password.");
+    if (_email.text.isEmpty && _password.text.isEmpty) {
+      AppSnackbar.showError(
+        context,
+        "Please enter your email address and password.",
+      );
     } else if (_email.text.isEmpty) {
       AppSnackbar.showError(context, "Please enter your email address.");
     } else if (!_isValidEmail(_email.text)) {
@@ -62,7 +61,6 @@ class _LoginAppState extends State<LoginPage > {
         context,
         MaterialPageRoute(builder: (context) => NavigationBarPage()),
       );
-
     } catch (e) {
       FocusScope.of(context).unfocus();
       LoadingScreen.hide(context);
@@ -163,8 +161,13 @@ class _LoginAppState extends State<LoginPage > {
                 Align(
                   alignment: Alignment.centerRight,
                   child: GestureDetector(
-                    onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> ForgetpasswordEmail()));
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ForgetpasswordEmail(),
+                        ),
+                      );
                     },
                     child: Text(
                       'Forget Password?',

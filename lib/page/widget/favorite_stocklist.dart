@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trademine/theme/app_styles.dart';
 
 class FavoriteStocklist extends StatefulWidget {
   final String symbol;
@@ -17,7 +18,6 @@ class FavoriteStocklist extends StatefulWidget {
     required this.isPositive,
     this.onDelete,
   }) : super(key: key);
-
   @override
   _FavoriteStocklistState createState() => _FavoriteStocklistState();
 }
@@ -27,29 +27,26 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = const Color(0xff14213D);
-    final textColor2 = const Color(0xff606060);
-
     return Stack(
       children: [
         AnimatedPositioned(
           duration: const Duration(milliseconds: 200),
           right: showDelete ? 0 : -80,
           top: 0,
-          bottom: 0,
+          bottom: 15,
           width: 80,
           child: Container(
-            color: Colors.red,
+            color: AppColor.errorColor,
             child: GestureDetector(
               onTap: () {
                 if (widget.onDelete != null) widget.onDelete!();
               },
               child: Center(
                 child: Text(
-                  'Delete',
+                  'DELETE',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
               ),
@@ -59,23 +56,21 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
 
         GestureDetector(
           onHorizontalDragUpdate: (details) {
-            if (details.delta.dx < -5) {
+            if (details.delta.dx < -1) {
               setState(() {
                 showDelete = true;
               });
-            } else if (details.delta.dx > 5) {
+            } else if (details.delta.dx > 1) {
               setState(() {
                 showDelete = false;
               });
             }
           },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 100),
+            duration: const Duration(milliseconds: 200),
             margin: EdgeInsets.only(right: showDelete ? 80 : 0),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
+            decoration: BoxDecoration(color: Colors.white),
             child: Column(
               children: [
                 Row(
@@ -87,24 +82,40 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                         Text(
                           widget.symbol,
                           style: TextStyle(
-                            color: textColor,
+                            color: AppColor.textColor,
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         Text(
                           widget.name,
-                          style: TextStyle(fontSize: 12, color: textColor2),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColor.textColor2,
+                          ),
                         ),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [Text(widget.price), Text(widget.change)],
+                      children: [
+                        Text(
+                          '${widget.price} USD',
+                          style: TextStyle(color: AppColor.textColor2),
+                        ),
+                        Text(
+                          widget.change,
+                          style: TextStyle(
+                            color: widget.change.trim().startsWith('+')
+                                ? AppColor.greenColor
+                                : AppColor.errorColor,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                const Divider(),
+                Divider(color: AppColor.divider),
               ],
             ),
           ),

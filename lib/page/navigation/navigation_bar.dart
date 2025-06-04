@@ -85,7 +85,6 @@ class NavigationBarState extends State<NavigationBarPage>
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     final primaryColor = Color(0xffFCA311);
     final secondaryColor = Color(0xffAAAAAA);
     return Scaffold(
@@ -94,7 +93,7 @@ class NavigationBarState extends State<NavigationBarPage>
         mainAxisSize: MainAxisSize.min,
         children: [
         Container(
-        height: 5,
+        height: 4,
         child: Row(
           children: List.generate(_navItems.length, (index) {
             return Expanded(

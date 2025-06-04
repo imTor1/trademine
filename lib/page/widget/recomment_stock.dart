@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trademine/theme/app_styles.dart';
 
 class RecommentStockHome extends StatelessWidget {
   final String symbol;
@@ -18,25 +19,17 @@ class RecommentStockHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textColor = const Color(0xff14213D);
-    final textColor2 = const Color(0xff606060);
-
     return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: () {},
+      borderRadius: BorderRadius.circular(15),
+      onTap: () {
+
+      },
       child: Container(
-        width: 230,
+        width: 220,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 6,
-              offset: const Offset(0, 4),
-            ),
-          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,7 +49,7 @@ class RecommentStockHome extends StatelessWidget {
                       Text(
                         symbol,
                         style: TextStyle(
-                          color: textColor,
+                          color: AppColor.textColor,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -64,7 +57,7 @@ class RecommentStockHome extends StatelessWidget {
                       Text(
                         name,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 11, color: textColor2),
+                        style: TextStyle(fontSize: 11, color: AppColor.textColor2),
                       ),
                     ],
                   ),
@@ -86,15 +79,14 @@ class RecommentStockHome extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            const Divider(height: 1),
+            const Divider(height: 1,),
             const SizedBox(height: 10),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   'Latest price',
-                  style: TextStyle(color: textColor2, fontSize: 12),
+                  style: TextStyle(color: AppColor.textColor2, fontSize: 12),
                 ),
               ],
             ),
@@ -104,7 +96,7 @@ class RecommentStockHome extends StatelessWidget {
                 Text(
                   price,
                   style: TextStyle(
-                    color: textColor,
+                    color: AppColor.textColor,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -112,7 +104,7 @@ class RecommentStockHome extends StatelessWidget {
                 Text(
                   'USD',
                   style: TextStyle(
-                    color: textColor2,
+                    color: AppColor.textColor,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                   ),
