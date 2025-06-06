@@ -15,7 +15,8 @@ class AuthService{
   static final Uri _PasswordRegister = Uri.parse(ApiConstants.register_password);
   static final Uri _ProfileRegister = Uri.parse(ApiConstants.register_profile);
 
-  static Future<String?> Login(String email, String password) async {
+
+  static Future<Map<String,dynamic>> Login(String email, String password) async {
     final response = await http.post(
       _LoginUrl,
       body: {'email': email, 'password': password},
@@ -23,7 +24,7 @@ class AuthService{
     );
     final data = jsonDecode(response.body);
     if(response.statusCode == 200){
-      return data['token'];
+      return data;
     }else{
       throw(data['error']);
     }

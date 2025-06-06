@@ -7,6 +7,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/services/forgetpassword_service.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:trademine/utils/snackbar.dart';
+import 'package:trademine/services/constants/api_constants.dart';
+import 'package:trademine/page/widget/recomment_news.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,18 +22,27 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentIndex = 0;
   bool _isVisibleListView = true;
+  var username;
+  var image;
 
-  Future<void> fetchData(String userId) async {
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  Future<void> fetchData() async {
     final storage = FlutterSecureStorage();
     final String? token = await storage.read(key: 'auth_token');
+    final String? userId = await storage.read(key: 'user_Id');
 
-    if (token == null) {
-      print('Token ไม่พบ กรุณาเข้าสู่ระบบใหม่');
-      return;
-    }
     try {
-      final profile = await AuthService.ProfileFecthData(userId, token);
-      print(profile.runtimeType);
+      final profile = await AuthService.ProfileFecthData(userId!, token!);
+      setState(() {
+        username = profile['username'];
+        image = ApiConstants.baseUrl + profile['profileImage'];
+      });
+
     } catch (e) {
       print('Error: $e');
     }
@@ -111,12 +122,6 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    fetchData('123');
-  }
-
-  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
@@ -162,20 +167,20 @@ class _HomePageState extends State<HomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  const CircleAvatar(
+                                   CircleAvatar(
                                     radius: 20,
-                                    backgroundImage: AssetImage(
-                                      'assets/avatar/man.png',
-                                    ),
+                                    backgroundImage: NetworkImage('${image.toString()}'),
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
-                                    'Name',
+                                    username.toString(),
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: width * 0.06,
+                                      fontSize: width * 0.05,
                                     ),
                                   ),
                                 ],
@@ -187,7 +192,7 @@ class _HomePageState extends State<HomePage> {
                                   AppSnackbar.showError(context, 'Search Page Open');
                                 },
                                 child: Container(
-                                  height: 35,
+                                  height: 45,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(10),
@@ -203,13 +208,13 @@ class _HomePageState extends State<HomePage> {
                                             left: width * 0.02,
                                           ),
                                         ),
-                                        Icon(Icons.search),
+                                        Icon(Icons.search,color: AppColor.textColor.withOpacity(0.5),),
                                         Padding(
                                           padding: EdgeInsets.only(
                                             left: width * 0.02,
                                           ),
                                         ),
-                                        Text('Search'),
+                                        Text('Search',style: TextStyle(fontSize: 16,color: AppColor.textColor.withOpacity(0.5)),),
                                       ],
                                     ),
                                   ),
@@ -248,13 +253,13 @@ class _HomePageState extends State<HomePage> {
                             ),
                             SmoothPageIndicator(
                               controller: _pageController,
-                              count: 3,
+                              count: stocks.length,
                               effect: WormEffect(
                                 dotWidth: 10,
                                 dotHeight: 10,
                                 spacing: 10,
                                 activeDotColor: Colors.white,
-                                dotColor: Colors.grey,
+                                dotColor: Color(0xff606060),
                               ),
                             ),
                             const SizedBox(height: 5),
@@ -266,9 +271,16 @@ class _HomePageState extends State<HomePage> {
                           decoration: const BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
+                              topLeft: Radius.circular(25),
+                              topRight: Radius.circular(25),
                             ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, -4),
+                              ),
+                            ],
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
@@ -283,13 +295,13 @@ class _HomePageState extends State<HomePage> {
                                       'Favorite Stocks',
                                       style: TextStyle(
                                         color: AppColor.textColor,
-                                        fontSize: 20,
+                                        fontSize: 22,
                                         fontWeight: FontWeight.w900,
                                       ),
                                     ),
                                     GestureDetector(
                                       onTap: () {},
-                                      child: const Icon(Icons.add),
+                                      child: const Icon(Icons.add,size: 30,),
                                     ),
                                   ],
                                 ),
@@ -377,91 +389,22 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ),
+
                         Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Column(
-                            children: [
-                              SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: Row(
-                                  children: List.generate(10, (index) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(right: 5),
-                                      child: ConstrainedBox(
-                                        constraints: const BoxConstraints(
-                                          maxWidth: 200,
-                                        ),
-                                        child: Card(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                          ),
-                                          clipBehavior: Clip.antiAlias,
-                                          elevation: 4,
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              // Image
-                                              Image.network(
-                                                'https://www.shutterstock.com/image-illustration/tv-news-studio-broadcaster-breaking-260nw-1067935568.jpg',
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                height: 130,
-                                              ),
-                                              // Title
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                      10,
-                                                      8,
-                                                      10,
-                                                      4,
-                                                    ),
-                                                child: Text(
-                                                  'US Tariffs Expected To Dent Thai GDP',
-                                                  maxLines: 3,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  style: const TextStyle(
-                                                    fontSize: 14,
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0xff14213D),
-                                                  ),
-                                                ),
-                                              ),
-                                              // Date and Time Ago
-                                              Padding(
-                                                padding:
-                                                    const EdgeInsets.fromLTRB(
-                                                      10,
-                                                      0,
-                                                      10,
-                                                      10,
-                                                    ),
-                                                child: Text(
-                                                  'Date: 2/4/2025 | 2d',
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics:
+                            NeverScrollableScrollPhysics(),
+                            itemCount: 1,
+                            separatorBuilder:
+                                (_, __) =>
+                            const SizedBox(height: 0),
+                            itemBuilder: (context, index) {
+                              return RecommentNews();
+                            },
                           ),
                         ),
+
                       ],
                     ),
                   ),

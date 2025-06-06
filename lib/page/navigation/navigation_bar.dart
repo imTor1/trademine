@@ -108,11 +108,11 @@ class NavigationBarState extends State<NavigationBarPage>
       ),
       Container(
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.5),
+          color: Colors.white.withOpacity(1),
         ),
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8),
+            padding: const EdgeInsets.symmetric(vertical: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(_navItems.length, (index) {
@@ -143,7 +143,7 @@ class NavigationBarState extends State<NavigationBarPage>
                                 ),
                               ]
                           ),
-                          const SizedBox(height: 3),
+                          const SizedBox(height: 2),
                           Text(
                             item['label'],
                             style: TextStyle(

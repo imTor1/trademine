@@ -51,9 +51,12 @@ class _LoginAppState extends State<LoginPage> {
     LoadingScreen.show(context);
     FocusScope.of(context).unfocus();
     try {
-      final token = await AuthService.Login(_email.text, _password.text);
+      final data = await AuthService.Login(_email.text, _password.text);
       final storage = FlutterSecureStorage();
-      await storage.write(key: 'auth_token', value: token);
+      await storage.write(key: 'auth_token', value: data['token']);
+      await storage.write(key: 'user_Id', value: data['user']['id'].toString());
+
+
 
       ScaffoldMessenger.of(context).clearSnackBars();
       LoadingScreen.hide(context);

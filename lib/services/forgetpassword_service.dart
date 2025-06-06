@@ -53,16 +53,14 @@ class AuthService{
     }
   }
 
-  static Future<String?> ProfileFecthData(String userId, String token) async {
+  static Future<Map<String, dynamic>> ProfileFecthData(String userId, String token) async {
     final response = await http.get(
-      _Profile, headers: {
+      Uri.parse('$_Profile/api/users/$userId/profile'), headers: {
       'Authorization': 'Bearer $token',
     },
     );
     final data = jsonDecode(response.body);
-
     if(response.statusCode == 200){
-      final data = jsonDecode(response.body);
       return data;
     }else{
       throw(data['error']);
