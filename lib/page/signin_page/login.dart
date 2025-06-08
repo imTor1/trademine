@@ -56,8 +56,6 @@ class _LoginAppState extends State<LoginPage> {
       await storage.write(key: 'auth_token', value: data['token']);
       await storage.write(key: 'user_Id', value: data['user']['id'].toString());
 
-
-
       ScaffoldMessenger.of(context).clearSnackBars();
       LoadingScreen.hide(context);
       Navigator.push(
@@ -84,7 +82,7 @@ class _LoginAppState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -102,21 +100,18 @@ class _LoginAppState extends State<LoginPage> {
                     const SizedBox(width: 5),
                     Text(
                       'TradeMine',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],
                 ),
                 const SizedBox(height: 40),
                 Text(
                   'Welcome Back!',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 Text(
                   'Login To Continue.',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
 
                 const SizedBox(height: 30),
@@ -124,14 +119,18 @@ class _LoginAppState extends State<LoginPage> {
                   controller: _email,
                   decoration: InputDecoration(
                     hintText: 'Email',
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: AppColor.backgroundColor,
+                    fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).disabledColor,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
@@ -142,6 +141,7 @@ class _LoginAppState extends State<LoginPage> {
                   obscureText: _obScureText,
                   decoration: InputDecoration(
                     hintText: 'Password',
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
                     suffixIcon: IconButton(
                       onPressed: _togglePasswordVisibility,
                       icon: Icon(
@@ -149,13 +149,16 @@ class _LoginAppState extends State<LoginPage> {
                       ),
                     ),
                     filled: true,
-                    fillColor: AppColor.backgroundColor,
+                    fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).disabledColor,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
@@ -192,7 +195,7 @@ class _LoginAppState extends State<LoginPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: AppColor.primaryColor,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(
                     'LOGIN',
@@ -203,7 +206,6 @@ class _LoginAppState extends State<LoginPage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 30),
                 Row(
                   children: <Widget>[
@@ -212,22 +214,31 @@ class _LoginAppState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
                         "OR",
-                        style: TextStyle(fontWeight: FontWeight.w500),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
-                    Expanded(child: Divider(thickness: 1)),
+                    Expanded(
+                      child: Divider(
+                        thickness: 1,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 30),
-
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    AppSnackbar.showError(
+                      context,
+                      'Login With Google Is Coming Soon.....',
+                    );
+                  },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: AppColor.blueColor,
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -263,13 +274,17 @@ class _LoginAppState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Create an account'),
+                    Text(
+                      'Create an account',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                     const SizedBox(width: 3),
                     GestureDetector(
                       onTap: () {
                         _email.clear();
                         _password.clear();
-                        Navigator.pushReplacement(
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        Navigator.push(
                           context,
                           PageRouteBuilder(
                             pageBuilder:

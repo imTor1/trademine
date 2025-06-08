@@ -5,6 +5,7 @@ import 'package:trademine/page/navigation/news_page.dart';
 import 'package:trademine/page/navigation/profile_page.dart';
 import 'package:trademine/page/navigation/trade_page.dart';
 import 'package:trademine/page/signin_page/login.dart';
+import 'dart:ui';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -87,86 +88,106 @@ class NavigationBarState extends State<NavigationBarPage>
   Widget build(BuildContext context) {
     final primaryColor = Color(0xffFCA311);
     final secondaryColor = Color(0xffAAAAAA);
+
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-        Container(
-        height: 4,
-        child: Row(
-          children: List.generate(_navItems.length, (index) {
-            return Expanded(
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                color: _selectedIndex == index ? primaryColor : Colors.transparent,
-              ),
-            );
-          }),
-        ),
-      ),
-      Container(
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(1),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(_navItems.length, (index) {
-                final item = _navItems[index];
-                final isSelected = _selectedIndex == index;
-                return Expanded(
-                  child: InkWell(
-                    onTap: () => _navigateToPage(index),
-                    customBorder: const CircleBorder(),
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    hoverColor: Colors.transparent,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                Image.asset(
-                                  isSelected ? item['activeIcon'] : item['icon'],
-                                  width: 30,
-                                  height: 30,
-                                  color:
-                                  isSelected ? primaryColor : secondaryColor,
+          ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              child: Column(
+                children: [
+                  Container(
+                    height: 4,
+                    child: Row(
+                      children: List.generate(_navItems.length, (index) {
+                        return Expanded(
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            color:
+                                _selectedIndex == index
+                                    ? primaryColor
+                                    : Colors.transparent,
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(color: Colors.white),
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 1),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: List.generate(_navItems.length, (index) {
+                            final item = _navItems[index];
+                            final isSelected = _selectedIndex == index;
+                            return Expanded(
+                              child: InkWell(
+                                onTap: () => _navigateToPage(index),
+                                customBorder: const CircleBorder(),
+                                splashColor: Colors.transparent,
+                                highlightColor: Colors.transparent,
+                                hoverColor: Colors.transparent,
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Image.asset(
+                                            isSelected
+                                                ? item['activeIcon']
+                                                : item['icon'],
+                                            width: 30,
+                                            height: 30,
+                                            color:
+                                                isSelected
+                                                    ? primaryColor
+                                                    : secondaryColor,
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        item['label'],
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight:
+                                              isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                          color:
+                                              isSelected
+                                                  ? primaryColor
+                                                  : secondaryColor,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ]
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            item['label'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight:
-                              isSelected
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                              color: isSelected ? primaryColor : secondaryColor,
-                            ),
-                          ),
-                        ],
+                              ),
+                            );
+                          }),
+                        ),
                       ),
                     ),
                   ),
-                );
-              }),
+                ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
-
-  ]),
     );
   }
 }

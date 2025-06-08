@@ -67,7 +67,10 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Column(
                         children: [
                           Padding(
-                            padding: EdgeInsets.only(left: 30, right: 30),
+                            padding: EdgeInsets.only(
+                              left: MediaQuery.of(context).size.width * 0.15,
+                              right: MediaQuery.of(context).size.width * 0.15,
+                            ),
                             child: Column(
                               children: [
                                 Text(
@@ -82,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ),
                                 Text(
-                                  '444444444444444444444444444444444444444444@gmail.com',
+                                  'null@gmail.com',
                                   overflow: TextOverflow.ellipsis,
                                   style: TextStyle(
                                     color: AppColor.textColor,

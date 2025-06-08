@@ -7,13 +7,13 @@ Widget MenuItem({
   required String text,
   required VoidCallback onTap,
 }) {
-  double width = MediaQuery.of(context).size.width ;
+  double width = MediaQuery.of(context).size.width;
 
   return GestureDetector(
     onTap: onTap,
     child: Container(
       height: 60,
-      padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+      padding: EdgeInsets.symmetric(horizontal: width * 0.025),
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -25,14 +25,18 @@ Widget MenuItem({
               Text(
                 text,
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: width * 0.04,
                   color: AppColor.textColor,
                   fontWeight: FontWeight.w400,
                 ),
               ),
             ],
           ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: AppColor.textColor),
+          Icon(
+            Icons.arrow_forward_ios,
+            size: width * 0.04,
+            color: AppColor.textColor,
+          ),
         ],
       ),
     ),

@@ -7,7 +7,6 @@ import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/services/forgetpassword_service.dart';
 import 'package:email_validator/email_validator.dart';
 
-
 class ForgetpasswordEmail extends StatefulWidget {
   const ForgetpasswordEmail({super.key});
 
@@ -17,9 +16,8 @@ class ForgetpasswordEmail extends StatefulWidget {
 
 class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
   final TextEditingController _email = TextEditingController();
-  bool _isLoading =false;
+  bool _isLoading = false;
   bool _isValidEmail(String email) => EmailValidator.validate(email);
-
 
   Future<void> ApiConnect() async {
     if (!_isValidEmail(_email.text)) {
@@ -42,12 +40,7 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
         PageRouteBuilder(
           pageBuilder:
               (context, animation, secondaryAnimation) => ForgetpasswordOtp(),
-          transitionsBuilder: (
-              context,
-              animation,
-              secondaryAnimation,
-              child,
-              ) {
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
             const curve = Curves.ease;
@@ -105,22 +98,12 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
                 const SizedBox(height: 20),
                 Text(
                   'Forgot Your Password?',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
 
                 Text(
                   'Enter your email to receive an OTP.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
 
                 const SizedBox(height: 30),
@@ -128,32 +111,37 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
                   controller: _email,
                   decoration: InputDecoration(
                     hintText: 'Email',
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: Color(0xffE5E5E5),
+                    fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).disabledColor,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                 ),
 
-
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed:_isLoading ? null :
-                () {
-                    ApiConnect();
-                  },
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () {
+                            ApiConnect();
+                          },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: Color(0xffFCA311),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(
                     'GET OTP',
@@ -164,9 +152,7 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 40),
-
               ],
             ),
           ),

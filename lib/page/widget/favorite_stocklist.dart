@@ -24,29 +24,27 @@ class FavoriteStocklist extends StatefulWidget {
 
 class _FavoriteStocklistState extends State<FavoriteStocklist> {
   bool showDelete = false;
-
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        AnimatedPositioned(
-          duration: const Duration(milliseconds: 200),
-          right: showDelete ? 0 : -80,
-          top: 0,
-          bottom: 15,
-          width: 80,
-          child: Container(
-            color: AppColor.errorColor,
-            child: GestureDetector(
-              onTap: () {
-                if (widget.onDelete != null) widget.onDelete!();
-              },
-              child: Center(
-                child: Text(
-                  'DELETE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w400,
+        Positioned.fill(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Container(
+              width: 80,
+              color: AppColor.errorColor,
+              child: GestureDetector(
+                onTap: () {
+                  if (widget.onDelete != null) widget.onDelete!();
+                },
+                child: Center(
+                  child: Text(
+                    'DELETE',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
                 ),
               ),
@@ -68,7 +66,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            margin: EdgeInsets.only(right: showDelete ? 80 : 0),
+            transform: Matrix4.translationValues(showDelete ? -80 : 0, 0, 0),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(color: Colors.white),
             child: Column(
@@ -106,9 +104,10 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                         Text(
                           widget.change,
                           style: TextStyle(
-                            color: widget.change.trim().startsWith('+')
-                                ? AppColor.greenColor
-                                : AppColor.errorColor,
+                            color:
+                                widget.change.trim().startsWith('+')
+                                    ? AppColor.greenColor
+                                    : AppColor.errorColor,
                           ),
                         ),
                       ],

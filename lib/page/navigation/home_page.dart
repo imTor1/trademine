@@ -42,7 +42,6 @@ class _HomePageState extends State<HomePage> {
         username = profile['username'];
         image = ApiConstants.baseUrl + profile['profileImage'];
       });
-
     } catch (e) {
       print('Error: $e');
     }
@@ -131,9 +130,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).primaryColor,
       body: RefreshIndicator(
-        color: Colors.white,
+        color: Theme.of(context).scaffoldBackgroundColor,
         backgroundColor: const Color(0xffFFCE47),
         onRefresh: () async {
           await Future.delayed(const Duration(seconds: 1));
@@ -152,7 +151,7 @@ class _HomePageState extends State<HomePage> {
             slivers: [
               SliverToBoxAdapter(
                 child: Container(
-                  color: const Color(0xffFFCE47),
+                  color: Theme.of(context).primaryColor,
                   child: SafeArea(
                     bottom: false,
                     child: Column(
@@ -170,9 +169,11 @@ class _HomePageState extends State<HomePage> {
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                   CircleAvatar(
+                                  CircleAvatar(
                                     radius: 20,
-                                    backgroundImage: NetworkImage('${image.toString()}'),
+                                    backgroundImage: NetworkImage(
+                                      '${image.toString()}',
+                                    ),
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
@@ -189,7 +190,10 @@ class _HomePageState extends State<HomePage> {
 
                               GestureDetector(
                                 onTap: () {
-                                  AppSnackbar.showError(context, 'Search Page Open');
+                                  AppSnackbar.showError(
+                                    context,
+                                    'Search Page Open',
+                                  );
                                 },
                                 child: Container(
                                   height: 45,
@@ -208,13 +212,25 @@ class _HomePageState extends State<HomePage> {
                                             left: width * 0.02,
                                           ),
                                         ),
-                                        Icon(Icons.search,color: AppColor.textColor.withOpacity(0.5),),
+                                        Icon(
+                                          Icons.search,
+                                          color: AppColor.textColor.withOpacity(
+                                            0.5,
+                                          ),
+                                        ),
                                         Padding(
                                           padding: EdgeInsets.only(
                                             left: width * 0.02,
                                           ),
                                         ),
-                                        Text('Search',style: TextStyle(fontSize: 16,color: AppColor.textColor.withOpacity(0.5)),),
+                                        Text(
+                                          'Search',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: AppColor.textColor
+                                                .withOpacity(0.5),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -227,30 +243,28 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             SizedBox(
                               height: 140,
-                              child: Padding(
-                                padding: EdgeInsets.only(bottom: 10),
-                                child: ListView.separated(
-                                  scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 10,
-                                  ),
-                                  itemCount: stocks.length,
-                                  separatorBuilder:
-                                      (context, index) =>
-                                          const SizedBox(width: 10),
-                                  itemBuilder: (context, index) {
-                                    final stock = stocks[index];
-                                    return RecommentStockHome(
-                                      symbol: stock['symbol']!,
-                                      name: stock['name']!,
-                                      price: stock['price']!,
-                                      change: stock['change']!,
-                                      isPositive: stock['isPositive']!,
-                                    );
-                                  },
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
                                 ),
+                                itemCount: stocks.length,
+                                separatorBuilder:
+                                    (context, index) =>
+                                        const SizedBox(width: 10),
+                                itemBuilder: (context, index) {
+                                  final stock = stocks[index];
+                                  return RecommentStockHome(
+                                    symbol: stock['symbol']!,
+                                    name: stock['name']!,
+                                    price: stock['price']!,
+                                    change: stock['change']!,
+                                    isPositive: stock['isPositive']!,
+                                  );
+                                },
                               ),
                             ),
+                            const SizedBox(height: 15),
                             SmoothPageIndicator(
                               controller: _pageController,
                               count: stocks.length,
@@ -283,7 +297,11 @@ class _HomePageState extends State<HomePage> {
                             ],
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(20),
+                            padding: const EdgeInsets.only(
+                              left: 20,
+                              right: 20,
+                              top: 20,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -293,22 +311,24 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     Text(
                                       'Favorite Stocks',
-                                      style: TextStyle(
-                                        color: AppColor.textColor,
-                                        fontSize: 22,
-                                        fontWeight: FontWeight.w900,
-                                      ),
+                                      style:
+                                          Theme.of(
+                                            context,
+                                          ).textTheme.titleMedium,
                                     ),
                                     GestureDetector(
                                       onTap: () {},
-                                      child: const Icon(Icons.add,size: 30,),
+                                      child: Icon(
+                                        Icons.add,
+                                        size: 30,
+                                        color:
+                                            Theme.of(context).iconTheme.color,
+                                      ),
                                     ),
                                   ],
                                 ),
-
                                 Row(children: [Text('${stocks.length} List')]),
-
-                                const SizedBox(height: 5),
+                                const SizedBox(height: 10),
                                 Container(
                                   child: Column(
                                     children: [
@@ -366,22 +386,21 @@ class _HomePageState extends State<HomePage> {
                                         children: [
                                           Text(
                                             'Lastest News',
-                                            style: TextStyle(
-                                              color: AppColor.textColor,
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w900,
-                                            ),
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.titleMedium,
                                           ),
                                           Text(
                                             'Show more',
-                                            style: TextStyle(
-                                              color: AppColor.textColor,
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodyMedium,
                                           ),
                                         ],
                                       ),
+                                      const SizedBox(height: 5),
                                     ],
                                   ),
                                 ),
@@ -393,18 +412,15 @@ class _HomePageState extends State<HomePage> {
                         Container(
                           child: ListView.separated(
                             shrinkWrap: true,
-                            physics:
-                            NeverScrollableScrollPhysics(),
+                            physics: NeverScrollableScrollPhysics(),
                             itemCount: 1,
                             separatorBuilder:
-                                (_, __) =>
-                            const SizedBox(height: 0),
+                                (_, __) => const SizedBox(height: 0),
                             itemBuilder: (context, index) {
                               return RecommentNews();
                             },
                           ),
                         ),
-
                       ],
                     ),
                   ),

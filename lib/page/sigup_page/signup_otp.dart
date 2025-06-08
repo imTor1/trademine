@@ -5,7 +5,6 @@ import 'package:trademine/services/auth_service.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/utils/snackbar.dart';
 
-
 class SignUpOtp extends StatefulWidget {
   const SignUpOtp({super.key});
 
@@ -16,7 +15,7 @@ class SignUpOtp extends StatefulWidget {
 class SignupOtpState extends State<SignUpOtp> {
   final List<TextEditingController> _otp = List.generate(
     6,
-        (index) => TextEditingController(),
+    (index) => TextEditingController(),
   );
   bool isChecked = false;
   bool _isLoading = false;
@@ -66,7 +65,7 @@ class SignupOtpState extends State<SignUpOtp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Container(
           width: double.infinity,
@@ -89,22 +88,12 @@ class SignupOtpState extends State<SignUpOtp> {
                 const SizedBox(height: 20),
                 Text(
                   'Enter Your OTP',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
 
                 Text(
                   'Enter the OTP sent your email.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
 
                 const SizedBox(height: 30),
@@ -150,7 +139,10 @@ class SignupOtpState extends State<SignUpOtp> {
                               borderSide: BorderSide.none,
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide.none,
+                              borderSide: BorderSide(
+                                color: Theme.of(context).disabledColor,
+                                width: 1.5,
+                              ),
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
@@ -168,7 +160,7 @@ class SignupOtpState extends State<SignUpOtp> {
                         onTap: () {},
                         child: Text(
                           'Resent OTP\t',
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ),
@@ -177,11 +169,17 @@ class SignupOtpState extends State<SignUpOtp> {
 
                 const SizedBox(height: 15),
                 ElevatedButton(
-                  onPressed:_isLoading ?null : isChecked
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : isChecked
                           ? () {
                             String fullOTP = getOtpCode();
                             if (fullOTP.length != 6) {
-                              AppSnackbar.showError(context, 'Please enter the complete OTP in all fields.');
+                              AppSnackbar.showError(
+                                context,
+                                'Please enter the complete OTP in all fields.',
+                              );
                             } else {
                               ApiConnect(getOtpCode());
                             }

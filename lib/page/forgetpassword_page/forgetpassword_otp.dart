@@ -5,7 +5,6 @@ import 'package:trademine/services/forgetpassword_service.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/utils/snackbar.dart';
 
-
 class ForgetpasswordOtp extends StatefulWidget {
   const ForgetpasswordOtp({super.key});
 
@@ -16,7 +15,7 @@ class ForgetpasswordOtp extends StatefulWidget {
 class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
   final List<TextEditingController> _otp = List.generate(
     6,
-        (index) => TextEditingController(),
+    (index) => TextEditingController(),
   );
   bool isChecked = false;
   bool _isLoading = false;
@@ -66,7 +65,7 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Container(
           width: double.infinity,
@@ -82,29 +81,22 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: Icon(Icons.arrow_back),
+                      icon: Icon(
+                        Icons.arrow_back,
+                        color: Theme.of(context).iconTheme.color,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Enter Your OTP',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
 
                 Text(
                   'Enter the OTP sent your email.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
 
                 const SizedBox(height: 30),
@@ -122,7 +114,7 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                               FocusScope.of(context).previousFocus();
                             }
                             bool allFilled = _otp.every(
-                                  (controller) => controller.text.length == 1,
+                              (controller) => controller.text.length == 1,
                             );
                             setState(() {
                               isChecked = allFilled;
@@ -150,7 +142,10 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                               borderSide: BorderSide.none,
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide.none,
+                              borderSide: BorderSide(
+                                color: Theme.of(context).disabledColor,
+                                width: 1.5,
+                              ),
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
@@ -168,7 +163,7 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                         onTap: () {},
                         child: Text(
                           'Resent OTP\t',
-                          style: TextStyle(fontWeight: FontWeight.w500),
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
                     ),
@@ -177,22 +172,28 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
 
                 const SizedBox(height: 15),
                 ElevatedButton(
-                  onPressed:_isLoading ?null : isChecked
-                      ? () {
-                    String fullOTP = getOtpCode();
-                    if (fullOTP.length != 6) {
-                      AppSnackbar.showError(context, 'Please enter the complete OTP in all fields.');
-                    } else {
-                      ApiConnect(getOtpCode());
-                    }
-                  }
-                      : null,
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : isChecked
+                          ? () {
+                            String fullOTP = getOtpCode();
+                            if (fullOTP.length != 6) {
+                              AppSnackbar.showError(
+                                context,
+                                'Please enter the complete OTP in all fields.',
+                              );
+                            } else {
+                              ApiConnect(getOtpCode());
+                            }
+                          }
+                          : null,
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: Color(0xffFCA311),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(
                     'SEND OTP',

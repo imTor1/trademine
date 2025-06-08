@@ -6,7 +6,6 @@ import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/services/auth_service.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 
-
 class SignUpPassword extends StatefulWidget {
   const SignUpPassword({super.key});
 
@@ -26,6 +25,7 @@ class _SignUpPasswordState extends State<SignUpPassword> {
       _obScureText = !_obScureText;
     });
   }
+
   Future<void> ApiConnect() async {
     LoadingScreen.show(context);
     setState(() {
@@ -34,13 +34,15 @@ class _SignUpPasswordState extends State<SignUpPassword> {
     try {
       final storage = FlutterSecureStorage();
       String? email = await storage.read(key: 'email');
-      final register_token = await AuthService.PasswordRegister(email.toString(), _password_confirm.text);
+      final register_token = await AuthService.PasswordRegister(
+        email.toString(),
+        _password_confirm.text,
+      );
       await storage.write(key: 'token-register', value: register_token);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => SignUpProfile()),
-        );
-
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SignUpProfile()),
+      );
     } catch (e) {
       FocusScope.of(context).unfocus();
       LoadingScreen.hide(context);
@@ -73,33 +75,18 @@ class _SignUpPasswordState extends State<SignUpPassword> {
               children: [
                 Row(
                   children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context, 'Hide');
-                      },
-                      icon: Icon(Icons.arrow_back),
-                    ),
+                    IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back)),
                   ],
                 ),
                 const SizedBox(height: 20),
                 Text(
                   'Set Your Password',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto', // ตั้งชื่อฟอนต์
-                    letterSpacing: -1, // ระยะห่างระหว่างตัวอักษร
-                  ),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
 
                 Text(
                   'Choose a strong password for your account.',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    fontFamily: 'Roboto',
-                    letterSpacing: -1,
-                  ),
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
 
                 const SizedBox(height: 30),
@@ -107,14 +94,18 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                   controller: _password,
                   decoration: InputDecoration(
                     hintText: 'Password',
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: Color(0xffE5E5E5),
+                    fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).disabledColor,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
@@ -125,8 +116,9 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                   obscureText: _obScureText,
                   decoration: InputDecoration(
                     hintText: 'Confirm Password',
+                    hintStyle: Theme.of(context).textTheme.bodySmall,
                     filled: true,
-                    fillColor: Color(0xffE5E5E5),
+                    fillColor: Theme.of(context).dividerColor,
                     suffixIcon: IconButton(
                       onPressed: () {
                         _togglePasswordVisibility();
@@ -141,7 +133,10 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
+                      borderSide: BorderSide(
+                        color: Theme.of(context).disabledColor,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
@@ -149,19 +144,25 @@ class _SignUpPasswordState extends State<SignUpPassword> {
 
                 const SizedBox(height: 40),
                 ElevatedButton(
-                  onPressed: _isLoading ?null : () {
-                    if (_password.text == _password_confirm.text) {
-                      ApiConnect();
-                    } else {
-                      AppSnackbar.showError(context, 'Password dont Match');
-                    }
-                  },
+                  onPressed:
+                      _isLoading
+                          ? null
+                          : () {
+                            if (_password.text == _password_confirm.text) {
+                              ApiConnect();
+                            } else {
+                              AppSnackbar.showError(
+                                context,
+                                'Password dont Match',
+                              );
+                            }
+                          },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: Color(0xffFCA311),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: Text(
                     'SAVE',
