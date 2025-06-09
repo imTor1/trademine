@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/page/widget/menu_item.dart';
+import 'package:bloc/bloc.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -17,6 +20,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       final storage = FlutterSecureStorage();
       await storage.delete(key: 'auth_token');
+      context.read<UserCubit>().clearUser();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -28,6 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserCubit>().state;
     return Scaffold(
       backgroundColor: AppColor.primaryColor2,
       body: SafeArea(
@@ -44,10 +49,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       child: Text(
                         'Profile',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w800,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
                     ),
                   ],
@@ -74,25 +76,18 @@ class _ProfilePageState extends State<ProfilePage> {
                             child: Column(
                               children: [
                                 Text(
-                                  'null',
+                                  (user.name?.isNotEmpty ?? false)
+                                      ? user.name!
+                                      : 'null',
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppColor.textColor,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                        0.05,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                                 Text(
-                                  'null@gmail.com',
+                                  (user.email?.isNotEmpty ?? false)
+                                      ? user.email!
+                                      : 'null',
                                   overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: AppColor.textColor,
-                                    fontSize:
-                                        MediaQuery.of(context).size.width *
-                                        0.04,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodyMedium,
                                 ),
                               ],
                             ),

@@ -1,5 +1,7 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
@@ -55,6 +57,11 @@ class _LoginAppState extends State<LoginPage> {
       final storage = FlutterSecureStorage();
       await storage.write(key: 'auth_token', value: data['token']);
       await storage.write(key: 'user_Id', value: data['user']['id'].toString());
+      print(data['token']);
+      context.read<UserCubit>().setUser(
+        data['user']['username'],
+        data['user']['email'],
+      );
 
       ScaffoldMessenger.of(context).clearSnackBars();
       LoadingScreen.hide(context);

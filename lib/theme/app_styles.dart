@@ -35,11 +35,7 @@ final ThemeData lightTheme = ThemeData(
 
   textTheme: TextTheme(
     bodyLarge: TextStyle(color: const Color(0xff14213D), fontSize: 18),
-    bodyMedium: TextStyle(
-      color: const Color(0xff14213D),
-      fontWeight: FontWeight.bold,
-      fontSize: 14,
-    ),
+    bodyMedium: TextStyle(color: const Color(0xff14213D), fontSize: 14),
     bodySmall: TextStyle(color: const Color(0xff606060), fontSize: 16),
     titleLarge: TextStyle(
       color: const Color(0xff14213D),

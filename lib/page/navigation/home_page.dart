@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-import 'package:trademine/page/forgetpassword_page/forgetpassword_password.dart';
+import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/widget/recomment_stock.dart';
 import 'package:trademine/page/widget/favorite_stocklist.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:trademine/services/forgetpassword_service.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 import 'package:trademine/page/widget/recomment_news.dart';
+import 'package:trademine/services/user_service.dart';
+import 'package:trademine/services/forgetpassword_service.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -25,100 +27,40 @@ class _HomePageState extends State<HomePage> {
   var username;
   var image;
 
-  @override
-  void initState() {
-    super.initState();
-    fetchData();
-  }
-
   Future<void> fetchData() async {
     final storage = FlutterSecureStorage();
     final String? token = await storage.read(key: 'auth_token');
     final String? userId = await storage.read(key: 'user_Id');
 
+    if (token == null || userId == null) {
+      print('Token or UserID not found');
+      return;
+    }
+
     try {
-      final profile = await AuthService.ProfileFecthData(userId!, token!);
+      print("User ID: $userId");
+      print("Token: $token");
+
+      final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token);
+      final profile = await AuthServiceUser.ProfileFecthData(userId, token);
+      for (var stock in favoriteStock) {
+        print("Favorite Stock: ${stock['StockSymbol']}");
+      }
       setState(() {
-        username = profile['username'];
         image = ApiConstants.baseUrl + profile['profileImage'];
       });
     } catch (e) {
-      print('Error: $e');
+      print('Error fetching data: $e');
     }
   }
 
-  final List<Map<String, dynamic>> stocks = [
-    {
-      'symbol': 'AAPL',
-      'name': 'Apple Inc.',
-      'price': '192.32',
-      'change': '+1.75%',
-      'isPositive': true,
-    },
-    {
-      'symbol': 'TSLA',
-      'name': 'Tesla Inc.',
-      'price': '176.88',
-      'change': '-0.92%',
-      'isPositive': false,
-    },
-    {
-      'symbol': 'AMZN',
-      'name': 'Amazon.com Inc.',
-      'price': '182.55',
-      'change': '+2.10%',
-      'isPositive': true,
-    },
-    {
-      'symbol': 'GOOGL',
-      'name': 'Alphabet Inc.',
-      'price': '174.22',
-      'change': '+0.87%',
-      'isPositive': true,
-    },
-    {
-      'symbol': 'MSFT',
-      'name': 'Microsoft Corp.',
-      'price': '421.15',
-      'change': '-1.05%',
-      'isPositive': false,
-    },
-    {
-      'symbol': 'NVDA',
-      'name': 'NVIDIA Corp.',
-      'price': '1134.49',
-      'change': '+3.84%',
-      'isPositive': true,
-    },
-    {
-      'symbol': 'META',
-      'name': 'Meta Platforms Inc.',
-      'price': '476.88',
-      'change': '+0.55%',
-      'isPositive': true,
-    },
-    {
-      'symbol': 'NFLX',
-      'name': 'Netflix Inc.',
-      'price': '639.22',
-      'change': '-0.48%',
-      'isPositive': false,
-    },
-    {
-      'symbol': 'AMD',
-      'name': 'Advanced Micro Devices',
-      'price': '166.77',
-      'change': '+1.23%',
-      'isPositive': true,
-    },
-    {
-      'symbol': 'INTC',
-      'name': 'Intel Corp.',
-      'price': '30.15',
-      'change': '-2.31%',
-      'isPositive': false,
-    },
-  ];
+  final List<Map<String, dynamic>> stocks = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   @override
   void dispose() {
@@ -128,6 +70,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserCubit>().state;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
@@ -177,11 +120,13 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
-                                    username.toString(),
+                                    (user.name?.isNotEmpty ?? false)
+                                        ? user.name
+                                        : 'null',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: width * 0.05,
+                                      fontSize: 20,
                                     ),
                                   ),
                                 ],
