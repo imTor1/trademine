@@ -35,4 +35,23 @@ class AuthServiceUser {
       throw (data['error'] ?? 'Unknown error');
     }
   }
+
+  static Future<List<dynamic>> ShowNews(String token) async {
+    final response = await http.get(
+      Uri.parse('${ApiConstants.stock_favorite_show}'),
+      headers: {'Authorization': 'Bearer $token'},
+    );
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      final data = jsonDecode(response.body);
+      throw (data['error'] ?? 'Unknown error');
+    }
+  }
+
+
+
+
+
 }

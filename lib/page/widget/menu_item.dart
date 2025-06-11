@@ -24,11 +24,10 @@ Widget MenuItem({
               const SizedBox(width: 16),
               Text(
                 text,
-                style: TextStyle(
-                  fontSize: width * 0.04,
-                  color: AppColor.textColor,
-                  fontWeight: FontWeight.w400,
-                ),
+                style:
+                Theme.of(
+                  context,
+                ).textTheme.bodyLarge,
               ),
             ],
           ),
