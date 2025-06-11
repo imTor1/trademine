@@ -41,6 +41,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                     'DELETE',
                     style: TextStyle(
                       color: Colors.white,
+                      fontSize: 14,
                       fontWeight: FontWeight.w400,
                     ),
                   ),
@@ -63,7 +64,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
             }
           },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
+            duration: const Duration(milliseconds: 250),
             transform: Matrix4.translationValues(showDelete ? -80 : 0, 0, 0),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
             decoration: BoxDecoration(color: Colors.white),
@@ -77,18 +78,12 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                       children: [
                         Text(
                           widget.symbol,
-                          style: TextStyle(
-                            color: AppColor.textColor,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
                         ),
                         Text(
                           widget.name,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AppColor.textColor2,
-                          ),
+                            style: Theme.of(context).textTheme.bodySmall
+
                         ),
                       ],
                     ),
@@ -97,7 +92,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                       children: [
                         Text(
                           '${widget.price} USD',
-                          style: TextStyle(color: AppColor.textColor2),
+                            style: Theme.of(context).textTheme.bodyMedium
                         ),
                         Text(
                           widget.change,

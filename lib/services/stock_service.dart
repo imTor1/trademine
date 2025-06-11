@@ -5,12 +5,13 @@ import 'package:trademine/services/constants/api_constants.dart';
 class AuthServiceStock {
   static final Uri _TopStock = Uri.parse(ApiConstants.topStock);
 
-  Future<Map<String,dynamic>>TopStock()async{
+  static Future<List<dynamic>>TopStock()async{
     final response = await http.get(_TopStock);
+
+    final data = jsonDecode(response.body);
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return data['topStocks'];
     } else {
-      final data = jsonDecode(response.body);
       throw (data['error'] ?? 'Unknown error');
     }
   }

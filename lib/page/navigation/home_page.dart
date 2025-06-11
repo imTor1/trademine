@@ -27,22 +27,25 @@ class _HomePageState extends State<HomePage> {
   var username;
   var image;
   var stocks = [];
+  var topStocks = [];
 
   Future<void> fetchData() async {
-    final storage = FlutterSecureStorage();
-    final String? token = await storage.read(key: 'auth_token');
-    final String? userId = await storage.read(key: 'user_Id');
-
-    if (token == null || userId == null) {
-      print('Token or UserID not found');
-      return;
-    }
     try {
+      final storage = FlutterSecureStorage();
+      final String? token = await storage.read(key: 'auth_token');
+      final String? userId = await storage.read(key: 'user_Id');
+
+      if (token == null || userId == null) {
+        print('Token or UserID not found');
+        return;
+      }
+
       final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token);
       final profile = await AuthServiceUser.ProfileFecthData(userId, token);
-      //final topStock = await AuthServiceStock.TopStock();
+      final topStock = await AuthServiceStock.TopStock();
       setState(() {
         stocks = favoriteStock;
+        topStocks = topStock;
         image = ApiConstants.baseUrl + profile['profileImage'];
       });
       print(stocks);
@@ -65,12 +68,21 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final user = context.watch<UserCubit>().state;
-    final width = MediaQuery.of(context).size.width;
+    final user = context
+        .watch<UserCubit>()
+        .state;
+    final width = MediaQuery
+        .of(context)
+        .size
+        .width;
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
+      backgroundColor: Theme
+          .of(context)
+          .primaryColor,
       body: RefreshIndicator(
-        color: Theme.of(context).scaffoldBackgroundColor,
+        color: Theme
+            .of(context)
+            .scaffoldBackgroundColor,
         backgroundColor: const Color(0xffFFCE47),
         onRefresh: () async {
           fetchData();
@@ -81,7 +93,9 @@ class _HomePageState extends State<HomePage> {
             slivers: [
               SliverToBoxAdapter(
                 child: Container(
-                  color: Theme.of(context).primaryColor,
+                  color: Theme
+                      .of(context)
+                      .primaryColor,
                   child: SafeArea(
                     bottom: false,
                     child: Column(
@@ -113,7 +127,7 @@ class _HomePageState extends State<HomePage> {
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w800,
-                                      fontSize: 20,
+                                      fontSize: 22,
                                     ),
                                   ),
                                 ],
@@ -137,7 +151,7 @@ class _HomePageState extends State<HomePage> {
                                     width: width * 1,
                                     child: Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      MainAxisAlignment.start,
                                       children: [
                                         Padding(
                                           padding: EdgeInsets.only(
@@ -180,18 +194,17 @@ class _HomePageState extends State<HomePage> {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 10,
                                 ),
-                                itemCount: stocks.length,
+                                itemCount: topStocks.length,
                                 separatorBuilder:
                                     (context, index) =>
-                                        const SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 itemBuilder: (context, index) {
-                                  final stock = stocks[index];
-                                  return RecommentStockHome(
+                                  final stock = topStocks[index];
+                                  return RecommentStock(
                                     symbol: stock['StockSymbol']!,
                                     name: stock['StockSymbol']!,
-                                    price: stock['LastPrice']!,
-                                    change: stock['LastChange']!,
-                                    isPositive: stock['StockSymbol']!,
+                                    price: stock['ClosePrice']!,
+                                    change: stock['ChangePercentage']!,
                                   );
                                 },
                               ),
@@ -199,7 +212,7 @@ class _HomePageState extends State<HomePage> {
                             const SizedBox(height: 15),
                             SmoothPageIndicator(
                               controller: _pageController,
-                              count: stocks.length,
+                              count: topStocks.length,
                               effect: WormEffect(
                                 dotWidth: 10,
                                 dotHeight: 10,
@@ -208,7 +221,6 @@ class _HomePageState extends State<HomePage> {
                                 dotColor: Color(0xff606060),
                               ),
                             ),
-                            const SizedBox(height: 5),
                           ],
                         ),
                         const SizedBox(height: 10),
@@ -216,9 +228,18 @@ class _HomePageState extends State<HomePage> {
                           width: double.infinity,
                           constraints: BoxConstraints(
                             minHeight:
-                                MediaQuery.of(context).size.height -
-                                (MediaQuery.of(context).padding.top +
-                                    MediaQuery.of(context).size.height / 3),
+                            MediaQuery
+                                .of(context)
+                                .size
+                                .height -
+                                (MediaQuery
+                                    .of(context)
+                                    .padding
+                                    .top +
+                                    MediaQuery
+                                        .of(context)
+                                        .size
+                                        .height / 3),
                           ),
                           decoration: const BoxDecoration(
                             color: Colors.white,
@@ -247,14 +268,17 @@ class _HomePageState extends State<HomePage> {
                                   children: [
                                     Row(
                                       mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                      MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
                                           'Favorite Stocks',
                                           style:
-                                              Theme.of(
-                                                context,
-                                              ).textTheme.titleMedium,
+                                          Theme
+                                              .of(
+                                            context,
+                                          )
+                                              .textTheme
+                                              .titleMedium,
                                         ),
                                         GestureDetector(
                                           onTap: () {},
@@ -262,9 +286,12 @@ class _HomePageState extends State<HomePage> {
                                             Icons.add,
                                             size: 30,
                                             color:
-                                                Theme.of(
-                                                  context,
-                                                ).iconTheme.color,
+                                            Theme
+                                                .of(
+                                              context,
+                                            )
+                                                .iconTheme
+                                                .color,
                                           ),
                                         ),
                                       ],
@@ -329,16 +356,22 @@ class _HomePageState extends State<HomePage> {
                                               Text(
                                                 'Lastest News',
                                                 style:
-                                                Theme.of(
+                                                Theme
+                                                    .of(
                                                   context,
-                                                ).textTheme.titleMedium,
+                                                )
+                                                    .textTheme
+                                                    .titleMedium,
                                               ),
                                               Text(
                                                 'Show more',
                                                 style:
-                                                Theme.of(
+                                                Theme
+                                                    .of(
                                                   context,
-                                                ).textTheme.bodyMedium,
+                                                )
+                                                    .textTheme
+                                                    .bodyMedium,
                                               ),
                                             ],
                                           ),

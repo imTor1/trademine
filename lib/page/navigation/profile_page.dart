@@ -16,11 +16,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+
   Future<void> Logout() async {
     try {
       final storage = FlutterSecureStorage();
-      await storage.delete(key: 'auth_token');
       context.read<UserCubit>().clearUser();
+      await storage.deleteAll();
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -78,14 +79,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Text(
                                   (user.name?.isNotEmpty ?? false)
                                       ? user.name!
-                                      : 'null',
+                                      : 'xxxxxx',
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyLarge,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodyLarge,
                                 ),
                                 Text(
                                   (user.email?.isNotEmpty ?? false)
                                       ? user.email!
-                                      : 'null',
+                                      : 'xxxxxxxx',
                                   overflow: TextOverflow.ellipsis,
                                   style: Theme.of(context).textTheme.bodyMedium,
                                 ),

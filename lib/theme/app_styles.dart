@@ -32,11 +32,11 @@ final ThemeData lightTheme = ThemeData(
     onPrimary: Colors.white,
     onSecondary: Colors.black,
   ),
-
   textTheme: TextTheme(
-    bodyLarge: TextStyle(color: const Color(0xff14213D), fontSize: 18),
+    bodyLarge: TextStyle(color: const Color(0xff14213D), fontSize: 16),
     bodyMedium: TextStyle(color: const Color(0xff14213D), fontSize: 14),
-    bodySmall: TextStyle(color: const Color(0xff606060), fontSize: 16),
+    bodySmall: TextStyle(color: const Color(0xff14213D), fontSize: 12),
+
     titleLarge: TextStyle(
       color: const Color(0xff14213D),
       fontWeight: FontWeight.w800,
