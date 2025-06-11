@@ -26,6 +26,7 @@ class _HomePageState extends State<HomePage> {
   bool _isVisibleListView = true;
   var username;
   var image;
+  var stocks = [];
 
   Future<void> fetchData() async {
     final storage = FlutterSecureStorage();
@@ -36,25 +37,18 @@ class _HomePageState extends State<HomePage> {
       print('Token or UserID not found');
       return;
     }
-
     try {
-      print("User ID: $userId");
-      print("Token: $token");
-
       final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token);
       final profile = await AuthServiceUser.ProfileFecthData(userId, token);
-      for (var stock in favoriteStock) {
-        print("Favorite Stock: ${stock['StockSymbol']}");
-      }
       setState(() {
+        stocks = favoriteStock;
         image = ApiConstants.baseUrl + profile['profileImage'];
       });
+      print(stocks);
     } catch (e) {
       print('Error fetching data: $e');
     }
   }
-
-  final List<Map<String, dynamic>> stocks = [];
 
   @override
   void initState() {
@@ -78,15 +72,7 @@ class _HomePageState extends State<HomePage> {
         color: Theme.of(context).scaffoldBackgroundColor,
         backgroundColor: const Color(0xffFFCE47),
         onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
-          _scrollController.animateTo(
-            0.0,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-          setState(() {
-            _currentIndex = 0;
-          });
+          fetchData();
         },
         child: ScrollConfiguration(
           behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
@@ -200,11 +186,11 @@ class _HomePageState extends State<HomePage> {
                                 itemBuilder: (context, index) {
                                   final stock = stocks[index];
                                   return RecommentStockHome(
-                                    symbol: stock['symbol']!,
-                                    name: stock['name']!,
-                                    price: stock['price']!,
-                                    change: stock['change']!,
-                                    isPositive: stock['isPositive']!,
+                                    symbol: stock['StockSymbol']!,
+                                    name: stock['StockSymbol']!,
+                                    price: stock['LastPrice']!,
+                                    change: stock['LastChange']!,
+                                    isPositive: stock['StockSymbol']!,
                                   );
                                 },
                               ),
@@ -289,11 +275,10 @@ class _HomePageState extends State<HomePage> {
                                           itemBuilder: (context, index) {
                                             final stock = stocks[index];
                                             return FavoriteStocklist(
-                                              symbol: stock['symbol']!,
-                                              name: stock['name']!,
-                                              price: stock['price']!,
-                                              change: stock['change']!,
-                                              isPositive: stock['isPositive']!,
+                                              symbol: stock['StockSymbol']!,
+                                              name: stock['StockSymbol']!,
+                                              price: stock['LastPrice']!,
+                                              change: stock['LastChange']!,
                                               onDelete: () {
                                                 setState(() {
                                                   stocks.removeAt(index);

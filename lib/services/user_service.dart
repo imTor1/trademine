@@ -24,7 +24,7 @@ class AuthServiceUser {
 
   static Future<List<dynamic>> ShowFavoriteStock(String token) async {
     final response = await http.get(
-      Uri.parse('${ApiConstants.stock_favorite_show}/api/favorites'),
+      Uri.parse('${ApiConstants.stock_favorite_show}'),
       headers: {'Authorization': 'Bearer $token'},
     );
 

@@ -10,8 +10,6 @@ class AuthService {
   static final Uri _PasswordRegister = Uri.parse(
     ApiConstants.register_password,
   );
-  static final Uri _Profile = Uri.parse(ApiConstants.profile);
-
   static Future<String?> ForgetPassword(String email) async {
     final response = await http.post(_ForgetPassword, body: {'email': email});
     final data = jsonDecode(response.body);
@@ -44,22 +42,6 @@ class AuthService {
 
     if (response.statusCode == 200) {
       return data['token'];
-    } else {
-      throw (data['error']);
-    }
-  }
-
-  static Future<Map<String, dynamic>> ProfileFecthData(
-    String userId,
-    String token,
-  ) async {
-    final response = await http.get(
-      Uri.parse('$_Profile/api/users/$userId/profile'),
-      headers: {'Authorization': 'Bearer $token'},
-    );
-    final data = jsonDecode(response.body);
-    if (response.statusCode == 200) {
-      return data;
     } else {
       throw (data['error']);
     }

@@ -6,7 +6,7 @@ Widget RecommentStockHome({
   required String name,
   required String price,
   required String change,
-  required bool isPositive,
+  required String isPositive,
 }) {
   return InkWell(
     borderRadius: BorderRadius.circular(15),
@@ -55,7 +55,7 @@ Widget RecommentStockHome({
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: isPositive ? Colors.green : Colors.red,
+                  color: Colors.red,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(

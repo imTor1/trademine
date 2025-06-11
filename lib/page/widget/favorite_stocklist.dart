@@ -6,7 +6,6 @@ class FavoriteStocklist extends StatefulWidget {
   final String name;
   final String price;
   final String change;
-  final bool isPositive;
   final VoidCallback? onDelete;
 
   const FavoriteStocklist({
@@ -15,7 +14,6 @@ class FavoriteStocklist extends StatefulWidget {
     required this.name,
     required this.price,
     required this.change,
-    required this.isPositive,
     this.onDelete,
   }) : super(key: key);
   @override
