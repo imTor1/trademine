@@ -41,6 +41,10 @@ dependencies:
   intl: ^0.18.1
   email_validator: ^2.0.1
   smooth_page_indicator: ^1.2.1
+  flutter_local_notifications: ^19.2.1
+  shimmer: ^3.0.0
+  flutter_screenutil: ^5.9.3
+  url_launcher: ^6.3.1
 
 
 dev_dependencies:

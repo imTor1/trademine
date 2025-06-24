@@ -100,7 +100,7 @@ class _ForgetpasswordPasswordState extends State<ForgetpasswordPassword> {
                   controller: _password,
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
@@ -122,7 +122,7 @@ class _ForgetpasswordPasswordState extends State<ForgetpasswordPassword> {
                   obscureText: _obScureText,
                   decoration: InputDecoration(
                     hintText: 'Confirm Password',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
                     suffixIcon: IconButton(

@@ -94,7 +94,7 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                   controller: _password,
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
@@ -116,7 +116,7 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                   obscureText: _obScureText,
                   decoration: InputDecoration(
                     hintText: 'Confirm Password',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
                     suffixIcon: IconButton(

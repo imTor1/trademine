@@ -160,7 +160,7 @@ class SignupOtpState extends State<SignUpOtp> {
                         onTap: () {},
                         child: Text(
                           'Resent OTP\t',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
                     ),

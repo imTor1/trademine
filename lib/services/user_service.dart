@@ -49,9 +49,4 @@ class AuthServiceUser {
       throw (data['error'] ?? 'Unknown error');
     }
   }
-
-
-
-
-
 }

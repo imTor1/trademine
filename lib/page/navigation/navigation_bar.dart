@@ -86,9 +86,6 @@ class NavigationBarState extends State<NavigationBarPage>
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Color(0xffFCA311);
-    final secondaryColor = Color(0xffAAAAAA);
-
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: Column(
@@ -96,8 +93,9 @@ class NavigationBarState extends State<NavigationBarPage>
         children: [
           ClipRect(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     height: 4,
@@ -109,7 +107,7 @@ class NavigationBarState extends State<NavigationBarPage>
                             curve: Curves.easeInOut,
                             color:
                                 _selectedIndex == index
-                                    ? primaryColor
+                                    ? Theme.of(context).primaryColor
                                     : Colors.transparent,
                           ),
                         );
@@ -117,10 +115,14 @@ class NavigationBarState extends State<NavigationBarPage>
                     ),
                   ),
                   Container(
-                    decoration: BoxDecoration(color: Colors.white),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                    ),
                     child: SafeArea(
+                      top: false,
+                      bottom: false,
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 1),
+                        padding: const EdgeInsets.only(bottom: 20),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: List.generate(_navItems.length, (index) {
@@ -136,7 +138,7 @@ class NavigationBarState extends State<NavigationBarPage>
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 200),
                                   padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
+                                    vertical: 6,
                                   ),
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -148,16 +150,20 @@ class NavigationBarState extends State<NavigationBarPage>
                                             isSelected
                                                 ? item['activeIcon']
                                                 : item['icon'],
-                                            width: 30,
-                                            height: 30,
+                                            width: 24,
+                                            height: 24,
                                             color:
                                                 isSelected
-                                                    ? primaryColor
-                                                    : secondaryColor,
+                                                    ? Theme.of(
+                                                      context,
+                                                    ).primaryColor
+                                                    : Theme.of(
+                                                      context,
+                                                    ).disabledColor,
                                           ),
                                         ],
                                       ),
-                                      const SizedBox(height: 2),
+                                      const SizedBox(height: 4),
                                       Text(
                                         item['label'],
                                         style: TextStyle(
@@ -168,8 +174,12 @@ class NavigationBarState extends State<NavigationBarPage>
                                                   : FontWeight.normal,
                                           color:
                                               isSelected
-                                                  ? primaryColor
-                                                  : secondaryColor,
+                                                  ? Theme.of(
+                                                    context,
+                                                  ).primaryColor
+                                                  : Theme.of(
+                                                    context,
+                                                  ).disabledColor,
                                         ),
                                       ),
                                     ],

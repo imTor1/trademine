@@ -123,13 +123,19 @@ class _SignupProfileState extends State<SignUpProfile> {
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: ListView(
             children: [
-              IconButton(
-                onPressed: () => Navigator.pop(context),
-                icon: Icon(
-                  Icons.arrow_back,
-                  color: Theme.of(context).iconTheme.color,
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                  onPressed: () => Navigator.pop(context),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Theme.of(context).iconTheme.color,
+                  ),
                 ),
               ),
+
               SizedBox(height: 20),
               Text(
                 'Set Your Password',
@@ -144,18 +150,12 @@ class _SignupProfileState extends State<SignUpProfile> {
                 child: Stack(
                   alignment: Alignment.bottomRight,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      height: 160,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Theme.of(context).primaryColor,
-                          width: 4.0,
-                        ),
-                      ),
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundColor:
+                          Theme.of(context).scaffoldBackgroundColor,
                       child: CircleAvatar(
-                        radius: 80,
+                        radius: 66,
                         backgroundImage:
                             _imageFile != null
                                 ? FileImage(_imageFile!)
@@ -163,12 +163,17 @@ class _SignupProfileState extends State<SignUpProfile> {
                                     as ImageProvider,
                       ),
                     ),
-                    CircleAvatar(
-                      radius: 22,
-                      backgroundColor: Theme.of(context).primaryColor,
-                      child: IconButton(
-                        onPressed: _pickImage,
-                        icon: Icon(Icons.edit, color: Colors.white, size: 25),
+                    Positioned(
+                      bottom: 0,
+                      right: 0,
+                      child: CircleAvatar(
+                        radius: 20,
+                        backgroundColor: Theme.of(context).primaryColor,
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          icon: Icon(Icons.edit, size: 20, color: Colors.white),
+                          onPressed: _pickImage,
+                        ),
                       ),
                     ),
                   ],
@@ -180,7 +185,7 @@ class _SignupProfileState extends State<SignUpProfile> {
                 controller: _username,
                 decoration: InputDecoration(
                   hintText: 'Username',
-                  hintStyle: Theme.of(context).textTheme.bodySmall,
+                  hintStyle: Theme.of(context).textTheme.bodyLarge,
                   filled: true,
                   fillColor: Theme.of(context).dividerColor,
                   enabledBorder: OutlineInputBorder(
@@ -213,7 +218,7 @@ class _SignupProfileState extends State<SignUpProfile> {
                                   'dd/MM/yyyy',
                                 ).format(_selectedDate!)
                                 : 'Birthday',
-                        hintStyle: Theme.of(context).textTheme.bodySmall,
+                        hintStyle: Theme.of(context).textTheme.bodyLarge,
                         filled: true,
                         fillColor: Theme.of(context).dividerColor,
                         enabledBorder: OutlineInputBorder(
@@ -273,7 +278,7 @@ class _SignupProfileState extends State<SignUpProfile> {
                         ),
                         child: Text(
                           selectedGender ?? 'Gender',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ),
                     ),

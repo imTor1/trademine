@@ -10,6 +10,26 @@ class ActivityPage extends StatefulWidget {
 class _ActivityPageState extends State<ActivityPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: SafeArea(child: Center(child: Text('ACTIVITY'))));
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 60,
+            centerTitle: false,
+            leadingWidth: 0,
+            automaticallyImplyLeading: false,
+            backgroundColor: Colors.transparent,
+            title: Row(
+              children: [
+                Text(
+                  'Notification',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -113,7 +113,7 @@ class _SignUpEmailState extends State<SignUpEmail> {
                   controller: _email,
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(

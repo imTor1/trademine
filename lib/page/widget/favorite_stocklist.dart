@@ -28,7 +28,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
       children: [
         Positioned.fill(
           child: Align(
-            alignment: Alignment.centerRight,
+            alignment: Alignment.topRight,
             child: Container(
               width: 80,
               color: AppColor.errorColor,
@@ -39,11 +39,9 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                 child: Center(
                   child: Text(
                     'DELETE',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyMedium?.copyWith(color: Colors.white),
                   ),
                 ),
               ),
@@ -64,9 +62,9 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
             }
           },
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
+            duration: const Duration(milliseconds: 200),
             transform: Matrix4.translationValues(showDelete ? -80 : 0, 0, 0),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
             decoration: BoxDecoration(color: Colors.white),
             child: Column(
               children: [
@@ -79,11 +77,11 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                         Text(
                           widget.symbol,
                           style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
                           widget.name,
-                            style: Theme.of(context).textTheme.bodySmall
-
+                          style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ],
                     ),
@@ -92,7 +90,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                       children: [
                         Text(
                           '${widget.price} USD',
-                            style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
                         Text(
                           widget.change,

@@ -16,7 +16,6 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-
   Future<void> Logout() async {
     try {
       final storage = FlutterSecureStorage();
@@ -35,7 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final user = context.watch<UserCubit>().state;
     return Scaffold(
-      backgroundColor: AppColor.primaryColor2,
+      backgroundColor: Theme.of(context).primaryColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -50,14 +49,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       child: Text(
                         'Profile',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleLarge?.copyWith(color: Colors.white),
                       ),
                     ),
                   ],
                 ),
                 Expanded(
                   flex: 1,
-                  child: Container(color: AppColor.primaryColor2),
+                  child: Container(color: Theme.of(context).primaryColor),
                 ),
                 Expanded(
                   flex: 7,
@@ -81,9 +82,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       ? user.name!
                                       : 'xxxxxx',
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodyLarge,
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                                 Text(
                                   (user.email?.isNotEmpty ?? false)
@@ -167,9 +166,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: CircleAvatar(
                   radius: 60,
                   backgroundColor: Colors.grey[300],
-                  backgroundImage: NetworkImage(
-                    'https://i.pinimg.com/736x/e1/47/38/e147388d4132ca17413f55a5c72590d7.jpg',
-                  ),
+                  backgroundImage:
+                      user.profileImage.isNotEmpty
+                          ? NetworkImage(user.profileImage!)
+                          : const AssetImage('assets/avatar/man.png')
+                              as ImageProvider,
                 ),
               ),
             ),

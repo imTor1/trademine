@@ -24,10 +24,9 @@ Widget MenuItem({
               const SizedBox(width: 16),
               Text(
                 text,
-                style:
-                Theme.of(
+                style: Theme.of(
                   context,
-                ).textTheme.bodyLarge,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ],
           ),

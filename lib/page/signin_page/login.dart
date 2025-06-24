@@ -1,11 +1,10 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
 import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/sigup_page/signup_email.dart';
+import 'package:trademine/page/splash/splash_screen.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:email_validator/email_validator.dart';
@@ -33,7 +32,7 @@ class _LoginAppState extends State<LoginPage> {
 
   bool _isValidEmail(String email) => EmailValidator.validate(email);
 
-  Future<void> ApiConnect() async {
+  Future<void> _Login() async {
     if (_email.text.isEmpty && _password.text.isEmpty) {
       AppSnackbar.showError(
         context,
@@ -57,17 +56,12 @@ class _LoginAppState extends State<LoginPage> {
       final storage = FlutterSecureStorage();
       await storage.write(key: 'auth_token', value: data['token']);
       await storage.write(key: 'user_Id', value: data['user']['id'].toString());
-      print(data['token']);
-      context.read<UserCubit>().setUser(
-        data['user']['username'],
-        data['user']['email'],
-      );
 
       ScaffoldMessenger.of(context).clearSnackBars();
       LoadingScreen.hide(context);
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => NavigationBarPage()),
+        MaterialPageRoute(builder: (context) => SplashScreen()),
       );
     } catch (e) {
       FocusScope.of(context).unfocus();
@@ -126,7 +120,7 @@ class _LoginAppState extends State<LoginPage> {
                   controller: _email,
                   decoration: InputDecoration(
                     hintText: 'Email',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
                     enabledBorder: OutlineInputBorder(
@@ -148,7 +142,7 @@ class _LoginAppState extends State<LoginPage> {
                   obscureText: _obScureText,
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    hintStyle: Theme.of(context).textTheme.bodySmall,
+                    hintStyle: Theme.of(context).textTheme.bodyLarge,
                     suffixIcon: IconButton(
                       onPressed: _togglePasswordVisibility,
                       icon: Icon(
@@ -196,7 +190,7 @@ class _LoginAppState extends State<LoginPage> {
                 ),
                 const SizedBox(height: 30),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : ApiConnect,
+                  onPressed: _isLoading ? null : _Login,
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
