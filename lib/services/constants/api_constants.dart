@@ -7,9 +7,11 @@ class ApiConstants {
   static const String register_profile = "$baseUrl/api/set-profile";
   static const String forgetpassword_email = "$baseUrl/api/forgot-password";
   static const String profile = "$baseUrl";
-  static const String stock_favorite_show = "$baseUrl/api/favorites";
+  static const String stock_favorite = "$baseUrl/api/favorites";
   static const String latest_news = "$baseUrl/api/latest-news";
   static const String topStock = "$baseUrl/api/top-10-stocks";
   static const String search = "$baseUrl/api/search";
-  static const String new_detail = "$baseUrl/api/news-detail";
+  static const String news_detail = "$baseUrl/api/news-detail";
+  static const String news_source = "$baseUrl/api/news-by-sources";
+  static const String stock_detail = "$baseUrl/api/stock-detail/";
 }

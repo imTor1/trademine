@@ -1,5 +1,10 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 import 'package:trademine/theme/app_styles.dart';
+import 'package:trademine/services/user_service.dart';
+import 'package:trademine/utils/snackbar.dart';
 
 class FavoriteStocklist extends StatefulWidget {
   final String symbol;
@@ -21,6 +26,17 @@ class FavoriteStocklist extends StatefulWidget {
 }
 
 class _FavoriteStocklistState extends State<FavoriteStocklist> {
+  Future<void> DeleteStockFavorite() async {
+    try {
+      final storage = FlutterSecureStorage();
+      final String? token = await storage.read(key: 'auth_token');
+      await AuthServiceUser.unfollowStock(token!, widget.symbol);
+    } catch (e) {
+      if (!mounted) return;
+      AppSnackbar.showError(context, 'Error : $e');
+    }
+  }
+
   bool showDelete = false;
   @override
   Widget build(BuildContext context) {
@@ -33,8 +49,32 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
               width: 80,
               color: AppColor.errorColor,
               child: GestureDetector(
-                onTap: () {
-                  if (widget.onDelete != null) widget.onDelete!();
+                onTap: () async {
+                  final confirm = await showCupertinoDialog<bool>(
+                    context: context,
+                    builder:
+                        (context) => CupertinoAlertDialog(
+                          title: const Text('Confirm'),
+                          content: Text(
+                            'Are you sure you want to unfollow ${widget.symbol}?',
+                          ),
+                          actions: [
+                            CupertinoDialogAction(
+                              onPressed: () => Navigator.pop(context, false),
+                              child: const Text('Cancel'),
+                            ),
+                            CupertinoDialogAction(
+                              isDestructiveAction: true,
+                              onPressed: () => Navigator.pop(context, true),
+                              child: const Text('Unfollow'),
+                            ),
+                          ],
+                        ),
+                  );
+                  if (confirm == true) {
+                    await DeleteStockFavorite();
+                    widget.onDelete?.call();
+                  }
                 },
                 child: Center(
                   child: Text(
@@ -50,6 +90,14 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
         ),
 
         GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => StockDetail(StockSymbol: widget.symbol),
+              ),
+            );
+          },
           onHorizontalDragUpdate: (details) {
             if (details.delta.dx < -1) {
               setState(() {
@@ -65,7 +113,9 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
             duration: const Duration(milliseconds: 200),
             transform: Matrix4.translationValues(showDelete ? -80 : 0, 0, 0),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-            decoration: BoxDecoration(color: Colors.white),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+            ),
             child: Column(
               children: [
                 Row(
@@ -79,9 +129,17 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
-                        Text(
-                          widget.name,
-                          style: Theme.of(context).textTheme.bodySmall,
+                        SizedBox(
+                          width: 200,
+                          child: Text(
+                            widget.name,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                            style:
+                                Theme.of(
+                                  context,
+                                ).textTheme.bodySmall?.copyWith(),
+                          ),
                         ),
                       ],
                     ),
@@ -96,9 +154,9 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                           widget.change,
                           style: TextStyle(
                             color:
-                                widget.change.trim().startsWith('+')
-                                    ? AppColor.greenColor
-                                    : AppColor.errorColor,
+                                widget.change.trim().startsWith('-')
+                                    ? AppColor.errorColor
+                                    : AppColor.greenColor,
                           ),
                         ),
                       ],

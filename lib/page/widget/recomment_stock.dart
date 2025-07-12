@@ -29,7 +29,7 @@ class _RecommentStockState extends State<RecommentStock> {
           width: 220,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).scaffoldBackgroundColor,
             borderRadius: BorderRadius.circular(16),
           ),
           child: Column(
@@ -66,7 +66,10 @@ class _RecommentStockState extends State<RecommentStock> {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.red,
+                      color:
+                          widget.change.trim().startsWith('-')
+                              ? AppColor.errorColor
+                              : AppColor.greenColor,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(

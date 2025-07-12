@@ -9,6 +9,7 @@ import 'package:trademine/page/widget/favorite_stocklist.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 import 'package:trademine/page/widget/recomment_news.dart';
+import 'package:trademine/services/news_service.dart';
 import 'package:trademine/services/user_service.dart';
 import 'package:trademine/services/stock_service.dart';
 
@@ -24,11 +25,19 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentIndex = 0;
   bool _isVisibleListView = true;
+  bool _isExpandedFavorite = false;
 
   var username;
   var image;
   var stocks = [];
   var topStocks = [];
+  var lastestNews = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
 
   Future<void> fetchData() async {
     try {
@@ -45,11 +54,16 @@ class _HomePageState extends State<HomePage> {
       }
       final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token);
       final profile = await AuthServiceUser.ProfileFecthData(userId, token);
-      final topStock = await AuthServiceStock.TopStock();
+      final topStock = await AuthServiceStock.RecommentStock();
+      final lastest_news = await AuthServiceNews.LatestNews(
+        limit: 10,
+        offset: 0,
+      );
       setState(() {
-        stocks = favoriteStock;
-        topStocks = topStock;
-        image = ApiConstants.baseUrl + profile['profileImage'];
+        lastestNews = lastest_news['news'];
+        stocks = favoriteStock ?? [];
+        topStocks = topStock ?? [];
+        image = ApiConstants.baseUrl + (profile['profileImage'] ?? '');
       });
     } catch (e) {
       print('Error fetching data: $e');
@@ -57,14 +71,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    fetchData();
-  }
-
-  @override
   void dispose() {
-    _scrollController.dispose();
     super.dispose();
     _scrollController.dispose();
   }
@@ -119,11 +126,14 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                     GestureDetector(
-                      onTap: () {
-                        Navigator.push(
+                      onTap: () async {
+                        final search_page = await Navigator.push(
                           context,
                           MaterialPageRoute(builder: (context) => SearchPage()),
                         );
+                        if (search_page == true) {
+                          fetchData();
+                        }
                       },
                       child: Icon(Icons.search, color: Colors.white, size: 25),
                     ),
@@ -137,105 +147,33 @@ class _HomePageState extends State<HomePage> {
                   color: Theme.of(context).primaryColor,
                   child: Column(
                     children: [
-                      // Padding(
-                      //   padding: EdgeInsets.only(
-                      //     right: width * 0.05,
-                      //     left: width * 0.05,
-                      //     bottom: width * 0.03,
-                      //   ),
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       GestureDetector(
-                      //         onTap: () {
-                      //           Navigator.push(
-                      //             context,
-                      //             MaterialPageRoute(
-                      //               builder: (context) => SearchPage(),
-                      //             ),
-                      //           );
-                      //         },
-                      //         child: Container(
-                      //           height: 45,
-                      //           decoration: BoxDecoration(
-                      //             color: Colors.white,
-                      //             borderRadius: BorderRadius.circular(10),
-                      //           ),
-                      //           child: Container(
-                      //             width: width * 1,
-                      //             child: Row(
-                      //               mainAxisAlignment: MainAxisAlignment.start,
-                      //               children: [
-                      //                 Padding(
-                      //                   padding: EdgeInsets.only(
-                      //                     left: width * 0.02,
-                      //                   ),
-                      //                 ),
-                      //                 Icon(
-                      //                   Icons.search,
-                      //                   color: AppColor.textColor.withOpacity(
-                      //                     0.5,
-                      //                   ),
-                      //                 ),
-                      //                 Padding(
-                      //                   padding: EdgeInsets.only(
-                      //                     left: width * 0.02,
-                      //                   ),
-                      //                 ),
-                      //                 Text(
-                      //                   'Search',
-                      //                   style: TextStyle(
-                      //                     fontSize: 16,
-                      //                     color: AppColor.textColor.withOpacity(
-                      //                       0.5,
-                      //                     ),
-                      //                   ),
-                      //                 ),
-                      //               ],
-                      //             ),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 5),
                       Column(
                         children: [
-                          SizedBox(
-                            height: 140,
-                            child: ListView.separated(
-                              physics: BouncingScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.03,
+                          if (topStocks.isNotEmpty)
+                            SizedBox(
+                              height: 140,
+                              child: ListView.separated(
+                                physics: BouncingScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: width * 0.03,
+                                ),
+                                itemCount: topStocks.length,
+                                separatorBuilder:
+                                    (context, index) =>
+                                        const SizedBox(width: 10),
+                                itemBuilder: (context, index) {
+                                  final stock = topStocks[index];
+                                  return RecommentStock(
+                                    symbol: stock['StockSymbol']!,
+                                    name: stock['StockSymbol']!,
+                                    price: stock['ClosePrice']!,
+                                    change: stock['ChangePercentage']!,
+                                  );
+                                },
                               ),
-                              itemCount: topStocks.length,
-                              separatorBuilder:
-                                  (context, index) => const SizedBox(width: 10),
-                              itemBuilder: (context, index) {
-                                final stock = topStocks[index];
-                                return RecommentStock(
-                                  symbol: stock['StockSymbol']!,
-                                  name: stock['StockSymbol']!,
-                                  price: stock['ClosePrice']!,
-                                  change: stock['ChangePercentage']!,
-                                );
-                              },
                             ),
-                          ),
                           const SizedBox(height: 10),
-                          // SmoothPageIndicator(
-                          //   controller: _pageController,
-                          //   count: topStocks.length,
-                          //   effect: WormEffect(
-                          //     dotWidth: 10,
-                          //     dotHeight: 10,
-                          //     spacing: 10,
-                          //     activeDotColor: Colors.white,
-                          //     dotColor: Color(0xff606060),
-                          //   ),
-                          // ),
                         ],
                       ),
                       const SizedBox(height: 5),
@@ -243,13 +181,14 @@ class _HomePageState extends State<HomePage> {
                         context: context,
                         removeTop: true,
                         removeBottom: true,
-                        child: Container(
+                        child: AnimatedContainer(
+                          duration: Duration(milliseconds: 300),
                           width: double.infinity,
                           constraints: BoxConstraints(
                             minHeight: MediaQuery.of(context).size.height / 1.5,
                           ),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
                             borderRadius: BorderRadius.only(
                               topLeft: Radius.circular(25),
                               topRight: Radius.circular(25),
@@ -284,17 +223,25 @@ class _HomePageState extends State<HomePage> {
                                                 context,
                                               ).textTheme.titleMedium,
                                         ),
-                                        // GestureDetector(
-                                        //   onTap: () {},
-                                        //   child: Icon(
-                                        //     Icons.add,
-                                        //     size: 30,
-                                        //     color:
-                                        //         Theme.of(
-                                        //           context,
-                                        //         ).iconTheme.color,
-                                        //   ),
-                                        // ),
+                                        if (stocks.isEmpty)
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => SearchPage(),
+                                                ),
+                                              );
+                                            },
+                                            child: Icon(
+                                              Icons.add,
+                                              size: 30,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).iconTheme.color,
+                                            ),
+                                          ),
                                       ],
                                     ),
                                     Row(
@@ -321,7 +268,7 @@ class _HomePageState extends State<HomePage> {
                                                       stock['StockSymbol']!
                                                           .toString(),
                                                   name:
-                                                      stock['StockSymbol']!
+                                                      stock['CompanyName']!
                                                           .toString(),
                                                   price:
                                                       stock['LastPrice']!
@@ -338,26 +285,37 @@ class _HomePageState extends State<HomePage> {
                                               },
                                             ),
                                           ),
-
                                           const SizedBox(height: 5),
-                                          // GestureDetector(
-                                          //   onTap: () {
-                                          //     setState(() {
-                                          //       _isVisibleListView =
-                                          //           !_isVisibleListView;
-                                          //     });
-                                          //   },
-                                          //   child: Center(
-                                          //     child: Text(
-                                          //       _isVisibleListView
-                                          //           ? 'Hide detail'
-                                          //           : 'Show detail',
-                                          //       style: const TextStyle(
-                                          //         color: Colors.black,
-                                          //       ),
-                                          //     ),
-                                          //   ),
-                                          // ),
+                                          stocks.isEmpty
+                                              ? Center(
+                                                child: Text(
+                                                  'Add stock to your favorites',
+                                                  style:
+                                                      Theme.of(
+                                                        context,
+                                                      ).textTheme.bodyMedium,
+                                                ),
+                                              )
+                                              : GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _isVisibleListView =
+                                                        !_isVisibleListView;
+                                                  });
+                                                },
+                                                child: Center(
+                                                  child: Text(
+                                                    _isVisibleListView
+                                                        ? 'Hide detail'
+                                                        : 'Show detail',
+                                                    style:
+                                                        Theme.of(
+                                                          context,
+                                                        ).textTheme.bodyMedium,
+                                                  ),
+                                                ),
+                                              ),
+
                                           const SizedBox(height: 15),
                                           Row(
                                             crossAxisAlignment:
@@ -372,25 +330,6 @@ class _HomePageState extends State<HomePage> {
                                                       context,
                                                     ).textTheme.titleMedium,
                                               ),
-                                              // GestureDetector(
-                                              //   onTap: () {
-                                              //     Navigator.push(
-                                              //       context,
-                                              //       MaterialPageRoute(
-                                              //         builder:
-                                              //             (context) =>
-                                              //                 NewsPage(),
-                                              //       ),
-                                              //     );
-                                              //   },
-                                              //   child: Text(
-                                              //     'Show more',
-                                              //     style:
-                                              //         Theme.of(
-                                              //           context,
-                                              //         ).textTheme.bodyMedium,
-                                              //   ),
-                                              // ),
                                             ],
                                           ),
                                         ],
@@ -399,19 +338,29 @@ class _HomePageState extends State<HomePage> {
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 10),
-                              Container(
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  itemCount: 1,
-                                  separatorBuilder:
-                                      (_, __) => const SizedBox(height: 0),
-                                  itemBuilder: (context, index) {
-                                    return RecommentNews();
-                                  },
+                              if (lastestNews.isNotEmpty)
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      ...List.generate(lastestNews.length, (
+                                        index,
+                                      ) {
+                                        final news = lastestNews[index];
+                                        return RecommentNews(
+                                          NewsId: news['NewsID'],
+                                          title: news['Title'] ?? 'No title',
+                                          Img: news['Img'] ?? '',
+                                          date: news['PublishedDate'] ?? '',
+                                        );
+                                      }),
+                                      _buildSeeMoreCard(context),
+                                    ],
+                                  ),
                                 ),
-                              ),
                             ],
                           ),
                         ),
@@ -426,4 +375,38 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+}
+
+Widget _buildSeeMoreCard(BuildContext context) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 10, right: 10),
+    child: GestureDetector(
+      onTap: () {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => NewsPage()));
+      },
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 200),
+        child: Card(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          elevation: 4,
+          child: Container(
+            width: double.infinity,
+            height: 160,
+            padding: const EdgeInsets.all(16),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.arrow_forward, size: 32, color: Colors.grey),
+                SizedBox(height: 8),
+                Text('See More', style: Theme.of(context).textTheme.bodyMedium),
+              ],
+            ),
+          ),
+        ),
+      ),
+    ),
+  );
 }

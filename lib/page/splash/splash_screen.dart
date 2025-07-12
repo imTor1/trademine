@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/bloc/user_cubit.dart';
-import 'package:trademine/page/loading_page/loading.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/services/constants/api_constants.dart';
@@ -27,14 +26,17 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _loadingData() async {
     try {
-      await Future.delayed(const Duration(seconds: 3));
-      final storage = await FlutterSecureStorage();
+      final storage = FlutterSecureStorage();
       final String? token = await storage.read(key: 'auth_token');
+      if (!mounted) return;
       if (token != null && token.isNotEmpty) {
         final String? userId = await storage.read(key: 'user_Id');
-        final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token!);
+        //final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token);
         final profile = await AuthServiceUser.ProfileFecthData(userId!, token);
         final image = ApiConstants.baseUrl + profile['profileImage'];
+
+        if (!mounted) return;
+
         context.read<UserCubit>().setUser(
           profile['username'].toString(),
           profile['email'].toString(),
@@ -43,17 +45,23 @@ class _SplashScreenState extends State<SplashScreen> {
           profile['age'].toString(),
           image.toString(),
         );
+
+        print(profile['username']);
+
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => NavigationBarPage()),
         );
       } else {
+        if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginPage()),
         );
       }
     } catch (e) {
+      if (!mounted) return;
       AppSnackbar.showError(context, '$e');
     }
   }

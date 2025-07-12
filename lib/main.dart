@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/notification/noti_test.dart';
+import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_otp.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_password.dart';
@@ -40,8 +41,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'TradeMine',
       theme: lightTheme,
-      darkTheme: lightTheme,
-      themeMode: ThemeMode.light,
+      darkTheme: darkTheme,
+      themeMode: ThemeMode.system,
       home: Stack(children: [NavigationBarPage()]),
     );
   }

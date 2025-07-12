@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trademine/services/user_service.dart';
 import 'package:trademine/theme/app_styles.dart';
+import 'package:trademine/utils/snackbar.dart';
+import 'package:flutter/cupertino.dart';
 
 class SearchStock extends StatefulWidget {
   final String symbol;
@@ -19,7 +23,53 @@ class SearchStock extends StatefulWidget {
 }
 
 class _SearchStockState extends State<SearchStock> {
-  bool showDelete = false;
+  bool follow = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkIfFollowed();
+  }
+
+  Future<void> checkIfFollowed() async {
+    try {
+      final storage = FlutterSecureStorage();
+      final String? token = await storage.read(key: 'auth_token');
+      if (token == null) return;
+
+      final List<dynamic> favorites = await AuthServiceUser.ShowFavoriteStock(
+        token,
+      );
+      if (!mounted) return;
+      final isFollowed = favorites.any(
+        (item) => item['StockSymbol'] == widget.symbol,
+      );
+
+      setState(() {
+        follow = isFollowed;
+      });
+    } catch (e) {
+      if (!mounted)
+        return AppSnackbar.showError(
+          context,
+          'Error checking followed stock: $e',
+        );
+    }
+  }
+
+  Future<void> FollowStock() async {
+    try {
+      final storage = FlutterSecureStorage();
+      final String? token = await storage.read(key: 'auth_token');
+      await AuthServiceUser.followStock(token!, widget.symbol);
+      setState(() {
+        follow = !follow;
+      });
+    } catch (e) {
+      AppSnackbar.showError(context, 'Error : $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -34,9 +84,61 @@ class _SearchStockState extends State<SearchStock> {
                   Row(
                     children: [
                       IconButton(
-                        icon: Icon(Icons.star_border, color: Colors.grey),
-                        onPressed: () {},
+                        icon: Icon(
+                          follow ? Icons.favorite_sharp : Icons.favorite_border,
+                          color:
+                              follow
+                                  ? Theme.of(context).primaryColor
+                                  : Colors.grey,
+                        ),
+                        onPressed: () async {
+                          if (follow) {
+                            final confirm = await showCupertinoDialog<bool>(
+                              context: context,
+                              builder:
+                                  (context) => CupertinoAlertDialog(
+                                    title: const Text('Confirm'),
+                                    content: Text(
+                                      'Are you sure you want to unfollow ${widget.symbol}?',
+                                    ),
+                                    actions: [
+                                      CupertinoDialogAction(
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      CupertinoDialogAction(
+                                        isDestructiveAction: true,
+                                        onPressed:
+                                            () => Navigator.pop(context, true),
+                                        child: const Text('Unfollow'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                            if (confirm == true) {
+                              try {
+                                final storage = FlutterSecureStorage();
+                                final String? token = await storage.read(
+                                  key: 'auth_token',
+                                );
+                                await AuthServiceUser.unfollowStock(
+                                  token!,
+                                  widget.symbol,
+                                );
+                                setState(() {
+                                  follow = false;
+                                });
+                              } catch (e) {
+                                AppSnackbar.showError(context, 'Error: $e');
+                              }
+                            }
+                          } else {
+                            FollowStock();
+                          }
+                        },
                       ),
+
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -72,9 +174,9 @@ class _SearchStockState extends State<SearchStock> {
                         widget.change,
                         style: TextStyle(
                           color:
-                              widget.change.trim().startsWith('+')
-                                  ? AppColor.greenColor
-                                  : AppColor.errorColor,
+                              widget.change.trim().startsWith('-')
+                                  ? AppColor.errorColor
+                                  : AppColor.greenColor,
                         ),
                       ),
                     ],

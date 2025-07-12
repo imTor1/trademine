@@ -4,7 +4,7 @@ import 'package:trademine/services/constants/api_constants.dart';
 
 class AuthServiceUser {
   static final Uri _Profile = Uri.parse(ApiConstants.profile);
-  static final Uri _StockFavorite = Uri.parse(ApiConstants.stock_favorite_show);
+  static final Uri _StockFavorite = Uri.parse(ApiConstants.stock_favorite);
 
   static Future<Map<String, dynamic>> ProfileFecthData(
     String userId,
@@ -24,29 +24,56 @@ class AuthServiceUser {
 
   static Future<List<dynamic>> ShowFavoriteStock(String token) async {
     final response = await http.get(
-      Uri.parse('${ApiConstants.stock_favorite_show}'),
+      Uri.parse('$_StockFavorite'),
       headers: {'Authorization': 'Bearer $token'},
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
-    } else {
       final data = jsonDecode(response.body);
+      if (data is List) {
+        return data;
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
+  static Future<void> followStock(String token, String stockSymbol) async {
+    final url = Uri.parse('${ApiConstants.baseUrl}/api/favorites');
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'stock_symbol': stockSymbol}),
+    );
+
+    final data = jsonDecode(response.body);
+    if (response.statusCode != 201) {
       throw (data['error'] ?? 'Unknown error');
     }
   }
 
-  static Future<List<dynamic>> ShowNews(String token) async {
-    final response = await http.get(
-      Uri.parse('${ApiConstants.stock_favorite_show}'),
-      headers: {'Authorization': 'Bearer $token'},
+  static Future<void> unfollowStock(String token, String stockSymbol) async {
+    final url = Uri.parse(ApiConstants.stock_favorite);
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'stock_symbol': stockSymbol}),
     );
 
     if (response.statusCode == 200) {
-      return jsonDecode(response.body);
+      return;
     } else {
       final data = jsonDecode(response.body);
-      throw (data['error'] ?? 'Unknown error');
+      throw (data['error'] ?? 'Unfollow failed');
     }
   }
 }

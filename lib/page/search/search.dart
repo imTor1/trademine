@@ -43,7 +43,6 @@ class _SearchPageState extends State<SearchPage> {
           final results = await AuthServiceSearch.searchStocks(
             search.text.trim(),
           );
-          await Future.delayed(const Duration(milliseconds: 700));
           setState(() {
             searchResults = results['results'];
             isLoading = false;
@@ -77,7 +76,7 @@ class _SearchPageState extends State<SearchPage> {
               Row(
                 children: [
                   GestureDetector(
-                    onTap: () => Navigator.pop(context),
+                    onTap: () => Navigator.pop(context, true),
                     child: const Icon(Icons.arrow_back_ios_new),
                   ),
                   const SizedBox(width: 15),
@@ -129,7 +128,7 @@ class _SearchPageState extends State<SearchPage> {
                               symbol: stock['StockSymbol']!.toString(),
                               name: stock['CompanyName']!.toString(),
                               price: stock['ClosePrice']!.toString(),
-                              change: stock['ClosePrice']!.toString(),
+                              change: stock['ChangePercen']!.toString(),
                             );
                           },
                         ),

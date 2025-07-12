@@ -4,7 +4,8 @@ import 'package:trademine/services/constants/api_constants.dart';
 
 class AuthServiceNews {
   static final Uri _LatestNews = Uri.parse(ApiConstants.latest_news);
-  static final Uri _NewsDetail = Uri.parse(ApiConstants.new_detail);
+  static final Uri _NewsDetail = Uri.parse(ApiConstants.news_detail);
+  static final Uri _NewsSource = Uri.parse(ApiConstants.news_source);
 
   static Future<Map<String, dynamic>> LatestNews({
     int limit = 20,
@@ -28,7 +29,6 @@ class AuthServiceNews {
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      print(response.body);
       return jsonDecode(response.body);
     } else {
       final data = jsonDecode(response.body);

@@ -21,25 +21,20 @@ class _NewsDetailState extends State<NewsDetail> {
       setState(() {
         news = detail;
         isLoading = false;
-        print(news!['URL']);
       });
     } catch (e) {
       setState(() => isLoading = false);
-      print('Error: $e');
     }
   }
 
   void _openUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication, // เปิดในเบราว์เซอร์นอก
-      );
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('ไม่สามารถเปิดลิงก์ได้')));
+      ).showSnackBar(const SnackBar(content: Text('Cant Open link!!!')));
     }
   }
 
@@ -56,7 +51,7 @@ class _NewsDetailState extends State<NewsDetail> {
           isLoading
               ? const Center(child: CircularProgressIndicator())
               : news == null
-              ? const Center(child: Text('ไม่พบข้อมูลข่าว'))
+              ? const Center(child: Text('Not Fourd News'))
               : CustomScrollView(
                 slivers: [
                   SliverAppBar(
@@ -68,8 +63,14 @@ class _NewsDetailState extends State<NewsDetail> {
                         fit: StackFit.expand,
                         children: [
                           Image.network(
-                            news?['ImageURL'] ??
-                                'https://i.pinimg.com/736x/b2/a7/8b/b2a78b7520577fc3664213e22bffd2c3.jpg',
+                            news?['ImageURL'],
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  width: 100,
+                                  height: 100,
+                                  color: Colors.grey[300],
+                                  child: const Icon(Icons.image_not_supported),
+                                ),
                             fit: BoxFit.cover,
                           ),
                           Positioned(
@@ -104,7 +105,7 @@ class _NewsDetailState extends State<NewsDetail> {
                             style: Theme.of(
                               context,
                             ).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w500,
                               height: 1.3,
                             ),
                           ),
@@ -123,18 +124,40 @@ class _NewsDetailState extends State<NewsDetail> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Chip(
-                            label: Text(news!['Sentiment'] ?? ''),
-                            backgroundColor: Colors.orangeAccent.shade100,
-                            labelStyle: const TextStyle(color: Colors.white),
-                            side: BorderSide.none,
-                            labelPadding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                            ),
-                            padding: EdgeInsets.zero,
-                            visualDensity: VisualDensity.compact,
+                          Row(
+                            children: [
+                              Chip(
+                                label: Text(news!['Sentiment'] ?? ''),
+                                backgroundColor: Theme.of(context).primaryColor,
+                                labelStyle: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(color: Colors.white),
+                                side: BorderSide.none,
+                                labelPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                              const SizedBox(width: 10),
+                              Chip(
+                                label: Text('TH Stock'),
+                                backgroundColor: Theme.of(context).primaryColor,
+                                labelStyle: Theme.of(context)
+                                    .textTheme
+                                    .bodyMedium
+                                    ?.copyWith(color: Colors.white),
+                                side: BorderSide.none,
+                                labelPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                padding: EdgeInsets.zero,
+                                visualDensity: VisualDensity.compact,
+                              ),
+                            ],
                           ),
-                          const Divider(height: 32),
+                          const Divider(height: 35),
                           Text(
                             news!['Content'] ?? '',
                             style: Theme.of(

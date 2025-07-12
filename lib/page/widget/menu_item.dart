@@ -22,12 +22,7 @@ Widget MenuItem({
             children: [
               Icon(icon, size: 26, color: AppColor.textColor),
               const SizedBox(width: 16),
-              Text(
-                text,
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
-              ),
+              Text(text, style: Theme.of(context).textTheme.bodyLarge),
             ],
           ),
           Icon(
