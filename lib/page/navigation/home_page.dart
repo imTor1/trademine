@@ -241,7 +241,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               Padding(
                                 padding: EdgeInsets.only(
-                                  top: width * 0.05,
+                                  top: 13,
                                   left: width * 0.05,
                                   right: width * 0.05,
                                 ),

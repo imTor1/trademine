@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:trademine/page/loading_page/TransactionHistoryShimmer.dart';
+import 'package:trademine/page/setting_card/demo_card.dart';
 import 'package:trademine/page/widget/credit_card.dart';
 // import 'package:getwidget/getwidget.dart'; // ไม่ได้ใช้ในโค้ดนี้
 import 'package:trademine/page/widget/transaction_history.dart';
@@ -66,7 +67,7 @@ class _TradePageState extends State<TradePage> {
   void initState() {
     super.initState();
     _pageController = PageController(
-      viewportFraction: 0.85,
+      viewportFraction: 0.95,
       initialPage: _selectedIndex,
     );
     _loadTransactions(_selectedIndex);
@@ -167,7 +168,7 @@ class _TradePageState extends State<TradePage> {
                     itemBuilder: (context, index) {
                       final card = cardData[index];
                       return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        padding: const EdgeInsets.symmetric(horizontal: 5),
                         child: CreditCard(
                           number: card['number'] ?? '',
                           name: card['name'] ?? '',
@@ -199,7 +200,25 @@ class _TradePageState extends State<TradePage> {
                     return Column(
                       children: [
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            switch (index) {
+                              case 0:
+                                print('Buy button pressed!');
+                                break;
+                              case 1:
+                                print('Sell button pressed!');
+                                break;
+                              case 2:
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => DemoCard()),
+                                );
+                                break;
+                              case 3:
+                                print('Add button pressed!');
+                                break;
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
                             padding: const EdgeInsets.all(18),

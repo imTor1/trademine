@@ -58,9 +58,9 @@ class _NewsDetailState extends State<NewsDetail> {
     if (sentiment == null) return Colors.grey;
     switch (sentiment.toLowerCase()) {
       case 'positive':
-        return Colors.green;
+        return Theme.of(context).colorScheme.secondary;
       case 'negative':
-        return Colors.red;
+        return Theme.of(context).colorScheme.error;
       case 'neutral':
         return Colors.blueGrey;
       default:
@@ -72,6 +72,12 @@ class _NewsDetailState extends State<NewsDetail> {
   void initState() {
     super.initState();
     fetchNewsDetail();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -98,7 +104,7 @@ class _NewsDetailState extends State<NewsDetail> {
                           tooltip: 'Back',
                         ),
                         automaticallyImplyLeading: false,
-                        expandedHeight: 250,
+                        expandedHeight: 200,
                         pinned: false,
                         floating: true,
                         snap: true,
@@ -222,7 +228,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                   ),
                                   const SizedBox(width: 10),
                                   Chip(
-                                    label: Text('TH Stock'),
+                                    label: Text(news!['Source']),
                                     backgroundColor:
                                         Theme.of(context).primaryColor,
                                     labelStyle: Theme.of(context)
@@ -239,7 +245,7 @@ class _NewsDetailState extends State<NewsDetail> {
                                 ],
                               ),
                               const Divider(height: 35),
-                              Text(
+                              SelectableText(
                                 news!['Content'] ?? '',
                                 style: Theme.of(
                                   context,

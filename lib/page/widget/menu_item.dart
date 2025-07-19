@@ -3,12 +3,11 @@ import 'package:trademine/theme/app_styles.dart';
 
 Widget MenuItem({
   required BuildContext context,
-  required IconData icon,
+  required IconData? icon,
   required String text,
   required VoidCallback onTap,
 }) {
   double width = MediaQuery.of(context).size.width;
-
   return GestureDetector(
     onTap: onTap,
     child: Container(
@@ -20,7 +19,10 @@ Widget MenuItem({
         children: [
           Row(
             children: [
-              Icon(icon, size: 26, color: AppColor.textColor),
+              if (icon != null) ...[
+                Icon(icon, size: 26, color: AppColor.textColor),
+                const SizedBox(width: 16),
+              ],
               const SizedBox(width: 16),
               Text(text, style: Theme.of(context).textTheme.bodyLarge),
             ],

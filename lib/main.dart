@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
+import 'package:trademine/page/splash/splash_screen.dart';
 import 'package:trademine/theme/app_styles.dart';
 
 void main() {
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: ThemeMode.system,
-      home: Stack(children: [NavigationBarPage()]),
+      home: Stack(children: [SplashScreen()]),
     );
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/signin_page/login.dart';
+import 'package:trademine/page/widget/loop_typing_animation.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 import 'package:trademine/services/user_service.dart';
 import 'package:trademine/utils/snackbar.dart';
@@ -36,7 +37,6 @@ class _SplashScreenState extends State<SplashScreen> {
         final image = ApiConstants.baseUrl + profile['profileImage'];
 
         if (!mounted) return;
-
         context.read<UserCubit>().setUser(
           profile['username'].toString(),
           profile['email'].toString(),
@@ -45,9 +45,7 @@ class _SplashScreenState extends State<SplashScreen> {
           profile['age'].toString(),
           image.toString(),
         );
-
-        print(profile['username']);
-
+        await Future.delayed(const Duration(milliseconds: 1300));
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
@@ -74,13 +72,18 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircleAvatar(
-              radius: 80,
-              backgroundImage: AssetImage('assets/logo.jpeg'),
+            TypingTextAnimation(
+              text: 'Trademine'.toUpperCase(),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 35,
+              ),
+              typingDuration: const Duration(milliseconds: 150),
+              pauseDuration: const Duration(milliseconds: 500),
+              loop: true,
             ),
-            const SizedBox(height: 20),
-            Text('Loading'),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             if (_isLoading)
               SizedBox(
                 width: 200,

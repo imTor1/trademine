@@ -22,7 +22,7 @@ class _CreditCardState extends State<CreditCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 20),
+      margin: const EdgeInsets.symmetric(horizontal: 0, vertical: 15),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -35,7 +35,7 @@ class _CreditCardState extends State<CreditCard> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withOpacity(0.25),
             spreadRadius: 2,
             blurRadius: 10,
             offset: const Offset(0, 5),
@@ -52,14 +52,11 @@ class _CreditCardState extends State<CreditCard> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 '💳 DEMO BANK',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(color: Colors.white),
               ),
               Icon(
                 Icons.contactless,
@@ -71,12 +68,10 @@ class _CreditCardState extends State<CreditCard> {
           const Spacer(flex: 2),
 
           Text(
-            _formatCardNumber(widget.number),
-            style: const TextStyle(
+            widget.number,
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
               letterSpacing: 3,
               color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
               shadows: [
                 Shadow(
                   blurRadius: 2.0,
@@ -87,7 +82,6 @@ class _CreditCardState extends State<CreditCard> {
             ),
           ),
           const Spacer(),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -140,12 +134,5 @@ class _CreditCardState extends State<CreditCard> {
         ],
       ),
     );
-  }
-
-  String _formatCardNumber(String number) {
-    if (number.length != 16) {
-      return number;
-    }
-    return '${number.substring(0, 4)} ${number.substring(4, 8)} ${number.substring(8, 12)} ${number.substring(12, 16)}';
   }
 }

@@ -41,7 +41,7 @@ final ThemeData lightTheme = ThemeData(
     primary: Color(0xFF2C5282), // น้ำเงินหม่น เป็นสีหลักที่น่าเชื่อถือ
     onPrimary: Colors.white, // ข้อความบนสี Primary
     secondary: Color(
-      0xFF067C65,
+      0xff27AE60,
     ), // เขียวเข้ม (Deep Forest Green) แสดงถึงการเติบโต
     onSecondary: Colors.white, // ข้อความบนสี Secondary
     tertiary: Color(

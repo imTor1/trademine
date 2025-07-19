@@ -21,7 +21,6 @@ class UserState {
 
 class UserCubit extends Cubit<UserState> {
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
-
   UserCubit()
     : super(
         UserState(
@@ -40,7 +39,7 @@ class UserCubit extends Cubit<UserState> {
     final gender = await _storage.read(key: 'gender') ?? '';
     final birthday = await _storage.read(key: 'birthday') ?? '';
     final age = await _storage.read(key: 'age') ?? '';
-    final profileImageage = await _storage.read(key: 'profileImage') ?? '';
+    final profileImage = await _storage.read(key: 'profileImage') ?? '';
 
     emit(
       UserState(
@@ -49,7 +48,7 @@ class UserCubit extends Cubit<UserState> {
         gender: gender,
         birthday: birthday,
         age: age,
-        profileImage: profileImageage,
+        profileImage: profileImage,
       ),
     );
   }
