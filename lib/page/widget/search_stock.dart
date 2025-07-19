@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 import 'package:trademine/services/user_service.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:trademine/utils/snackbar.dart';
@@ -74,117 +75,128 @@ class _SearchStockState extends State<SearchStock> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          follow ? Icons.favorite_sharp : Icons.favorite_border,
-                          color:
-                              follow
-                                  ? Theme.of(context).primaryColor
-                                  : Colors.grey,
-                        ),
-                        onPressed: () async {
-                          if (follow) {
-                            final confirm = await showCupertinoDialog<bool>(
-                              context: context,
-                              builder:
-                                  (context) => CupertinoAlertDialog(
-                                    title: const Text('Confirm'),
-                                    content: Text(
-                                      'Are you sure you want to unfollow ${widget.symbol}?',
-                                    ),
-                                    actions: [
-                                      CupertinoDialogAction(
-                                        onPressed:
-                                            () => Navigator.pop(context, false),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      CupertinoDialogAction(
-                                        isDestructiveAction: true,
-                                        onPressed:
-                                            () => Navigator.pop(context, true),
-                                        child: const Text('Unfollow'),
-                                      ),
-                                    ],
-                                  ),
-                            );
-                            if (confirm == true) {
-                              try {
-                                final storage = FlutterSecureStorage();
-                                final String? token = await storage.read(
-                                  key: 'auth_token',
-                                );
-                                await AuthServiceUser.unfollowStock(
-                                  token!,
-                                  widget.symbol,
-                                );
-                                setState(() {
-                                  follow = false;
-                                });
-                              } catch (e) {
-                                AppSnackbar.showError(context, 'Error: $e');
-                              }
-                            }
-                          } else {
-                            FollowStock();
-                          }
-                        },
-                      ),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.symbol,
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
+        GestureDetector(
+          onTap:
+              () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => StockDetail(StockSymbol: widget.symbol),
+                ),
+              ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            follow
+                                ? Icons.favorite_sharp
+                                : Icons.favorite_border,
+                            color:
+                                follow
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.grey,
                           ),
-                          SizedBox(
-                            width: 150,
-                            child: Text(
-                              widget.name,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.bodySmall
+                          onPressed: () async {
+                            if (follow) {
+                              final confirm = await showCupertinoDialog<bool>(
+                                context: context,
+                                builder:
+                                    (context) => CupertinoAlertDialog(
+                                      title: const Text('Confirm'),
+                                      content: Text(
+                                        'Are you sure you want to unfollow ${widget.symbol}?',
+                                      ),
+                                      actions: [
+                                        CupertinoDialogAction(
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, false),
+                                          child: const Text('Cancel'),
+                                        ),
+                                        CupertinoDialogAction(
+                                          isDestructiveAction: true,
+                                          onPressed:
+                                              () =>
+                                                  Navigator.pop(context, true),
+                                          child: const Text('Unfollow'),
+                                        ),
+                                      ],
+                                    ),
+                              );
+                              if (confirm == true) {
+                                try {
+                                  final storage = FlutterSecureStorage();
+                                  final String? token = await storage.read(
+                                    key: 'auth_token',
+                                  );
+                                  await AuthServiceUser.unfollowStock(
+                                    token!,
+                                    widget.symbol,
+                                  );
+                                  setState(() {
+                                    follow = false;
+                                  });
+                                } catch (e) {
+                                  AppSnackbar.showError(context, 'Error: $e');
+                                }
+                              }
+                            } else {
+                              FollowStock();
+                            }
+                          },
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.symbol,
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(fontWeight: FontWeight.bold),
                             ),
+                            SizedBox(
+                              width: 150,
+                              child: Text(
+                                widget.name,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          '${widget.price} USD',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.change,
+                          style: TextStyle(
+                            color:
+                                widget.change.trim().startsWith('-')
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(context).colorScheme.secondary,
                           ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        '${widget.price} USD',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
                         ),
-                      ),
-                      Text(
-                        widget.change,
-                        style: TextStyle(
-                          color:
-                              widget.change.trim().startsWith('-')
-                                  ? AppColor.errorColor
-                                  : AppColor.greenColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Divider(color: AppColor.divider),
-            ],
+                      ],
+                    ),
+                  ],
+                ),
+                Divider(color: Theme.of(context).dividerColor),
+              ],
+            ),
           ),
         ),
       ],

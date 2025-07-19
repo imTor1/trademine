@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:trademine/bloc/user_cubit.dart';
+import 'package:trademine/page/loading_page/TransactionHistoryShimmer.dart';
 import 'package:trademine/page/navigation/news_page.dart';
 import 'package:trademine/page/search/search.dart';
 import 'package:trademine/page/signin_page/login.dart';
@@ -26,6 +30,7 @@ class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
   bool _isVisibleListView = true;
   bool _isExpandedFavorite = false;
+  bool isLoading = true;
 
   var username;
   var image;
@@ -60,6 +65,7 @@ class _HomePageState extends State<HomePage> {
         offset: 0,
       );
       setState(() {
+        isLoading = !isLoading;
         lastestNews = lastest_news['news'];
         stocks = favoriteStock ?? [];
         topStocks = topStock ?? [];
@@ -74,6 +80,7 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     super.dispose();
     _scrollController.dispose();
+    _pageController.dispose();
   }
 
   @override
@@ -86,6 +93,9 @@ class _HomePageState extends State<HomePage> {
       body: RefreshIndicator(
         edgeOffset: 20,
         onRefresh: () async {
+          setState(() {
+            isLoading = !isLoading;
+          });
           await fetchData();
         },
         child: ScrollConfiguration(
@@ -105,37 +115,49 @@ class _HomePageState extends State<HomePage> {
                 title: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 20,
-                          backgroundImage:
-                              user.profileImage.isNotEmpty
-                                  ? NetworkImage(user.profileImage!)
-                                  : const AssetImage('assets/avatar/man.png')
-                                      as ImageProvider,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          (user.name?.isNotEmpty ?? false) ? user.name : 'null',
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.titleMedium
-                              ?.copyWith(color: Colors.white),
-                        ),
-                      ],
+                    Expanded(
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundImage:
+                                (user.profileImage?.isNotEmpty ?? false)
+                                    ? NetworkImage(user.profileImage!)
+                                    : const AssetImage('assets/avatar/man.png')
+                                        as ImageProvider,
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              (user.name?.isNotEmpty ?? false)
+                                  ? user.name!
+                                  : '',
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     GestureDetector(
                       onTap: () async {
                         final search_page = await Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => SearchPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const SearchPage(),
+                          ),
                         );
                         if (search_page == true) {
                           fetchData();
                         }
                       },
-                      child: Icon(Icons.search, color: Colors.white, size: 25),
+                      child: const Icon(
+                        Icons.search,
+                        color: Colors.white,
+                        size: 25,
+                      ),
                     ),
                   ],
                 ),
@@ -151,26 +173,39 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           if (topStocks.isNotEmpty)
                             SizedBox(
-                              height: 140,
-                              child: ListView.separated(
-                                physics: BouncingScrollPhysics(),
-                                scrollDirection: Axis.horizontal,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: width * 0.03,
+                              height: 150,
+                              child: AnimationLimiter(
+                                child: ListView.separated(
+                                  physics: BouncingScrollPhysics(),
+                                  scrollDirection: Axis.horizontal,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.03,
+                                  ),
+                                  itemCount: topStocks.length,
+                                  separatorBuilder:
+                                      (context, index) =>
+                                          const SizedBox(width: 10),
+                                  itemBuilder: (context, index) {
+                                    final stock = topStocks[index];
+                                    return AnimationConfiguration.staggeredList(
+                                      position: index,
+                                      duration: const Duration(
+                                        milliseconds: 700,
+                                      ),
+                                      child: SlideAnimation(
+                                        horizontalOffset: 50.0,
+                                        child: FadeInAnimation(
+                                          child: RecommentStock(
+                                            symbol: stock['StockSymbol']!,
+                                            name: stock['StockSymbol']!,
+                                            price: stock['ClosePrice']!,
+                                            change: stock['ChangePercentage']!,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                itemCount: topStocks.length,
-                                separatorBuilder:
-                                    (context, index) =>
-                                        const SizedBox(width: 10),
-                                itemBuilder: (context, index) {
-                                  final stock = topStocks[index];
-                                  return RecommentStock(
-                                    symbol: stock['StockSymbol']!,
-                                    name: stock['StockSymbol']!,
-                                    price: stock['ClosePrice']!,
-                                    change: stock['ChangePercentage']!,
-                                  );
-                                },
                               ),
                             ),
                           const SizedBox(height: 10),
@@ -341,8 +376,11 @@ class _HomePageState extends State<HomePage> {
                               if (lastestNews.isNotEmpty)
                                 SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
-                                  padding: const EdgeInsets.symmetric(
+                                  padding: EdgeInsets.symmetric(
                                     vertical: 10,
+                                    horizontal:
+                                        MediaQuery.of(context).size.width *
+                                        0.04,
                                   ),
                                   child: Row(
                                     children: [
@@ -409,4 +447,60 @@ Widget _buildSeeMoreCard(BuildContext context) {
       ),
     ),
   );
+}
+
+class RecommentStockShimmer extends StatelessWidget {
+  const RecommentStockShimmer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey.shade300,
+      highlightColor: Colors.grey.shade100,
+      child: Container(
+        width: 220,
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top row avatar + symbol
+            Row(
+              children: [
+                const CircleAvatar(radius: 18, backgroundColor: Colors.white),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(height: 12, width: 80, color: Colors.white),
+                      const SizedBox(height: 4),
+                      Container(height: 10, width: 120, color: Colors.white),
+                    ],
+                  ),
+                ),
+                Container(height: 24, width: 48, color: Colors.white),
+              ],
+            ),
+            const SizedBox(height: 10),
+            const Divider(height: 1, thickness: 1, color: Colors.white),
+            const SizedBox(height: 10),
+            Container(height: 12, width: 100, color: Colors.white),
+            const SizedBox(height: 6),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(height: 16, width: 60, color: Colors.white),
+                Container(height: 16, width: 40, color: Colors.white),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

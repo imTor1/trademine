@@ -190,7 +190,7 @@ class SignupOtpState extends State<SignUpOtp> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: Color(0xffFCA311),
+                    backgroundColor: Theme.of(context).primaryColor,
                   ),
                   child: Text(
                     'SEND OTP',

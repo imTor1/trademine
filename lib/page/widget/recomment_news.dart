@@ -18,7 +18,7 @@ class RecommentNews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 5),
+      padding: EdgeInsets.only(right: 10),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 260),
         child: InkWell(

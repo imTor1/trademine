@@ -107,7 +107,9 @@ class NavigationBarState extends State<NavigationBarPage>
                             curve: Curves.easeInOut,
                             color:
                                 _selectedIndex == index
-                                    ? Theme.of(context).primaryColor
+                                    ? Theme.of(
+                                      context,
+                                    ).bottomNavigationBarTheme.selectedItemColor
                                     : Colors.transparent,
                           ),
                         );
@@ -154,12 +156,12 @@ class NavigationBarState extends State<NavigationBarPage>
                                             height: 24,
                                             color:
                                                 isSelected
-                                                    ? Theme.of(
-                                                      context,
-                                                    ).primaryColor
-                                                    : Theme.of(
-                                                      context,
-                                                    ).disabledColor,
+                                                    ? Theme.of(context)
+                                                        .bottomNavigationBarTheme
+                                                        .selectedItemColor
+                                                    : Theme.of(context)
+                                                        .bottomNavigationBarTheme
+                                                        .unselectedItemColor,
                                           ),
                                         ],
                                       ),
@@ -174,12 +176,12 @@ class NavigationBarState extends State<NavigationBarPage>
                                                   : FontWeight.normal,
                                           color:
                                               isSelected
-                                                  ? Theme.of(
-                                                    context,
-                                                  ).primaryColor
-                                                  : Theme.of(
-                                                    context,
-                                                  ).disabledColor,
+                                                  ? Theme.of(context)
+                                                      .bottomNavigationBarTheme
+                                                      .selectedItemColor
+                                                  : Theme.of(context)
+                                                      .bottomNavigationBarTheme
+                                                      .unselectedItemColor,
                                         ),
                                       ),
                                     ],

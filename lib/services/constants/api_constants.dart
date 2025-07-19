@@ -12,6 +12,5 @@ class ApiConstants {
   static const String topStock = "$baseUrl/api/top-10-stocks";
   static const String search = "$baseUrl/api/search";
   static const String news_detail = "$baseUrl/api/news-detail";
-  static const String news_source = "$baseUrl/api/news-by-sources";
   static const String stock_detail = "$baseUrl/api/stock-detail/";
 }

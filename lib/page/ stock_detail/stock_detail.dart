@@ -60,7 +60,6 @@ class _StockDetailState extends State<StockDetail> {
 
         final CandleData data = chartData[pointIndex];
         final dateStr = DateFormat('d MMM yyyy').format(data.date);
-
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(

@@ -1,10 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:trademine/page/loading_page/news_shimmer.dart';
-import 'package:trademine/page/loading_page/search_shimmer.dart';
 import 'package:trademine/page/news_detail/news_detail.dart';
 import 'package:trademine/services/news_service.dart';
 import 'package:trademine/utils/snackbar.dart';
+import 'package:trademine/page/widget/filternews.dart';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -24,6 +25,10 @@ class _NewsPageState extends State<NewsPage> {
   final ScrollController _scrollController = ScrollController();
   bool _isScrolling = false;
   bool showScrollToTopButton = false;
+
+  //Filter_Option
+  var sortOptions = 'DESC';
+  var selectedSentiment = '';
 
   @override
   void initState() {
@@ -75,10 +80,12 @@ class _NewsPageState extends State<NewsPage> {
       final result = await AuthServiceNews.LatestNews(
         limit: limit,
         offset: offset,
+        source: selectedCategory ?? 'all',
+        sortOptions: sortOptions,
+        selectedSentiment: selectedSentiment,
       );
       await Future.delayed(const Duration(seconds: 1));
       final fetchedNews = result['news'];
-
       if (mounted) {
         setState(() {
           newsList = List.from(fetchedNews);
@@ -113,7 +120,10 @@ class _NewsPageState extends State<NewsPage> {
       final result = await AuthServiceNews.LatestNews(
         limit: limit,
         offset: offset,
+        source: selectedCategory ?? 'all',
+        selectedSentiment: selectedSentiment,
       );
+
       await Future.delayed(const Duration(seconds: 1));
       final fetchedNews = result['news'];
 
@@ -130,7 +140,7 @@ class _NewsPageState extends State<NewsPage> {
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.showError(context, 'Loding News Error: ${e.toString()}');
+        AppSnackbar.showError(context, 'Loading News Error: ${e.toString()}');
       }
     } finally {
       if (mounted) {
@@ -141,19 +151,14 @@ class _NewsPageState extends State<NewsPage> {
     }
   }
 
-  Future<void> _onRefresh() async {
-    await fetchInitialNews();
-  }
-
   @override
   Widget build(BuildContext context) {
-    final filteredNews = _getFilteredNews();
     return Stack(
       children: [
         Scaffold(
           body: RefreshIndicator(
             edgeOffset: 20,
-            onRefresh: _onRefresh,
+            onRefresh: fetchInitialNews,
             child: CustomScrollView(
               controller: _scrollController,
               slivers: [
@@ -163,17 +168,13 @@ class _NewsPageState extends State<NewsPage> {
                   leadingWidth: 0,
                   automaticallyImplyLeading: false,
                   backgroundColor: Colors.transparent,
-                  title: Row(
-                    children: [
-                      Text(
-                        'Today News',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
+                  title: Text(
+                    'Today News',
+                    style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
                 SliverToBoxAdapter(child: _buildCategoryChips()),
-                _buildNewsList(filteredNews),
+                _buildNewsList(newsList),
                 if (isFetchingMore)
                   const SliverToBoxAdapter(
                     child: Padding(
@@ -188,8 +189,9 @@ class _NewsPageState extends State<NewsPage> {
                       child: Center(
                         child: Text(
                           'No More News',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: Colors.grey[600]),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -219,20 +221,11 @@ class _NewsPageState extends State<NewsPage> {
     );
   }
 
-  List<dynamic> _getFilteredNews() {
-    if (selectedCategory == 'all') {
-      return newsList;
-    }
-    return newsList.where((n) => n['Source'] == selectedCategory).toList();
-  }
-
   Widget _buildCategoryChips() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ...['all', 'TH News', 'US News'].map(
             (category) => Padding(
@@ -251,7 +244,10 @@ class _NewsPageState extends State<NewsPage> {
                 ),
                 selected: selectedCategory == category,
                 onSelected: (_) {
-                  setState(() => selectedCategory = category);
+                  setState(() {
+                    selectedCategory = category;
+                  });
+                  fetchInitialNews();
                 },
                 selectedColor: Theme.of(context).primaryColor,
                 backgroundColor: Colors.white,
@@ -271,40 +267,28 @@ class _NewsPageState extends State<NewsPage> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.tune),
+            icon: const Icon(Icons.tune),
             onPressed: () async {
-              final result = await showModalBottomSheet(
+              final result = await showModalBottomSheet<Map<String, String>>(
                 context: context,
                 isScrollControlled: true,
-                shape: RoundedRectangleBorder(
+                shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
                 ),
                 builder:
-                    (_) => SafeArea(
-                      child: Container(
-                        width: double.infinity,
-                        height: MediaQuery.of(context).size.height * 0.8,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const SizedBox(height: 0),
-                              AppBar(
-                                title: Text(
-                                  'Filter Option',
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                    (context) => FilterNews(
+                      initialSort: sortOptions,
+                      initialSentiment: selectedSentiment,
                     ),
               );
-
               if (result != null) {
-                // Handle result
+                setState(() {
+                  sortOptions = result['sortOptions'] ?? sortOptions;
+                  selectedSentiment =
+                      result['selectedSentiment'] ?? selectedSentiment;
+                });
+
+                fetchInitialNews();
               }
             },
           ),
@@ -313,11 +297,11 @@ class _NewsPageState extends State<NewsPage> {
     );
   }
 
-  Widget _buildNewsList(List<dynamic> filteredNews) {
-    if (isLoading && newsList.isEmpty) {
+  Widget _buildNewsList(List<dynamic> news) {
+    if (isLoading && news.isEmpty) {
       return const SliverFillRemaining(child: NewsShimmer());
     }
-    if (newsList.isEmpty && !isLoading) {
+    if (news.isEmpty && !isLoading) {
       return SliverFillRemaining(
         child: Center(
           child: Column(
@@ -343,18 +327,22 @@ class _NewsPageState extends State<NewsPage> {
     }
     return SliverList(
       delegate: SliverChildBuilderDelegate((context, index) {
-        final item = filteredNews[index];
+        final item = news[index];
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: InkWell(
             borderRadius: BorderRadius.circular(10),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => NewsDetail(NewsID: item['NewsID']),
-                ),
-              );
+              if (item['NewsID'] != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => NewsDetail(NewsID: item['NewsID']),
+                  ),
+                );
+              } else {
+                AppSnackbar.showError(context, 'News ID is missing');
+              }
             },
             child: Container(
               decoration: BoxDecoration(
@@ -364,10 +352,9 @@ class _NewsPageState extends State<NewsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child:
-                        item?['Img'] != null &&
-                                item!['Img'].toString().isNotEmpty
+                        item['Img'] != null && item['Img'].toString().isNotEmpty
                             ? Image.network(
                               item['Img'],
                               errorBuilder:
@@ -376,7 +363,7 @@ class _NewsPageState extends State<NewsPage> {
                                     height: 100,
                                     color: Colors.grey[300],
                                     child: const Icon(
-                                      Icons.image_not_supported,
+                                      Icons.image_not_supported_sharp,
                                     ),
                                   ),
                               width: 100,
@@ -398,12 +385,8 @@ class _NewsPageState extends State<NewsPage> {
                           item['Title'] ?? 'No Title',
                           maxLines: 3,
                           overflow: TextOverflow.ellipsis,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black,
-                          ),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(height: 5),
                         Row(
@@ -429,7 +412,7 @@ class _NewsPageState extends State<NewsPage> {
             ),
           ),
         );
-      }, childCount: filteredNews.length),
+      }, childCount: news.length),
     );
   }
 }

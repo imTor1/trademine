@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 import 'package:trademine/theme/app_styles.dart';
 
 class RecommentStock extends StatefulWidget {
@@ -23,7 +24,14 @@ class _RecommentStockState extends State<RecommentStock> {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => StockDetail(StockSymbol: widget.symbol),
+          ),
+        );
+      },
       child: IntrinsicHeight(
         child: Container(
           width: 220,
