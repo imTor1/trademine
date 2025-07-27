@@ -23,7 +23,6 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentIndex = 0;
   bool _isVisibleListView = true;
-  bool _isExpandedFavorite = false;
   bool isLoading = true;
 
   @override

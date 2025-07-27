@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-double responsiveFontSize(double size, {double maxSizeFactor = 1.2}) {
-  double scaledSize = size.sp;
-  double maxSize = size * maxSizeFactor;
-  return scaledSize > maxSize ? maxSize : scaledSize;
-}
+// ลบ flutter_screenutil ออก
+// double responsiveFontSize(double size, {double maxSizeFactor = 1.2}) {
+//   double scaledSize = size.sp;
+//   double maxSize = size * maxSizeFactor;
+//   return scaledSize > maxSize ? maxSize : scaledSize;
+// }
 
 class AppColor {
   static Color primaryColor = const Color(0xffFCA311);
-  static Color primaryColor2 = const Color.from(
-    alpha: 1,
-    red: 1,
-    green: 0.808,
-    blue: 0.278,
+  // Color.from ไม่มี Constructor ที่รับ alpha, red, green, blue โดยตรง
+  // อาจจะเป็น Color.fromRGBO หรือ Color.fromARGB
+  // แก้ไขเป็น Color.fromARGB หรือ Color(0xAARRGGBB) ถ้าต้องการระบุ alpha
+  static Color primaryColor2 = const Color.fromARGB(
+    255, // Alpha (255 = fully opaque)
+    255, // Red
+    206, // Green (0.808 * 255 = 206)
+    71, // Blue (0.278 * 255 = 71)
   );
   static Color blueColor = const Color(0xff2D9CDB);
   static Color errorColor = const Color(0xffEB5757);
@@ -27,7 +30,7 @@ class AppColor {
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   fontFamily:
-      'Roboto', // หรือเลือกฟอนต์ที่อ่านง่ายและโมเดิร์น เช่น Open Sans, Lato
+  'Roboto', // หรือเลือกฟอนต์ที่อ่านง่ายและโมเดิร์น เช่น Open Sans, Lato
   scaffoldBackgroundColor: const Color(
     0xFFF9FAFB,
   ), // สีขาวอมเทาอ่อนมาก คลีนสุดๆ
@@ -51,7 +54,7 @@ final ThemeData lightTheme = ThemeData(
     error: Color(0xFFD9534F), // แดงอมส้ม (Crimson Red) สำหรับข้อผิดพลาด
     onError: Colors.white, // ข้อความบนสี Error
     surface:
-        Colors.white, // สีพื้นผิวของ Material components (เช่น Card, Dialog)
+    Colors.white, // สีพื้นผิวของ Material components (เช่น Card, Dialog)
     onSurface: Color(0xFF1F2937), // สีข้อความบนพื้นผิว
     background: Color(0xFFF9FAFB), // สีพื้นหลังโดยรวม
     onBackground: Color(0xFF1F2937), // สีข้อความบนพื้นหลัง
@@ -62,76 +65,76 @@ final ThemeData lightTheme = ThemeData(
     color: Color(0xFF4B5563),
   ), // ไอคอนสีเทาเข้ม ดูเรียบง่าย
 
-  textTheme: TextTheme(
+  textTheme: const TextTheme( // เปลี่ยนเป็น const TextTheme
     displayLarge: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(57),
+      color: Color(0xFF1F2937),
+      fontSize: 57, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     displayMedium: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(45),
+      color: Color(0xFF1F2937),
+      fontSize: 45, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     displaySmall: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(36),
+      color: Color(0xFF1F2937),
+      fontSize: 36, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     headlineLarge: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(32),
+      color: Color(0xFF1F2937),
+      fontSize: 32, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     headlineMedium: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(28),
+      color: Color(0xFF1F2937),
+      fontSize: 28, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     headlineSmall: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(24),
+      color: Color(0xFF1F2937),
+      fontSize: 24, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     titleLarge: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(22),
+      color: Color(0xFF1F2937),
+      fontSize: 22, // เปลี่ยน
       fontWeight: FontWeight.w700,
     ),
     titleMedium: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(18),
+      color: Color(0xFF1F2937),
+      fontSize: 18, // เปลี่ยน
       fontWeight: FontWeight.w600,
     ),
     titleSmall: TextStyle(
-      color: const Color(0xFF1F2937),
-      fontSize: responsiveFontSize(16),
+      color: Color(0xFF1F2937),
+      fontSize: 16, // เปลี่ยน
       fontWeight: FontWeight.w500,
     ),
     bodyLarge: TextStyle(
-      color: const Color(0xFF374151),
-      fontSize: responsiveFontSize(16),
+      color: Color(0xFF374151),
+      fontSize: 16, // เปลี่ยน
     ), // ข้อความเนื้อหาหลัก
     bodyMedium: TextStyle(
-      color: const Color(0xFF4B5563),
-      fontSize: responsiveFontSize(14),
+      color: Color(0xFF4B5563),
+      fontSize: 14, // เปลี่ยน
     ), // ข้อความเนื้อหารอง
     bodySmall: TextStyle(
-      color: const Color(0xFF6B7280),
-      fontSize: responsiveFontSize(12),
+      color: Color(0xFF6B7280),
+      fontSize: 12, // เปลี่ยน
     ), // ข้อความขนาดเล็ก/คำอธิบาย
     labelLarge: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(14),
+      fontSize: 14, // เปลี่ยน
       fontWeight: FontWeight.w500,
     ), // ปุ่ม
     labelMedium: TextStyle(
-      color: const Color(0xFF6B7280),
-      fontSize: responsiveFontSize(12),
+      color: Color(0xFF6B7280),
+      fontSize: 12, // เปลี่ยน
     ),
     labelSmall: TextStyle(
-      color: const Color(0xFF9CA3AF),
-      fontSize: responsiveFontSize(10),
+      color: Color(0xFF9CA3AF),
+      fontSize: 10, // เปลี่ยน
     ),
   ),
 
@@ -146,8 +149,8 @@ final ThemeData lightTheme = ThemeData(
         horizontal: 24,
         vertical: 14,
       ), // ขนาดปุ่มที่กดง่าย
-      textStyle: TextStyle(
-        fontSize: responsiveFontSize(16),
+      textStyle: const TextStyle( // เปลี่ยน
+        fontSize: 16, // เปลี่ยน
         fontWeight: FontWeight.w600,
       ),
     ),
@@ -173,8 +176,8 @@ final ThemeData lightTheme = ThemeData(
         width: 2,
       ), // เน้นด้วยสี primary เมื่อโฟกัส
     ),
-    labelStyle: TextStyle(color: const Color(0xFF6B7280)), // สีของ Label
-    hintStyle: TextStyle(color: const Color(0xFF9CA3AF)), // สีของ Hint
+    labelStyle: const TextStyle(color: Color(0xFF6B7280)), // สีของ Label
+    hintStyle: const TextStyle(color: Color(0xFF9CA3AF)), // สีของ Hint
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
   ),
   appBarTheme: const AppBarTheme(
@@ -191,8 +194,8 @@ final ThemeData lightTheme = ThemeData(
     backgroundColor: Colors.white,
     selectedItemColor: const Color(0xFF2C5282), // สี Primary เมื่อเลือก
     unselectedItemColor: const Color(0xFF6B7280), // สีเทาอ่อนเมื่อไม่เลือก
-    selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
-    unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
+    selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+    unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
   ),
   // เพิ่มการตั้งค่าสำหรับ Slider (เช่นกราฟหุ้น)
   sliderTheme: SliderThemeData(
@@ -234,76 +237,76 @@ final ThemeData darkTheme = ThemeData(
   dividerColor: const Color(0xFF333333), // สีเส้นแบ่งที่ชัดเจนแต่ไม่รบกวน
   iconTheme: const IconThemeData(color: Colors.white70), // ไอคอนสีขาวที่นุ่มนวล
 
-  textTheme: TextTheme(
+  textTheme: const TextTheme( // เปลี่ยนเป็น const TextTheme
     displayLarge: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(57),
+      fontSize: 57, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     displayMedium: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(45),
+      fontSize: 45, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     displaySmall: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(36),
+      fontSize: 36, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     headlineLarge: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(32),
+      fontSize: 32, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     headlineMedium: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(28),
+      fontSize: 28, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     headlineSmall: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(24),
+      fontSize: 24, // เปลี่ยน
       fontWeight: FontWeight.bold,
     ),
     titleLarge: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(22),
+      fontSize: 22, // เปลี่ยน
       fontWeight: FontWeight.w700,
     ),
     titleMedium: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(18),
+      fontSize: 18, // เปลี่ยน
       fontWeight: FontWeight.w600,
     ),
     titleSmall: TextStyle(
       color: Colors.white,
-      fontSize: responsiveFontSize(16),
+      fontSize: 16, // เปลี่ยน
       fontWeight: FontWeight.w500,
     ),
     bodyLarge: TextStyle(
       color: Colors.white70,
-      fontSize: responsiveFontSize(16),
+      fontSize: 16, // เปลี่ยน
     ), // ข้อความหลัก
     bodyMedium: TextStyle(
       color: Colors.white70,
-      fontSize: responsiveFontSize(14),
+      fontSize: 14, // เปลี่ยน
     ),
     bodySmall: TextStyle(
       color: Colors.white54,
-      fontSize: responsiveFontSize(12),
+      fontSize: 12, // เปลี่ยน
     ), // ข้อความรอง
     labelLarge: TextStyle(
       color: Colors.black,
-      fontSize: responsiveFontSize(14),
+      fontSize: 14, // เปลี่ยน
       fontWeight: FontWeight.w500,
     ), // ปุ่ม
     labelMedium: TextStyle(
       color: Colors.white70,
-      fontSize: responsiveFontSize(12),
+      fontSize: 12, // เปลี่ยน
     ),
     labelSmall: TextStyle(
       color: Colors.white54,
-      fontSize: responsiveFontSize(10),
+      fontSize: 10, // เปลี่ยน
     ),
   ),
 
@@ -313,8 +316,8 @@ final ThemeData darkTheme = ThemeData(
       foregroundColor: Colors.black, // ข้อความปุ่มสีดำ
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      textStyle: TextStyle(
-        fontSize: responsiveFontSize(16),
+      textStyle: const TextStyle( // เปลี่ยน
+        fontSize: 16, // เปลี่ยน
         fontWeight: FontWeight.w600,
       ),
     ),
@@ -338,8 +341,8 @@ final ThemeData darkTheme = ThemeData(
         width: 2,
       ), // เน้นด้วยสี primary เมื่อโฟกัส
     ),
-    labelStyle: TextStyle(color: Colors.white70),
-    hintStyle: TextStyle(color: Colors.white38),
+    labelStyle: const TextStyle(color: Colors.white70),
+    hintStyle: const TextStyle(color: Colors.white38),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
   ),
   appBarTheme: const AppBarTheme(
@@ -356,7 +359,7 @@ final ThemeData darkTheme = ThemeData(
     backgroundColor: const Color(0xFF1E1E1E),
     selectedItemColor: const Color(0xFF5E8BFF),
     unselectedItemColor: Colors.white54,
-    selectedLabelStyle: TextStyle(fontWeight: FontWeight.w600),
-    unselectedLabelStyle: TextStyle(fontWeight: FontWeight.w500),
+    selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+    unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.w500),
   ),
 );

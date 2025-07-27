@@ -262,14 +262,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.28"
-  flutter_screenutil:
-    dependency: "direct main"
-    description:
-      name: flutter_screenutil
-      sha256: "8239210dd68bee6b0577aa4a090890342d04a136ce1c81f98ee513fc0ce891de"
-      url: "https://pub.dev"
-    source: hosted
-    version: "5.9.3"
   flutter_secure_storage:
     dependency: "direct main"
     description:
@@ -737,18 +729,18 @@ packages:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_charts
-      sha256: f151e1bc5b9537e198cc072df4f1ee275f786fcaba841fe6881c7e08e8e37083
+      sha256: c58ca79e072680af6f0554f7c4b91886c1d8808f2522b49d557f16fb5cb3bb04
       url: "https://pub.dev"
     source: hosted
-    version: "30.1.37"
+    version: "30.1.41"
   syncfusion_flutter_core:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: b86e8e24fc44c6a2759adfebd02bf27f2954062e6f3bd52343faa16966039b85
+      sha256: "536753489e168f49659261d0abd02b101b34c0b1bde27898f2869aab05f1cbb6"
       url: "https://pub.dev"
     source: hosted
-    version: "30.1.37"
+    version: "30.1.41"
   term_glyph:
     dependency: transitive
     description:
