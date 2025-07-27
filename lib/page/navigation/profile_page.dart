@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/setting/edit_profile.dart';
+import 'package:trademine/page/setting/setting_page.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -17,6 +18,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  DateTime? _selectedDate;
   Future<void> Logout() async {
     try {
       final storage = FlutterSecureStorage();
@@ -27,7 +29,12 @@ class _ProfilePageState extends State<ProfilePage> {
         MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } catch (e) {
-      AppSnackbar.showError(context, e.toString());
+      AppSnackbar.showError(
+        context,
+        e.toString(),
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
     }
   }
 
@@ -88,38 +95,38 @@ class _ProfilePageState extends State<ProfilePage> {
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                           const SizedBox(height: 20),
-                          MenuItem(
-                            context: context,
+                          _buildMenuItem(
                             icon: Icons.history,
-                            text: 'History',
-                            onTap: () => print('History'),
+                            title: 'History',
+                            onTap: () {},
                           ),
                           Divider(color: AppColor.backgroundColor, height: 15),
-                          MenuItem(
-                            context: context,
+                          _buildMenuItem(
                             icon: Icons.newspaper,
-                            text: 'Liked News',
-                            onTap: () => print('Liked News'),
+                            title: 'Liked News',
+                            onTap: () {},
                           ),
                           Divider(color: AppColor.backgroundColor, height: 15),
-                          MenuItem(
-                            context: context,
+                          _buildMenuItem(
                             icon: Icons.settings,
-                            text: 'Setting',
-                            onTap:
-                                () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => EditProfile(),
-                                  ),
+                            title: 'Setting',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => SettingPage(),
                                 ),
+                              );
+                            },
                           ),
+
                           Divider(color: AppColor.backgroundColor, height: 15),
-                          MenuItem(
-                            context: context,
+                          _buildMenuItem(
                             icon: Icons.logout,
-                            text: 'Logout',
-                            onTap: Logout,
+                            title: 'Logout',
+                            onTap: () {
+                              Logout();
+                            },
                           ),
                           Divider(color: AppColor.backgroundColor, height: 15),
                         ],
@@ -129,11 +136,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ],
             ),
-
-            // Avatar ลอยกลางบน (ตำแหน่ง fixed)
             Positioned(
               top: 20,
-              left: screenWidth / 2 - 65, // กึ่งกลางจอ - ครึ่งความกว้าง avatar
+              left: screenWidth / 2 - 65,
               child: Container(
                 width: 130,
                 height: 130,
@@ -155,6 +160,22 @@ class _ProfilePageState extends State<ProfilePage> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? iconColor,
+    Color? textColor,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(horizontal: 10),
+      leading: Icon(icon, color: iconColor ?? Colors.black),
+      title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
+      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      onTap: onTap,
     );
   }
 }

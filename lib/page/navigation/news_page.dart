@@ -95,7 +95,12 @@ class _NewsPageState extends State<NewsPage> {
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.showError(context, 'Loading News Error: ${e.toString()}');
+        AppSnackbar.showError(
+          context,
+          'Loading News Error: ${e.toString()}',
+          Icons.error,
+          Theme.of(context).colorScheme.error,
+        );
         setState(() {
           hasMore = false;
         });
@@ -140,7 +145,12 @@ class _NewsPageState extends State<NewsPage> {
       }
     } catch (e) {
       if (mounted) {
-        AppSnackbar.showError(context, 'Loading News Error: ${e.toString()}');
+        AppSnackbar.showError(
+          context,
+          'Loading News Error: ${e.toString()}',
+          Icons.error,
+          Theme.of(context).colorScheme.error,
+        );
       }
     } finally {
       if (mounted) {
@@ -341,7 +351,12 @@ class _NewsPageState extends State<NewsPage> {
                   ),
                 );
               } else {
-                AppSnackbar.showError(context, 'News ID is missing');
+                AppSnackbar.showError(
+                  context,
+                  'News ID is missing',
+                  Icons.error,
+                  Theme.of(context).colorScheme.error,
+                );
               }
             },
             child: Container(

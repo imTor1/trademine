@@ -124,29 +124,30 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                   const SizedBox(width: 15),
                   Expanded(
-                    child: SizedBox(
-                      height: 45,
-                      child: TextFormField(
-                        controller: search,
-                        decoration: InputDecoration(
-                          fillColor: Theme.of(context).dividerColor,
-                          filled: true,
-                          hintText: 'Search',
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                    child: TextFormField(
+                      controller: search,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      decoration: InputDecoration(
+                        hintText: 'Search',
+                        hintStyle: Theme.of(context).textTheme.bodyLarge,
+                        filled: true,
+                        fillColor: Theme.of(context).dividerColor,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 15.0,
+                          horizontal: 20.0,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).primaryColor,
+                            width: 1.5,
                           ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Theme.of(context).disabledColor,
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                     ),

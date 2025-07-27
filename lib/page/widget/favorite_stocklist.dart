@@ -33,7 +33,12 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
       await AuthServiceUser.unfollowStock(token!, widget.symbol);
     } catch (e) {
       if (!mounted) return;
-      AppSnackbar.showError(context, 'Error : $e');
+      AppSnackbar.showError(
+        context,
+        'Error : $e',
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
     }
   }
 

@@ -117,7 +117,12 @@ class _StockDetailState extends State<StockDetail> {
         follow = isFollowed;
       });
     } catch (e) {
-      AppSnackbar.showError(context, 'Error checking followed stock: $e');
+      AppSnackbar.showError(
+        context,
+        'Error checking followed stock: $e',
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
     }
   }
 
@@ -232,6 +237,8 @@ class _StockDetailState extends State<StockDetail> {
                           AppSnackbar.showError(
                             context,
                             'This stock is already in your favorites.',
+                            Icons.error,
+                            Theme.of(context).colorScheme.error,
                           );
                         },
                       ),

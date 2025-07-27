@@ -1,7 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
-import 'package:trademine/page/loading_page/loading_screen.dart';
+import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/sigup_page/signup_email.dart';
 import 'package:trademine/page/splash/splash_screen.dart';
@@ -37,41 +37,95 @@ class _LoginAppState extends State<LoginPage> {
       AppSnackbar.showError(
         context,
         "Please enter your email address and password.",
+        Icons.error,
+        Theme.of(context).colorScheme.error,
       );
+      return;
     } else if (_email.text.isEmpty) {
-      AppSnackbar.showError(context, "Please enter your email address.");
+      AppSnackbar.showError(
+        context,
+        "Please enter your email address.",
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
+      return;
     } else if (!_isValidEmail(_email.text)) {
-      AppSnackbar.showError(context, "Please enter a valid email address.");
+      AppSnackbar.showError(
+        context,
+        "Please enter a valid email address.",
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
+      return;
     } else if (_password.text.isEmpty) {
-      AppSnackbar.showError(context, "Please enter your password.");
+      AppSnackbar.showError(
+        context,
+        "Please enter your password.",
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
       return;
     }
+
+    FocusScope.of(context).unfocus();
     setState(() {
       _isLoading = true;
     });
-    LoadingScreen.show(context);
-    FocusScope.of(context).unfocus();
+    CircularProgressIndicator(
+      backgroundColor: Colors.blueAccent,
+      color: Colors.white,
+    );
     try {
       final data = await AuthService.Login(_email.text, _password.text);
       final storage = FlutterSecureStorage();
+
+      // Validate data before storing
+      if (data['token'] == null ||
+          data['user'] == null ||
+          data['user']['id'] == null) {
+        throw Exception('Invalid response from server');
+      }
+
       await storage.write(key: 'auth_token', value: data['token']);
       await storage.write(key: 'user_Id', value: data['user']['id'].toString());
 
       ScaffoldMessenger.of(context).clearSnackBars();
-      LoadingScreen.hide(context);
+      _email.clear();
+      _password.clear();
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => SplashScreen()),
       );
     } catch (e) {
-      FocusScope.of(context).unfocus();
-      LoadingScreen.hide(context);
-      AppSnackbar.showError(context, e.toString());
+      _password.clear();
+
+      // Show user-friendly error message
+      String errorMessage = 'Login failed. Please try again.';
+      if (e.toString().contains('Invalid email or password')) {
+        errorMessage =
+            'Invalid email or password. Please check your credentials.';
+      } else if (e.toString().contains('No internet connection')) {
+        errorMessage = 'No internet connection. Please check your network.';
+      } else if (e.toString().contains('Request timeout')) {
+        errorMessage = 'Request timeout. Please try again.';
+      } else if (e.toString().contains('Server error')) {
+        errorMessage = 'Server error. Please try again later.';
+      }
+
+      AppSnackbar.showError(
+        context,
+        errorMessage,
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
       setState(() {
         _isLoading = false;
       });
     }
   }
+
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -82,54 +136,72 @@ class _LoginAppState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        centerTitle: false,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset('assets/trademine_mini.png', height: 28),
+            const SizedBox(width: 8),
+            Text('TradeMine', style: Theme.of(context).textTheme.titleMedium),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.only(left: 20, right: 20),
+            padding: EdgeInsets.symmetric(
+              horizontal: width * 0.05,
+              vertical: 20,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      'assets/trademine_mini.png',
-                      width: 30,
-                      height: 30,
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      'TradeMine',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40),
                 Text(
                   'Welcome Back!',
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontSize: 32),
                 ),
                 Text(
                   'Login To Continue.',
-                  style: Theme.of(context).textTheme.titleSmall,
+                  style: Theme.of(context).textTheme.titleMedium,
                 ),
 
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _email,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: 'Email',
                     hintStyle: Theme.of(context).textTheme.bodyLarge,
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: Theme.of(context).hintColor,
+                    ),
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 20.0,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Theme.of(context).disabledColor,
+                        color: Theme.of(context).primaryColor,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -140,24 +212,36 @@ class _LoginAppState extends State<LoginPage> {
                 TextFormField(
                   controller: _password,
                   obscureText: _obScureText,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: 'Password',
                     hintStyle: Theme.of(context).textTheme.bodyLarge,
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      color: Theme.of(context).hintColor,
+                    ),
                     suffixIcon: IconButton(
                       onPressed: _togglePasswordVisibility,
                       icon: Icon(
                         _obScureText ? Icons.visibility_off : Icons.visibility,
+                        color: Theme.of(context).hintColor,
                       ),
                     ),
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 20.0,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Theme.of(context).disabledColor,
+                        color: Theme.of(context).primaryColor,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -189,24 +273,29 @@ class _LoginAppState extends State<LoginPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _Login,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                _isLoading
+                    ? Center(child: LoadingCircle())
+                    : ElevatedButton(
+                      onPressed: _isLoading ? null : _Login,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                          MediaQuery.of(context).size.width,
+                          50,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                      child: Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  child: Text(
-                    'LOGIN',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
                 const SizedBox(height: 30),
                 Row(
                   children: <Widget>[
@@ -215,15 +304,12 @@ class _LoginAppState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
                         "OR",
-                        style: Theme.of(context).textTheme.bodyMedium,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: Divider(
-                        thickness: 1,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                    ),
+                    Expanded(child: Divider(thickness: 1, color: Colors.black)),
                   ],
                 ),
                 const SizedBox(height: 30),
@@ -232,14 +318,16 @@ class _LoginAppState extends State<LoginPage> {
                     AppSnackbar.showError(
                       context,
                       'Login With Google Is Coming Soon.....',
+                      Icons.error,
+                      Theme.of(context).colorScheme.error,
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
+                    minimumSize: Size(MediaQuery.of(context).size.width, 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    backgroundColor: Colors.blue,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -256,8 +344,7 @@ class _LoginAppState extends State<LoginPage> {
                           height: 30,
                         ),
                       ),
-
-                      Padding(padding: EdgeInsets.only(left: 15)),
+                      Padding(padding: EdgeInsets.only(left: 10)),
                       Text(
                         'CONTINUE WITH GOOGLE',
                         style: TextStyle(

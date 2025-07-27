@@ -54,6 +54,8 @@ class _SearchStockState extends State<SearchStock> {
         return AppSnackbar.showError(
           context,
           'Error checking followed stock: $e',
+          Icons.error,
+          Theme.of(context).colorScheme.error,
         );
     }
   }
@@ -67,7 +69,12 @@ class _SearchStockState extends State<SearchStock> {
         follow = !follow;
       });
     } catch (e) {
-      AppSnackbar.showError(context, 'Error : $e');
+      AppSnackbar.showError(
+        context,
+        'Error : $e',
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
     }
   }
 
@@ -143,7 +150,12 @@ class _SearchStockState extends State<SearchStock> {
                                     follow = false;
                                   });
                                 } catch (e) {
-                                  AppSnackbar.showError(context, 'Error: $e');
+                                  AppSnackbar.showError(
+                                    context,
+                                    'Error: $e',
+                                    Icons.error,
+                                    Theme.of(context).colorScheme.error,
+                                  );
                                 }
                               }
                             } else {

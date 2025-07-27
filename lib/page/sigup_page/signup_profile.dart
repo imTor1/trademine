@@ -5,10 +5,10 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 import 'package:trademine/utils/snackbar.dart';
-import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/services/auth_service.dart';
 
 class SignUpProfile extends StatefulWidget {
@@ -20,7 +20,7 @@ class SignUpProfile extends StatefulWidget {
 
 class _SignupProfileState extends State<SignUpProfile> {
   final _birthdayController = TextEditingController();
-  final _username = TextEditingController();
+  final _usernameController = TextEditingController();
   final List<String> optionsGender = ['Male', 'Female', 'Other'];
 
   File? _imageFile;
@@ -31,7 +31,7 @@ class _SignupProfileState extends State<SignUpProfile> {
   @override
   void dispose() {
     _birthdayController.dispose();
-    _username.dispose();
+    _usernameController.dispose();
     super.dispose();
   }
 
@@ -75,7 +75,6 @@ class _SignupProfileState extends State<SignUpProfile> {
 
   Future<void> _submitProfile() async {
     setState(() => _isLoading = true);
-    LoadingScreen.show(context);
     FocusScope.of(context).unfocus();
 
     try {
@@ -84,20 +83,23 @@ class _SignupProfileState extends State<SignUpProfile> {
 
       await AuthService.ProfileRegister(
         token.toString(),
-        _username.text,
+        _usernameController.text,
         _selectedDate!,
         selectedGender!,
         _imageFile!,
       );
 
-      LoadingScreen.hide(context);
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
       );
     } catch (e) {
-      LoadingScreen.hide(context);
-      AppSnackbar.showError(context, e.toString());
+      AppSnackbar.showError(
+        context,
+        e.toString(),
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
       setState(() => _isLoading = false);
     }
   }
@@ -105,10 +107,20 @@ class _SignupProfileState extends State<SignUpProfile> {
   void _validateAndSubmit() {
     if (_selectedDate == null ||
         selectedGender == null ||
-        _username.text.isEmpty) {
-      AppSnackbar.showError(context, 'Missing required fields');
+        _usernameController.text.isEmpty) {
+      AppSnackbar.showError(
+        context,
+        'Missing required fields',
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
     } else if (_imageFile == null) {
-      AppSnackbar.showError(context, 'Missing required Profile');
+      AppSnackbar.showError(
+        context,
+        'Missing required Profile',
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
     } else {
       _submitProfile();
     }
@@ -116,27 +128,25 @@ class _SignupProfileState extends State<SignUpProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: width * 0.05),
           child: ListView(
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: IconButton(
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(),
-                  onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color: Theme.of(context).iconTheme.color,
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 20),
               Text(
                 'Set Your Password',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -182,22 +192,33 @@ class _SignupProfileState extends State<SignUpProfile> {
 
               SizedBox(height: 30),
               TextFormField(
-                controller: _username,
+                controller: _usernameController,
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                 decoration: InputDecoration(
                   hintText: 'Username',
                   hintStyle: Theme.of(context).textTheme.bodyLarge,
+                  prefixIcon: Icon(
+                    Icons.account_box,
+                    color: Theme.of(context).hintColor,
+                  ),
                   filled: true,
                   fillColor: Theme.of(context).dividerColor,
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 15.0,
+                    horizontal: 20.0,
+                  ),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(
-                      color: Theme.of(context).disabledColor,
+                      color: Theme.of(context).primaryColor,
                       width: 1.5,
                     ),
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
               ),
@@ -210,8 +231,13 @@ class _SignupProfileState extends State<SignUpProfile> {
                     child: TextFormField(
                       controller: _birthdayController,
                       onTap: _showCupertinoDatePicker,
+
                       readOnly: true,
                       decoration: InputDecoration(
+                        prefixIcon: Icon(
+                          Icons.date_range,
+                          color: Theme.of(context).hintColor,
+                        ),
                         hintText:
                             _selectedDate != null
                                 ? DateFormat(
@@ -287,24 +313,26 @@ class _SignupProfileState extends State<SignUpProfile> {
               ),
 
               SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _validateAndSubmit,
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(MediaQuery.of(context).size.width, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+              _isLoading
+                  ? Center(child: LoadingCircle())
+                  : ElevatedButton(
+                    onPressed: _isLoading ? null : _validateAndSubmit,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(MediaQuery.of(context).size.width, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                    ),
+                    child: Text(
+                      'SAVE',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                   ),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                ),
-                child: Text(
-                  'SAVE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
             ],
           ),
         ),

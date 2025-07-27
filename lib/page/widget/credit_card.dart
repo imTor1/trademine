@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 
-class CreditCard extends StatefulWidget {
+class CreditCardWidget extends StatefulWidget {
+  final String typeCard;
   final String number;
   final String name;
   final String exp;
   final bool isSelected;
 
-  const CreditCard({
+  const CreditCardWidget({
     super.key,
+    required this.typeCard,
     required this.number,
     required this.name,
     required this.exp,
@@ -15,10 +17,10 @@ class CreditCard extends StatefulWidget {
   });
 
   @override
-  State<CreditCard> createState() => _CreditCardState();
+  State<CreditCardWidget> createState() => _CreditCardWidgetState();
 }
 
-class _CreditCardState extends State<CreditCard> {
+class _CreditCardWidgetState extends State<CreditCardWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -28,10 +30,12 @@ class _CreditCardState extends State<CreditCard> {
         borderRadius: BorderRadius.circular(20),
         gradient: const LinearGradient(
           colors: [
-            Color(0xFF103E75), // hsl(213, 88%, 28%)
-            Color(0xFF7823BC), // hsl(271, 91%, 45%)
-            Color(0xFF0F4F3D), // hsl(142, 76%, 25%)
+            Color(0xFF0F2027), // Deep Navy
+            Color(0xFF203A43), // Slate Blue
+            Color(0xFF2C5364), // Steely Teal
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
@@ -53,7 +57,7 @@ class _CreditCardState extends State<CreditCard> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '💳 DEMO BANK',
+                '💳 ${widget.typeCard.toUpperCase()}',
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(color: Colors.white),

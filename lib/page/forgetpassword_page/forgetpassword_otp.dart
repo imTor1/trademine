@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_password.dart';
+import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/services/forgetpassword_service.dart';
-import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/utils/snackbar.dart';
 
 class ForgetpasswordOtp extends StatefulWidget {
@@ -30,7 +30,6 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
         _isLoading = true;
       });
       FocusScope.of(context).unfocus();
-      LoadingScreen.show(context);
 
       final storage = FlutterSecureStorage();
       String? _email = await storage.read(key: 'email');
@@ -38,15 +37,18 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
       final token = await AuthService.OTPRegister(_email.toString(), fullotp);
       await storage.write(key: 'regis_token', value: token);
 
-      LoadingScreen.hide(context);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => ForgetpasswordPassword()),
       );
     } catch (e) {
       FocusScope.of(context).unfocus();
-      LoadingScreen.hide(context);
-      AppSnackbar.showError(context, e.toString());
+      AppSnackbar.showError(
+        context,
+        e.toString(),
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
 
       setState(() {
         _isLoading = false;
@@ -64,31 +66,26 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Container(
-          width: double.infinity,
-          height: double.infinity,
           child: Padding(
-            padding: EdgeInsets.only(left: 20, right: 20),
+            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(
-                        Icons.arrow_back,
-                        color: Theme.of(context).iconTheme.color,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
                 Text(
                   'Enter Your OTP',
                   style: Theme.of(context).textTheme.titleLarge,
@@ -171,39 +168,46 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                 ),
 
                 const SizedBox(height: 15),
-                ElevatedButton(
-                  onPressed:
-                      _isLoading
-                          ? null
-                          : isChecked
-                          ? () {
-                            String fullOTP = getOtpCode();
-                            if (fullOTP.length != 6) {
-                              AppSnackbar.showError(
-                                context,
-                                'Please enter the complete OTP in all fields.',
-                              );
-                            } else {
-                              ApiConnect(getOtpCode());
-                            }
-                          }
-                          : null,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                _isLoading
+                    ? Center(child: LoadingCircle())
+                    : ElevatedButton(
+                      onPressed:
+                          _isLoading
+                              ? null
+                              : isChecked
+                              ? () {
+                                String fullOTP = getOtpCode();
+                                if (fullOTP.length != 6) {
+                                  AppSnackbar.showError(
+                                    context,
+                                    'Please enter the complete OTP in all fields.',
+                                    Icons.error,
+                                    Theme.of(context).colorScheme.error,
+                                  );
+                                } else {
+                                  ApiConnect(getOtpCode());
+                                }
+                              }
+                              : null,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                          MediaQuery.of(context).size.width,
+                          50,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                      child: Text(
+                        'SEND OTP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  child: Text(
-                    'SEND OTP',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
               ],
             ),
           ),

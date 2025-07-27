@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/page/sigup_page/signup_otp.dart';
-import 'package:trademine/page/loading_page/loading_screen.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/services/auth_service.dart';
 import 'package:flutter/gestures.dart';
@@ -30,14 +30,12 @@ class _SignUpEmailState extends State<SignUpEmail> {
 
   Future<void> ApiConnect() async {
     try {
-      LoadingScreen.show(context);
       setState(() {
         _isLoading = true;
       });
       final storage = FlutterSecureStorage();
       await storage.write(key: 'email', value: _email.text);
       await AuthService.EmailRegister(_email.text);
-      LoadingScreen.hide(context);
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -60,8 +58,12 @@ class _SignUpEmailState extends State<SignUpEmail> {
         ),
       );
     } catch (e) {
-      LoadingScreen.hide(context);
-      AppSnackbar.showError(context, e.toString());
+      AppSnackbar.showError(
+        context,
+        e.toString(),
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
       setState(() {
         _isLoading = false;
       });
@@ -76,27 +78,26 @@ class _SignUpEmailState extends State<SignUpEmail> {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        surfaceTintColor: Colors.transparent,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
       body: SafeArea(
         child: Container(
-          width: double.infinity,
-          height: double.infinity,
           child: Padding(
-            padding: EdgeInsets.only(left: 20, right: 20),
+            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: Icon(Icons.arrow_back),
-                    ),
-                  ],
-                ),
                 const SizedBox(height: 20),
                 Text(
                   'Sign Up For An Account',
@@ -111,18 +112,29 @@ class _SignUpEmailState extends State<SignUpEmail> {
                 const SizedBox(height: 30),
                 TextFormField(
                   controller: _email,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: 'Email',
                     hintStyle: Theme.of(context).textTheme.bodyLarge,
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      color: Theme.of(context).hintColor,
+                    ),
                     filled: true,
                     fillColor: Theme.of(context).dividerColor,
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 15.0,
+                      horizontal: 20.0,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
-                        color: Theme.of(context).disabledColor,
+                        color: Theme.of(context).primaryColor,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(20),
@@ -142,7 +154,12 @@ class _SignUpEmailState extends State<SignUpEmail> {
                             isChecked = newValue!;
                           });
                         } else {
-                          AppSnackbar.showError(context, 'Enter You Email');
+                          AppSnackbar.showError(
+                            context,
+                            'Enter You Email',
+                            Icons.error,
+                            Theme.of(context).colorScheme.error,
+                          );
                         }
                       },
                       checkColor: Colors.white,
@@ -186,29 +203,34 @@ class _SignUpEmailState extends State<SignUpEmail> {
                   ],
                 ),
                 const SizedBox(height: 15),
-                ElevatedButton(
-                  onPressed:
-                      isChecked
-                          ? () {
-                            ApiConnect();
-                          }
-                          : null,
-                  style: ElevatedButton.styleFrom(
-                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
+                _isLoading
+                    ? Center(child: LoadingCircle())
+                    : ElevatedButton(
+                      onPressed:
+                          isChecked
+                              ? () {
+                                ApiConnect();
+                              }
+                              : null,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: Size(
+                          MediaQuery.of(context).size.width,
+                          50,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                      ),
+                      child: Text(
+                        'GET OTP',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  child: Text(
-                    'GET OTP',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
 
                 const SizedBox(height: 40),
                 Row(

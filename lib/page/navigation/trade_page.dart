@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
+import 'package:trademine/bloc/credit_card/creditCardState.dart';
 import 'package:trademine/page/loading_page/TransactionHistoryShimmer.dart';
-import 'package:trademine/page/setting_card/demo_card.dart';
+import 'package:trademine/page/setting_card/card_config.dart';
 import 'package:trademine/page/widget/credit_card.dart';
-// import 'package:getwidget/getwidget.dart'; // ไม่ได้ใช้ในโค้ดนี้
 import 'package:trademine/page/widget/transaction_history.dart';
-import 'package:trademine/theme/app_styles.dart';
 
 class TradePage extends StatefulWidget {
   const TradePage({super.key});
@@ -19,11 +20,6 @@ class _TradePageState extends State<TradePage> {
   late PageController _pageController;
   final List<String> currencies = ['USD', 'THB'];
   String _selectedCurrency = 'USD';
-
-  final List<Map<String, String>> cardData = [
-    {'number': '20100 USD', 'name': 'John Doe', 'exp': '12/26'},
-    {'number': '200 USD', 'name': 'Alice Smith', 'exp': '10/25'},
-  ];
 
   final List<Map<String, String>> _transactionDemo1 = [
     {
@@ -73,7 +69,6 @@ class _TradePageState extends State<TradePage> {
     _loadTransactions(_selectedIndex);
   }
 
-  // ฟังก์ชันสำหรับโหลดข้อมูลธุรกรรม
   Future<void> _loadTransactions(int index) async {
     setState(() {
       _isLoading = true;
@@ -101,190 +96,207 @@ class _TradePageState extends State<TradePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 60,
-            centerTitle: false,
-            leadingWidth: 0,
-            automaticallyImplyLeading: false,
-            backgroundColor: Colors.transparent,
-            title: Text('Trade', style: Theme.of(context).textTheme.titleLarge),
-          ),
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.05,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'My Assets',
-                            style: Theme.of(context).textTheme.titleSmall,
-                          ),
-                          DropdownButton<String>(
-                            value: _selectedCurrency,
-                            icon: const Icon(Icons.arrow_drop_down),
-                            style: Theme.of(context).textTheme.titleSmall,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedCurrency = newValue!;
-                              });
-                            },
-                            items:
-                                currencies.map<DropdownMenuItem<String>>((
-                                  String value,
-                                ) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value),
-                                  );
-                                }).toList(),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 250,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: cardData.length,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _selectedIndex = index;
-                      });
-                      _loadTransactions(index);
-                    },
-                    itemBuilder: (context, index) {
-                      final card = cardData[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 5),
-                        child: CreditCard(
-                          number: card['number'] ?? '',
-                          name: card['name'] ?? '',
-                          exp: card['exp'] ?? '',
-                          isSelected: index == _selectedIndex,
-                        ),
-                      );
-                    },
-                  ),
-                ),
+    return BlocBuilder<CreditCardCubit, CreditCardState>(
+      builder: (context, state) {
+        final CardsData = state.cards;
 
-                const SizedBox(height: 15),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(4, (index) {
-                    final labels = ['Buy', 'Sell', 'More', 'Add'];
-                    final icons = [
-                      Icons.upload,
-                      Icons.download,
-                      Icons.more_horiz,
-                      Icons.add,
-                    ];
-                    final color = [
-                      Theme.of(context).colorScheme.secondary,
-                      Theme.of(context).colorScheme.error,
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary,
-                    ];
-                    return Column(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            switch (index) {
-                              case 0:
-                                print('Buy button pressed!');
-                                break;
-                              case 1:
-                                print('Sell button pressed!');
-                                break;
-                              case 2:
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => DemoCard()),
-                                );
-                                break;
-                              case 3:
-                                print('Add button pressed!');
-                                break;
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: const CircleBorder(),
-                            padding: const EdgeInsets.all(18),
-                            backgroundColor: color[index],
-                          ),
-                          child: Icon(
-                            icons[index],
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                        if (labels[index].isNotEmpty) const SizedBox(height: 6),
-                        if (labels[index].isNotEmpty)
-                          Text(
-                            labels[index],
-                            style: Theme.of(context).textTheme.bodyMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                      ],
-                    );
-                  }),
+        return Scaffold(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          body: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                centerTitle: false,
+                leadingWidth: 0,
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.transparent,
+                title: Text(
+                  'Trade',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 15),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: MediaQuery.of(context).size.width * 0.03,
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
+              ),
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * 0.05,
+                      ),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Transaction',
-                            style: Theme.of(context).textTheme.titleSmall,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'My Assets (${CardsData.length})',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              DropdownButton<String>(
+                                value: _selectedCurrency,
+                                icon: const Icon(Icons.arrow_drop_down),
+                                style: Theme.of(context).textTheme.titleSmall,
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    _selectedCurrency = newValue!;
+                                  });
+                                },
+                                items:
+                                    currencies.map<DropdownMenuItem<String>>((
+                                      String value,
+                                    ) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value),
+                                      );
+                                    }).toList(),
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(
+                      height: 250,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: CardsData.length,
+                        onPageChanged: (index) {
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                          _loadTransactions(index);
+                        },
+                        itemBuilder: (context, index) {
+                          final card = CardsData[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 5),
+                            child: CreditCardWidget(
+                              typeCard: card['typeCard'] ?? '',
+                              number: card['number'] ?? '',
+                              name: card['name'] ?? '',
+                              exp: card['exp'] ?? '',
+                              isSelected: index == _selectedIndex,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: List.generate(4, (index) {
+                        final labels = ['Buy', 'Sell', 'More', 'Add'];
+                        final icons = [
+                          Icons.upload,
+                          Icons.download,
+                          Icons.more_horiz,
+                          Icons.add,
+                        ];
+                        final color = [
+                          Theme.of(context).colorScheme.secondary,
+                          Theme.of(context).colorScheme.error,
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary,
+                        ];
+                        return Column(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                switch (index) {
+                                  case 0:
+                                    print('Buy button pressed!');
+                                    break;
+                                  case 1:
+                                    print('Sell button pressed!');
+                                    break;
+                                  case 2:
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (_) => DemoCard(
+                                              CardData: [
+                                                CardsData[_selectedIndex],
+                                              ],
+                                            ),
+                                      ),
+                                    );
+                                    break;
+                                  case 3:
+                                    print('Add button pressed!');
+                                    break;
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                shape: const CircleBorder(),
+                                padding: const EdgeInsets.all(18),
+                                backgroundColor: color[index],
+                              ),
+                              child: Icon(
+                                icons[index],
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            if (labels[index].isNotEmpty)
+                              const SizedBox(height: 6),
+                            if (labels[index].isNotEmpty)
+                              Text(
+                                labels[index],
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                          ],
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 15),
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: MediaQuery.of(context).size.width * 0.03,
+                      ),
+                      child: Column(
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Transaction',
+                                style: Theme.of(context).textTheme.titleSmall,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          _isLoading
-              ? SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return const TransactionHistoryShimmer();
-                  },
-                  childCount: 10, // จำนวน shimmer item ที่ต้องการแสดง
-                ),
-              )
-              : SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final history = _currentTransactionList[index];
-                  return TransactionHistory(
-                    symbol: history['title'].toString(),
-                    name: history['fullname'].toString(),
-                    price: history['price'].toString(),
-                    date: history['date'].toString(),
-                  );
-                }, childCount: _currentTransactionList.length),
               ),
-        ],
-      ),
+              _isLoading
+                  ? SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return const TransactionHistoryShimmer();
+                      },
+                      childCount: 10, // จำนวน shimmer item ที่ต้องการแสดง
+                    ),
+                  )
+                  : SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final history = _currentTransactionList[index];
+                      return TransactionHistory(
+                        symbol: history['title'].toString(),
+                        name: history['fullname'].toString(),
+                        price: history['price'].toString(),
+                        date: history['date'].toString(),
+                      );
+                    }, childCount: _currentTransactionList.length),
+                  ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
