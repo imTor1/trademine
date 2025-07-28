@@ -306,7 +306,6 @@ class _NewsPageState extends State<NewsPage> {
       ),
     );
   }
-
   Widget _buildNewsList(List<dynamic> news) {
     if (isLoading && news.isEmpty) {
       return const SliverFillRemaining(child: NewsShimmer());

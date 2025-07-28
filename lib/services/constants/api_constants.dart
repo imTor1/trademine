@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = "http://192.168.1.151:3000";
+  static const String baseUrl = "http://192.168.1.102:3000";
   static const String login = "$baseUrl/api/login";
   static const String register_email = "$baseUrl/api/register/email";
   static const String register_otp = "$baseUrl/api/register/verify-otp";
@@ -13,4 +13,5 @@ class ApiConstants {
   static const String search = "$baseUrl/api/search";
   static const String news_detail = "$baseUrl/api/news-detail";
   static const String stock_detail = "$baseUrl/api/stock-detail/";
+  static const String recomment_newStockDetailPage = "$baseUrl/api/recommentnews-stockdetail";
 }
