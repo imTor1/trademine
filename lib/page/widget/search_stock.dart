@@ -50,13 +50,14 @@ class _SearchStockState extends State<SearchStock> {
         follow = isFollowed;
       });
     } catch (e) {
-      if (!mounted)
-        return AppSnackbar.showError(
+      if (!mounted) {
+        AppSnackbar.showError(
           context,
           'Error checking followed stock: $e',
           Icons.error,
           Theme.of(context).colorScheme.error,
         );
+      }
     }
   }
 
@@ -106,7 +107,7 @@ class _SearchStockState extends State<SearchStock> {
                                 : Icons.favorite_border,
                             color:
                                 follow
-                                    ? Theme.of(context).primaryColor
+                                    ? Theme.of(context).colorScheme.error
                                     : Colors.grey,
                           ),
                           onPressed: () async {
@@ -177,8 +178,10 @@ class _SearchStockState extends State<SearchStock> {
                                 widget.name,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: Theme.of(context).textTheme.bodySmall
-                                    ?.copyWith(fontWeight: FontWeight.bold),
+                                style:
+                                    Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(),
                               ),
                             ),
                           ],

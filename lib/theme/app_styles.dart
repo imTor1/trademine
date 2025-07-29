@@ -8,16 +8,6 @@ import 'package:flutter/material.dart';
 // }
 
 class AppColor {
-  static Color primaryColor = const Color(0xffFCA311);
-  // Color.from ไม่มี Constructor ที่รับ alpha, red, green, blue โดยตรง
-  // อาจจะเป็น Color.fromRGBO หรือ Color.fromARGB
-  // แก้ไขเป็น Color.fromARGB หรือ Color(0xAARRGGBB) ถ้าต้องการระบุ alpha
-  static Color primaryColor2 = const Color.fromARGB(
-    255, // Alpha (255 = fully opaque)
-    255, // Red
-    206, // Green (0.808 * 255 = 206)
-    71, // Blue (0.278 * 255 = 71)
-  );
   static Color blueColor = const Color(0xff2D9CDB);
   static Color errorColor = const Color(0xffEB5757);
   static Color greenColor = const Color(0xff27AE60);
@@ -30,7 +20,7 @@ class AppColor {
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
   fontFamily:
-  'Roboto', // หรือเลือกฟอนต์ที่อ่านง่ายและโมเดิร์น เช่น Open Sans, Lato
+      'Roboto', // หรือเลือกฟอนต์ที่อ่านง่ายและโมเดิร์น เช่น Open Sans, Lato
   scaffoldBackgroundColor: const Color(
     0xFFF9FAFB,
   ), // สีขาวอมเทาอ่อนมาก คลีนสุดๆ
@@ -54,7 +44,7 @@ final ThemeData lightTheme = ThemeData(
     error: Color(0xFFD9534F), // แดงอมส้ม (Crimson Red) สำหรับข้อผิดพลาด
     onError: Colors.white, // ข้อความบนสี Error
     surface:
-    Colors.white, // สีพื้นผิวของ Material components (เช่น Card, Dialog)
+        Colors.white, // สีพื้นผิวของ Material components (เช่น Card, Dialog)
     onSurface: Color(0xFF1F2937), // สีข้อความบนพื้นผิว
     background: Color(0xFFF9FAFB), // สีพื้นหลังโดยรวม
     onBackground: Color(0xFF1F2937), // สีข้อความบนพื้นหลัง
@@ -65,7 +55,8 @@ final ThemeData lightTheme = ThemeData(
     color: Color(0xFF4B5563),
   ), // ไอคอนสีเทาเข้ม ดูเรียบง่าย
 
-  textTheme: const TextTheme( // เปลี่ยนเป็น const TextTheme
+  textTheme: const TextTheme(
+    // เปลี่ยนเป็น const TextTheme
     displayLarge: TextStyle(
       color: Color(0xFF1F2937),
       fontSize: 57, // เปลี่ยน
@@ -149,7 +140,8 @@ final ThemeData lightTheme = ThemeData(
         horizontal: 24,
         vertical: 14,
       ), // ขนาดปุ่มที่กดง่าย
-      textStyle: const TextStyle( // เปลี่ยน
+      textStyle: const TextStyle(
+        // เปลี่ยน
         fontSize: 16, // เปลี่ยน
         fontWeight: FontWeight.w600,
       ),
@@ -237,7 +229,8 @@ final ThemeData darkTheme = ThemeData(
   dividerColor: const Color(0xFF333333), // สีเส้นแบ่งที่ชัดเจนแต่ไม่รบกวน
   iconTheme: const IconThemeData(color: Colors.white70), // ไอคอนสีขาวที่นุ่มนวล
 
-  textTheme: const TextTheme( // เปลี่ยนเป็น const TextTheme
+  textTheme: const TextTheme(
+    // เปลี่ยนเป็น const TextTheme
     displayLarge: TextStyle(
       color: Colors.white,
       fontSize: 57, // เปลี่ยน
@@ -316,7 +309,8 @@ final ThemeData darkTheme = ThemeData(
       foregroundColor: Colors.black, // ข้อความปุ่มสีดำ
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      textStyle: const TextStyle( // เปลี่ยน
+      textStyle: const TextStyle(
+        // เปลี่ยน
         fontSize: 16, // เปลี่ยน
         fontWeight: FontWeight.w600,
       ),

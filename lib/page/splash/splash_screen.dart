@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -23,59 +20,92 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   bool _isLoading = true;
+  bool _navigated = false;
 
   @override
   void initState() {
     super.initState();
-    _loadingData();
+    _startApp();
+  }
+
+  Future<void> _startApp() async {
     Future.microtask(() {
       context.read<HomePageCubit>().fetchData();
       context.read<CreditCardCubit>().fetchCards();
     });
+
+    await _loadingData();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _loadingData() async {
     try {
       final storage = FlutterSecureStorage();
-      final String? token = await storage.read(key: 'auth_token');
-      if (!mounted) return;
-      if (token != null && token.isNotEmpty) {
-        final String? userId = await storage.read(key: 'user_Id');
-        //final favoriteStock = await AuthServiceUser.ShowFavoriteStock(token);
-        final profile = await AuthServiceUser.ProfileFecthData(userId!, token);
-        final image = ApiConstants.baseUrl + profile['profileImage'];
+      final token = await storage.read(key: 'auth_token');
 
-        if (!mounted) return;
+      if (!mounted || _navigated) return;
+
+      if (token != null && token.isNotEmpty) {
+        final userId = await storage.read(key: 'user_Id');
+        if (userId == null) {
+          _goToLogin();
+          return;
+        }
+
+        final profile = await AuthServiceUser.ProfileFecthData(userId, token);
+        final image =
+            ApiConstants.baseUrl + (profile['profileImage'] ?? '/default.jpg');
+
+        if (!mounted || _navigated) return;
+
         context.read<UserCubit>().setUser(
           profile['username'].toString(),
           profile['email'].toString(),
           profile['gender'].toString(),
           profile['birthday'].toString(),
           profile['age'].toString(),
-          image.toString(),
+          image,
         );
+
         await Future.delayed(const Duration(milliseconds: 1300));
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => NavigationBarPage()),
-        );
+        if (!mounted || _navigated) return;
+
+        _navigateTo(NavigationBarPage());
       } else {
-        if (!mounted) return;
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginPage()),
-        );
+        _goToLogin();
       }
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || _navigated) return;
+
       AppSnackbar.showError(
         context,
-        '$e',
+        'Error: $e',
         Icons.error,
         Theme.of(context).colorScheme.error,
       );
+
+      await Future.delayed(const Duration(seconds: 2));
+      _goToLogin();
     }
+  }
+
+  void _navigateTo(Widget page) {
+    if (_navigated) return;
+    _navigated = true;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+  void _goToLogin() {
+    _navigateTo(const LoginPage());
   }
 
   @override

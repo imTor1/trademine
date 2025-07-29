@@ -11,6 +11,7 @@ class FavoriteStocklist extends StatefulWidget {
   final String name;
   final String price;
   final String change;
+  final String market;
   final VoidCallback? onDelete;
 
   const FavoriteStocklist({
@@ -19,6 +20,7 @@ class FavoriteStocklist extends StatefulWidget {
     required this.name,
     required this.price,
     required this.change,
+    required this.market,
     this.onDelete,
   }) : super(key: key);
   @override
@@ -26,6 +28,17 @@ class FavoriteStocklist extends StatefulWidget {
 }
 
 class _FavoriteStocklistState extends State<FavoriteStocklist> {
+  String _getCurrencySymbol(String market) {
+    switch (market.toUpperCase()) {
+      case 'THAILAND':
+        return 'THB';
+      case 'AMERICA':
+        return 'USD';
+      default:
+        return '??';
+    }
+  }
+
   Future<void> DeleteStockFavorite() async {
     try {
       final storage = FlutterSecureStorage();
@@ -152,8 +165,9 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '${widget.price} USD',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          '${widget.price} ${_getCurrencySymbol(widget.market)}',
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         Text(
                           widget.change,

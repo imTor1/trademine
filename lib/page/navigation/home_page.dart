@@ -23,11 +23,24 @@ class _HomePageState extends State<HomePage> {
   final PageController _pageController = PageController(viewportFraction: 0.8);
   int _currentIndex = 0;
   bool _isVisibleListView = true;
-  bool isLoading = true;
+  bool _isLoading = true;
+
+  Future<void> _refreshHomePage() async {
+    Future.microtask(() {
+      context.read<HomePageCubit>().fetchData();
+    });
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _refreshHomePage();
   }
 
   @override
@@ -52,10 +65,7 @@ class _HomePageState extends State<HomePage> {
           body: RefreshIndicator(
             edgeOffset: 20,
             onRefresh: () async {
-              setState(() {
-                isLoading = !isLoading;
-              });
-              //await fetchData();
+              _refreshHomePage();
             },
             child: ScrollConfiguration(
               behavior: const ScrollBehavior().copyWith(
@@ -137,7 +147,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               if (topStocks.isNotEmpty)
                                 SizedBox(
-                                  height: 150,
+                                  height: 135,
                                   child: AnimationLimiter(
                                     child: ListView.separated(
                                       physics: BouncingScrollPhysics(),
@@ -284,6 +294,9 @@ class _HomePageState extends State<HomePage> {
                                                               .toString(),
                                                       change:
                                                           stock['LastChange']!
+                                                              .toString(),
+                                                      market:
+                                                          stock['Market']!
                                                               .toString(),
                                                       onDelete: () {
                                                         setState(() {

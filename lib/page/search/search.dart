@@ -126,28 +126,26 @@ class _SearchPageState extends State<SearchPage> {
                   Expanded(
                     child: TextFormField(
                       controller: search,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(),
                       decoration: InputDecoration(
                         hintText: 'Search',
                         hintStyle: Theme.of(context).textTheme.bodyLarge,
                         filled: true,
                         fillColor: Theme.of(context).dividerColor,
                         contentPadding: const EdgeInsets.symmetric(
-                          vertical: 15.0,
+                          vertical: 10.0,
                           horizontal: 20.0,
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderSide: BorderSide(
                             color: Theme.of(context).primaryColor,
-                            width: 1.5,
+                            width: 1,
                           ),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: BorderRadius.circular(15),
                         ),
                       ),
                     ),
@@ -171,9 +169,9 @@ class _SearchPageState extends State<SearchPage> {
                                 final keyword = searchHistory[index];
                                 return Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
-                                    horizontal: 12,
+                                  padding: const EdgeInsets.only(
+                                    top: 10,
+                                    left: 10,
                                   ),
                                   constraints: const BoxConstraints(
                                     minHeight: 40,
@@ -182,14 +180,7 @@ class _SearchPageState extends State<SearchPage> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.center,
                                     children: [
-                                      Icon(
-                                        Icons.history,
-                                        size: 22,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.primary.withOpacity(0.7),
-                                      ),
-                                      const SizedBox(width: 10),
+                                      const SizedBox(height: 10),
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: () => search.text = keyword,
@@ -198,7 +189,7 @@ class _SearchPageState extends State<SearchPage> {
                                             overflow: TextOverflow.ellipsis,
                                             style: Theme.of(
                                               context,
-                                            ).textTheme.bodyMedium?.copyWith(
+                                            ).textTheme.titleSmall?.copyWith(
                                               color:
                                                   Theme.of(
                                                     context,
@@ -207,14 +198,9 @@ class _SearchPageState extends State<SearchPage> {
                                           ),
                                         ),
                                       ),
-                                      IconButton(
-                                        padding: EdgeInsets.zero,
-                                        constraints: const BoxConstraints(),
-                                        icon: const Icon(Icons.clear, size: 20),
-                                        color: Colors.grey[600],
-                                        onPressed:
-                                            () => _deleteKeyword(keyword),
-                                        tooltip: 'Delete',
+                                      GestureDetector(
+                                        onTap: () => _deleteKeyword(keyword),
+                                        child: Icon(Icons.clear, size: 20),
                                       ),
                                     ],
                                   ),

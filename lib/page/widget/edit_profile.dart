@@ -28,7 +28,7 @@ class EditProfileField extends StatelessWidget {
                   borderSide: BorderSide(color: AppColor.backgroundColor),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.primaryColor),
+                  borderSide: BorderSide(color: Theme.of(context).primaryColor),
                 ),
               ),
             ),
