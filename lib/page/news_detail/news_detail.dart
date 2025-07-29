@@ -19,6 +19,7 @@ class _NewsDetailState extends State<NewsDetail> {
   Future<void> fetchNewsDetail() async {
     try {
       final detail = await AuthServiceNews.getNewsDetail(widget.NewsID);
+
       setState(() {
         news = detail;
         isLoading = false;

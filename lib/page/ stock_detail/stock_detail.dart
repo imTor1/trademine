@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:trademine/page/%20stock_detail/recommentNews_stockDetail.dart';
 import 'package:trademine/page/%20stock_detail/widget_detail.dart';
 import 'package:trademine/services/stock_service.dart';
 import 'package:intl/intl.dart';
 import 'package:trademine/services/user_service.dart';
 import 'package:trademine/utils/snackbar.dart';
+
+import '../../services/news_service.dart';
+import '../loading_page/news_shimmer.dart';
+import '../news_detail/news_detail.dart';
 
 class StockDetail extends StatefulWidget {
   final String StockSymbol;
@@ -18,10 +23,12 @@ class StockDetail extends StatefulWidget {
 class _StockDetailState extends State<StockDetail> {
   bool follow = false;
   Map<String, dynamic>? detailStock;
+  List<dynamic>? newsRecommnet;
   late TrackballBehavior _trackballBehavior;
   late ZoomPanBehavior _zoomPanBehavior;
   List<CandleData> chartData = [];
   String selectedTimeframe = "5D";
+  bool isLoading = false;
 
   final Map<String, String> timeframeLabels = {
     "5D": "5D",
@@ -132,8 +139,11 @@ class _StockDetailState extends State<StockDetail> {
         widget.StockSymbol,
         timeframe: selectedTimeframe,
       );
+      final newsRecomments = await AuthServiceNews.getNewsRecommentStockDetailPage(widget.StockSymbol);
+
       setState(() {
         detailStock = data;
+        newsRecommnet = newsRecomments;
         chartData = convertToCandleData(detailStock!);
       });
     } catch (e) {
@@ -573,7 +583,7 @@ class _StockDetailState extends State<StockDetail> {
                                   ),
                                   Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
@@ -593,7 +603,9 @@ class _StockDetailState extends State<StockDetail> {
                                     ],
                                   ),
                                   const SizedBox(height: 20),
-                                  Column(
+                                  Column(mainAxisAlignment:
+                                  MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Related News',
@@ -602,22 +614,26 @@ class _StockDetailState extends State<StockDetail> {
                                               context,
                                             ).textTheme.titleMedium,
                                       ),
+                                      const SizedBox(height: 10,),
+                                      RecommentnewsStockdetail(news: newsRecommnet ?? []),
                                     ],
                                   ),
                                 ],
                               ),
                             ),
-                          ),
+                          )
+,
                           const SizedBox(height: 50),
                         ],
                       ),
                     ),
                   ),
-                ],
+                ]
               ),
     );
   }
 }
+
 
 Widget Loading() {
   return SizedBox(
@@ -644,4 +660,7 @@ class CandleData {
     required this.low,
     required this.close,
   });
+
+
+
 }
