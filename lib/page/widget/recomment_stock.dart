@@ -76,8 +76,8 @@ class _RecommentStockState extends State<RecommentStock> {
                     decoration: BoxDecoration(
                       color:
                           widget.change.trim().startsWith('-')
-                              ? AppColor.errorColor
-                              : AppColor.greenColor,
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.secondary,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(

@@ -170,12 +170,17 @@ class _TradePageState extends State<TradePage> {
                           final card = CardsData[index];
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 5),
-                            child: CreditCardWidget(
-                              typeCard: card['typeCard'] ?? '',
-                              number: card['number'] ?? '',
-                              name: card['name'] ?? '',
-                              exp: card['exp'] ?? '',
-                              isSelected: index == _selectedIndex,
+                            child: Center(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(maxWidth: 400),
+                                child: CreditCardWidget(
+                                  typeCard: card['typeCard'] ?? '',
+                                  number: card['number'] ?? '',
+                                  name: card['name'] ?? '',
+                                  exp: card['exp'] ?? '',
+                                  isSelected: index == _selectedIndex,
+                                ),
+                              ),
                             ),
                           );
                         },

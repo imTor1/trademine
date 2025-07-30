@@ -65,7 +65,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
             alignment: Alignment.topRight,
             child: Container(
               width: 80,
-              color: AppColor.errorColor,
+              color: Theme.of(context).colorScheme.error,
               child: GestureDetector(
                 onTap: () async {
                   final confirm = await showCupertinoDialog<bool>(
@@ -129,8 +129,8 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
           },
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            transform: Matrix4.translationValues(showDelete ? -80 : 0, 0, 0),
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+            transform: Matrix4.translationValues(showDelete ? -100 : 0, 0, 0),
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
             decoration: BoxDecoration(
               color: Theme.of(context).scaffoldBackgroundColor,
             ),
@@ -174,15 +174,15 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                           style: TextStyle(
                             color:
                                 widget.change.trim().startsWith('-')
-                                    ? AppColor.errorColor
-                                    : AppColor.greenColor,
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                       ],
                     ),
                   ],
                 ),
-                Divider(color: AppColor.divider),
+                Divider(color: Theme.of(context).dividerColor),
               ],
             ),
           ),

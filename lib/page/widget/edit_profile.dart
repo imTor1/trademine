@@ -25,7 +25,7 @@ class EditProfileField extends StatelessWidget {
                 isDense: true,
                 contentPadding: const EdgeInsets.only(bottom: 5),
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: AppColor.backgroundColor),
+                  borderSide: BorderSide(color: Theme.of(context).dividerColor),
                 ),
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Theme.of(context).primaryColor),

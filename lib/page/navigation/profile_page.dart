@@ -61,7 +61,6 @@ class _ProfilePageState extends State<ProfilePage> {
           children: [
             Column(
               children: [
-                // แถบสีบน ความสูง 100
                 Container(
                   height: 100,
                   width: double.infinity,
@@ -85,14 +84,15 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ? user.name!
                                 : 'xxxxxx',
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyLarge,
+                            style: Theme.of(context).textTheme.titleLarge,
                           ),
                           Text(
                             (user.email?.isNotEmpty ?? false)
                                 ? user.email!
                                 : 'xxxxxxxx',
                             overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.normal),
                           ),
                           const SizedBox(height: 20),
                           _buildMenuItem(
@@ -100,13 +100,19 @@ class _ProfilePageState extends State<ProfilePage> {
                             title: 'History',
                             onTap: () {},
                           ),
-                          Divider(color: AppColor.backgroundColor, height: 15),
+                          Divider(
+                            color: Theme.of(context).dividerColor,
+                            height: 15,
+                          ),
                           _buildMenuItem(
                             icon: Icons.newspaper,
                             title: 'Liked News',
                             onTap: () {},
                           ),
-                          Divider(color: AppColor.backgroundColor, height: 15),
+                          Divider(
+                            color: Theme.of(context).dividerColor,
+                            height: 15,
+                          ),
                           _buildMenuItem(
                             icon: Icons.settings,
                             title: 'Setting',
@@ -120,7 +126,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             },
                           ),
 
-                          Divider(color: AppColor.backgroundColor, height: 15),
+                          Divider(
+                            color: Theme.of(context).dividerColor,
+                            height: 15,
+                          ),
                           _buildMenuItem(
                             icon: Icons.logout,
                             title: 'Logout',
@@ -128,7 +137,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               Logout();
                             },
                           ),
-                          Divider(color: AppColor.backgroundColor, height: 15),
+                          Divider(
+                            color: Theme.of(context).dividerColor,
+                            height: 15,
+                          ),
                         ],
                       ),
                     ),

@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/loading_page/loading_circle.dart';
@@ -28,7 +29,19 @@ class _SignUpEmailState extends State<SignUpEmail> {
     });
   }
 
+  bool _isValidEmail(String email) => EmailValidator.validate(email);
+
   Future<void> ApiConnect() async {
+    if (!_isValidEmail(_email.text)) {
+      AppSnackbar.showError(
+        context,
+        "Please enter a valid email address.",
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
+      return;
+    }
+
     try {
       setState(() {
         _isLoading = true;
@@ -143,20 +156,19 @@ class _SignUpEmailState extends State<SignUpEmail> {
                 ),
                 const SizedBox(height: 10),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Checkbox(
                       value: isChecked,
                       onChanged: (bool? newValue) {
-                        if (_email.text != '') {
+                        if (_email.text.isNotEmpty) {
                           setState(() {
                             isChecked = newValue!;
                           });
                         } else {
                           AppSnackbar.showError(
                             context,
-                            'Enter You Email',
+                            'Enter Your Email',
                             Icons.error,
                             Theme.of(context).colorScheme.error,
                           );
@@ -166,37 +178,40 @@ class _SignUpEmailState extends State<SignUpEmail> {
                       activeColor: Colors.green,
                     ),
                     Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onBackground,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                          top: 12.0,
+                        ), // ให้ข้อความตรงกับ checkbox
+                        child: RichText(
+                          text: TextSpan(
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.onBackground,
+                            ),
+                            children: [
+                              const TextSpan(text: "I agree to the "),
+                              TextSpan(
+                                text: "Terms of Service",
+                                style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                recognizer:
+                                    TapGestureRecognizer()..onTap = () {},
+                              ),
+                              const TextSpan(text: " and "),
+                              TextSpan(
+                                text: "Privacy Policy",
+                                style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                recognizer:
+                                    TapGestureRecognizer()..onTap = () {},
+                              ),
+                            ],
                           ),
-                          children: [
-                            const TextSpan(text: "I agree to the "),
-                            TextSpan(
-                              text: "Terms of Service",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                decorationColor:
-                                    Theme.of(context).colorScheme.primary,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              recognizer: TapGestureRecognizer()..onTap = () {},
-                            ),
-                            const TextSpan(text: " and "),
-                            TextSpan(
-                              text: "Privacy Policy",
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: Theme.of(context).colorScheme.primary,
-                                decorationColor:
-                                    Theme.of(context).colorScheme.primary,
-                              ),
-                              recognizer: TapGestureRecognizer()..onTap = () {},
-                            ),
-                          ],
                         ),
                       ),
                     ),

@@ -262,12 +262,11 @@ class _LoginAppState extends State<LoginPage> {
                     },
                     child: Text(
                       'Forget Password?',
-                      style: TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         decoration: TextDecoration.underline,
-                        decorationColor: AppColor.errorColor,
-                        color: AppColor.errorColor,
+                        decorationColor: Colors.red,
+                        color: Colors.red,
                         letterSpacing: 0,
-                        fontSize: 13,
                       ),
                     ),
                   ),
@@ -304,7 +303,7 @@ class _LoginAppState extends State<LoginPage> {
                       padding: const EdgeInsets.symmetric(horizontal: 8.0),
                       child: Text(
                         "OR",
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -323,7 +322,7 @@ class _LoginAppState extends State<LoginPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    minimumSize: Size(MediaQuery.of(context).size.width, 20),
+                    minimumSize: Size(MediaQuery.of(context).size.width, 50),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
@@ -364,7 +363,7 @@ class _LoginAppState extends State<LoginPage> {
                   children: [
                     Text(
                       'Create an account',
-                      style: Theme.of(context).textTheme.bodyMedium,
+                      style: Theme.of(context).textTheme.bodyLarge,
                     ),
                     const SizedBox(width: 3),
                     GestureDetector(
@@ -404,9 +403,9 @@ class _LoginAppState extends State<LoginPage> {
                       child: Text(
                         'Sign Up',
                         style: TextStyle(
-                          color: AppColor.errorColor,
+                          color: Colors.red,
                           decoration: TextDecoration.underline,
-                          decorationColor: AppColor.errorColor,
+                          decorationColor: Colors.red,
                         ),
                       ),
                     ),

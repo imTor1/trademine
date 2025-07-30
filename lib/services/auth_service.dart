@@ -73,6 +73,7 @@ class AuthService {
     if (response.statusCode == 200) {
       return data['token'];
     } else {
+      print(response.statusCode);
       throw (data['error']);
     }
   }

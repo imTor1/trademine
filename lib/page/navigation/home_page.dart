@@ -370,7 +370,7 @@ class _HomePageState extends State<HomePage> {
                                         vertical: 10,
                                         horizontal:
                                             MediaQuery.of(context).size.width *
-                                            0.04,
+                                            0.02,
                                       ),
                                       child: Row(
                                         children: [
@@ -386,7 +386,6 @@ class _HomePageState extends State<HomePage> {
                                               date: news['PublishedDate'] ?? '',
                                             );
                                           }),
-                                          _buildSeeMoreCard(context),
                                         ],
                                       ),
                                     ),
@@ -406,40 +405,6 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
-}
-
-Widget _buildSeeMoreCard(BuildContext context) {
-  return Padding(
-    padding: const EdgeInsets.only(left: 10, right: 10),
-    child: GestureDetector(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (_) => NewsPage()));
-      },
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 200),
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
-          ),
-          elevation: 4,
-          child: Container(
-            width: double.infinity,
-            height: 160,
-            padding: const EdgeInsets.all(16),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.arrow_forward, size: 32, color: Colors.grey),
-                SizedBox(height: 8),
-                Text('See More', style: Theme.of(context).textTheme.bodyMedium),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
 }
 
 class RecommentStockShimmer extends StatelessWidget {

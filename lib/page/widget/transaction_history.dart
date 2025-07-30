@@ -72,7 +72,7 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                   ],
                 ),
               ),
-              Divider(color: AppColor.divider),
+              Divider(color: Theme.of(context).dividerColor),
             ],
           ),
         ],

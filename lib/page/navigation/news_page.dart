@@ -1,11 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:trademine/page/loading_page/news_shimmer.dart';
 import 'package:trademine/page/news_detail/news_detail.dart';
 import 'package:trademine/services/news_service.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/page/widget/filternews.dart';
+import 'dart:typed_data';
 
 class NewsPage extends StatefulWidget {
   const NewsPage({super.key});
@@ -58,7 +58,7 @@ class _NewsPageState extends State<NewsPage> {
       if (!isFetchingMore && hasMore && !_isScrolling) {
         _isScrolling = true;
         fetchMoreNews().then((_) {
-          Future.delayed(const Duration(milliseconds: 500), () {
+          Future.delayed(const Duration(milliseconds: 200), () {
             _isScrolling = false;
           });
         });
@@ -68,7 +68,6 @@ class _NewsPageState extends State<NewsPage> {
 
   Future<void> fetchInitialNews() async {
     if (isLoading) return;
-
     setState(() {
       isLoading = true;
       newsList.clear();
@@ -116,7 +115,6 @@ class _NewsPageState extends State<NewsPage> {
 
   Future<void> fetchMoreNews() async {
     if (isFetchingMore || !hasMore) return;
-
     setState(() {
       isFetchingMore = true;
     });
@@ -306,6 +304,7 @@ class _NewsPageState extends State<NewsPage> {
       ),
     );
   }
+
   Widget _buildNewsList(List<dynamic> news) {
     if (isLoading && news.isEmpty) {
       return const SliverFillRemaining(child: NewsShimmer());

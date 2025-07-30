@@ -47,7 +47,7 @@ class TransactionHistoryShimmer extends StatelessWidget {
               ],
             ),
           ),
-          Divider(color: AppColor.divider),
+          Divider(color: Theme.of(context).dividerColor),
         ],
       ),
     );

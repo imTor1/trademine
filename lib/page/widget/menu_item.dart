@@ -20,7 +20,7 @@ Widget MenuItem({
           Row(
             children: [
               if (icon != null) ...[
-                Icon(icon, size: 26, color: AppColor.textColor),
+                Icon(icon, size: 26, color: Theme.of(context).primaryColor),
                 const SizedBox(width: 16),
               ],
               const SizedBox(width: 16),
@@ -30,7 +30,7 @@ Widget MenuItem({
           Icon(
             Icons.arrow_forward_ios,
             size: width * 0.04,
-            color: AppColor.textColor,
+            color: Theme.of(context).primaryColor,
           ),
         ],
       ),
