@@ -37,6 +37,9 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
       final storage = FlutterSecureStorage();
       await storage.write(key: 'email', value: _email.text);
       await AuthService.ForgetPassword(_email.text);
+      setState(() {
+        _isLoading = !_isLoading;
+      });
       Navigator.push(
         context,
         PageRouteBuilder(

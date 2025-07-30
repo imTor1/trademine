@@ -1,13 +1,11 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/page/signin_page/login.dart';
-import 'package:trademine/services/constants/api_constants.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/services/auth_service.dart';
 
@@ -88,7 +86,6 @@ class _SignupProfileState extends State<SignUpProfile> {
         selectedGender!,
         _imageFile!,
       );
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -148,11 +145,11 @@ class _SignupProfileState extends State<SignUpProfile> {
           child: ListView(
             children: [
               Text(
-                'Set Your Password',
+                'Complete You Profile',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               Text(
-                'Choose a strong password for your account.',
+                'Set up your profile details to get started.',
                 style: Theme.of(context).textTheme.titleSmall,
               ),
               SizedBox(height: 30),

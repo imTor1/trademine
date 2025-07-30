@@ -41,14 +41,17 @@ class _SignUpEmailState extends State<SignUpEmail> {
       );
       return;
     }
-
+    setState(() {
+      _isLoading = true;
+    });
     try {
-      setState(() {
-        _isLoading = true;
-      });
       final storage = FlutterSecureStorage();
       await storage.write(key: 'email', value: _email.text);
       await AuthService.EmailRegister(_email.text);
+
+      setState(() {
+        _isLoading = !_isLoading;
+      });
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -161,18 +164,9 @@ class _SignUpEmailState extends State<SignUpEmail> {
                     Checkbox(
                       value: isChecked,
                       onChanged: (bool? newValue) {
-                        if (_email.text.isNotEmpty) {
-                          setState(() {
-                            isChecked = newValue!;
-                          });
-                        } else {
-                          AppSnackbar.showError(
-                            context,
-                            'Enter Your Email',
-                            Icons.error,
-                            Theme.of(context).colorScheme.error,
-                          );
-                        }
+                        setState(() {
+                          isChecked = newValue!;
+                        });
                       },
                       checkColor: Colors.white,
                       activeColor: Colors.green,

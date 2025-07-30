@@ -34,11 +34,16 @@ class _ForgetpasswordPasswordState extends State<ForgetpasswordPassword> {
       });
       final storage = FlutterSecureStorage();
       String? email = await storage.read(key: 'email');
-      final register_token = await AuthService.PasswordRegister(
+      final registertoken = await AuthService.PasswordRegister(
         email.toString(),
         _password_confirm.text,
       );
-      await storage.write(key: 'token-register', value: register_token);
+      await storage.write(key: 'token-register', value: registertoken);
+
+      setState(() {
+        _isLoading = !_isLoading;
+      });
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),

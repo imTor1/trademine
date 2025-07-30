@@ -4,6 +4,7 @@ import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/signin_page/login.dart';
+import 'package:trademine/page/sigup_page/signup_otp.dart';
 import 'package:trademine/page/splash/splash_screen.dart';
 import 'package:trademine/services/notification/notification.dart';
 import 'package:trademine/theme/app_styles.dart';

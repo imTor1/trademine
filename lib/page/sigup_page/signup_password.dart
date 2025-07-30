@@ -38,6 +38,9 @@ class _SignUpPasswordState extends State<SignUpPassword> {
         _password_confirm.text,
       );
       await storage.write(key: 'token-register', value: register_token);
+      setState(() {
+        _isLoading = !_isLoading;
+      });
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SignUpProfile()),
@@ -182,7 +185,7 @@ class _SignUpPasswordState extends State<SignUpPassword> {
                                 } else {
                                   AppSnackbar.showError(
                                     context,
-                                    'Password dont Match',
+                                    'Password Not Match',
                                     Icons.error,
                                     Theme.of(context).colorScheme.error,
                                   );

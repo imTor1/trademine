@@ -123,7 +123,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                             if (search_page == true) {
-                              //fetchData();
+                              _refreshHomePage();
                               HomePageCubit();
                             }
                           },

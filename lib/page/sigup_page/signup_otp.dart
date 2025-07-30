@@ -4,6 +4,7 @@ import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/page/sigup_page/signup_password.dart';
 import 'package:trademine/services/auth_service.dart';
 import 'package:trademine/utils/snackbar.dart';
+import 'package:pinput/pinput.dart';
 
 class SignUpOtp extends StatefulWidget {
   const SignUpOtp({super.key});
@@ -13,16 +14,10 @@ class SignUpOtp extends StatefulWidget {
 }
 
 class SignupOtpState extends State<SignUpOtp> {
-  final List<TextEditingController> _otp = List.generate(
-    6,
-    (index) => TextEditingController(),
-  );
+  final TextEditingController _otpController = TextEditingController();
+
   bool isChecked = false;
   bool _isLoading = false;
-
-  String getOtpCode() {
-    return _otp.map((c) => c.text).join();
-  }
 
   Future<void> ApiConnect(String otp) async {
     try {
@@ -37,6 +32,9 @@ class SignupOtpState extends State<SignUpOtp> {
       final token = await AuthService.OTPRegister(_email.toString(), fullotp);
       await storage.write(key: 'regis_token', value: token);
 
+      setState(() {
+        _isLoading = !_isLoading;
+      });
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => SignUpPassword()),
@@ -58,9 +56,7 @@ class SignupOtpState extends State<SignUpOtp> {
 
   @override
   void dispose() {
-    for (var controller in _otp) {
-      controller.dispose();
-    }
+    _otpController.dispose();
     super.dispose();
   }
 
@@ -80,7 +76,7 @@ class SignupOtpState extends State<SignUpOtp> {
         ),
       ),
       body: SafeArea(
-        child: Container(
+        child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: width * 0.05),
             child: Column(
@@ -95,61 +91,26 @@ class SignupOtpState extends State<SignUpOtp> {
                   'Enter the OTP sent your email.',
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
-
                 const SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: List.generate(6, (index) {
-                    return Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                        child: TextFormField(
-                          onChanged: (value) {
-                            if (value.length == 1 && index < 5) {
-                              FocusScope.of(context).nextFocus();
-                            } else if (value.isEmpty && index > 0) {
-                              FocusScope.of(context).previousFocus();
-                            }
-                            bool allFilled = _otp.every(
-                              (controller) => controller.text.length == 1,
-                            );
-                            setState(() {
-                              isChecked = allFilled;
-                            });
-                          },
-                          autofocus: index == 0,
-                          controller: _otp[index],
-                          textAlign: TextAlign.center,
-                          keyboardType: TextInputType.number,
-                          maxLength: 1,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                          ),
-                          decoration: InputDecoration(
-                            counterText: "",
-                            fillColor: Color(0xffE5E5E5),
-                            filled: true,
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 30.0,
-                            ),
-                            border: OutlineInputBorder(),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide.none,
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
-                                color: Theme.of(context).disabledColor,
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                        ),
+                Center(
+                  child: Pinput(
+                    length: 6,
+                    controller: _otpController,
+                    onChanged: (value) {
+                      setState(() {
+                        isChecked = value.length == 6;
+                      });
+                    },
+                    defaultPinTheme: PinTheme(
+                      width: 56,
+                      height: 80,
+                      textStyle: Theme.of(context).textTheme.titleLarge,
+                      decoration: BoxDecoration(
+                        color: const Color(0xffE5E5E5),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -159,7 +120,7 @@ class SignupOtpState extends State<SignUpOtp> {
                       child: GestureDetector(
                         onTap: () {},
                         child: Text(
-                          'Resent OTP\t',
+                          'Resend OTP\t',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
                       ),
@@ -168,7 +129,6 @@ class SignupOtpState extends State<SignUpOtp> {
                 ),
 
                 const SizedBox(height: 15),
-
                 _isLoading
                     ? Center(child: LoadingCircle())
                     : ElevatedButton(
@@ -177,8 +137,7 @@ class SignupOtpState extends State<SignUpOtp> {
                               ? null
                               : isChecked
                               ? () {
-                                String fullOTP = getOtpCode();
-                                if (fullOTP.length != 6) {
+                                if (_otpController.length != 6) {
                                   AppSnackbar.showError(
                                     context,
                                     'Please enter the complete OTP in all fields.',
@@ -186,7 +145,7 @@ class SignupOtpState extends State<SignUpOtp> {
                                     Theme.of(context).colorScheme.error,
                                   );
                                 } else {
-                                  ApiConnect(getOtpCode());
+                                  ApiConnect(_otpController.text);
                                 }
                               }
                               : null,

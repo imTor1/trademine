@@ -93,6 +93,10 @@ class _LoginAppState extends State<LoginPage> {
       _email.clear();
       _password.clear();
 
+      setState(() {
+        _isLoading = !_isLoading;
+      });
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => SplashScreen()),
