@@ -17,7 +17,7 @@ class _WidgetDetailState extends State<WidgetDetail> {
       child: Row(
         children: [
           Container(
-            constraints: BoxConstraints(minWidth: 100, maxWidth: 200),
+            constraints: BoxConstraints(maxWidth: 250),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

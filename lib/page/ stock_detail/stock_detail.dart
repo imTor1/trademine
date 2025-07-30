@@ -139,10 +139,13 @@ class _StockDetailState extends State<StockDetail> {
         widget.StockSymbol,
         timeframe: selectedTimeframe,
       );
-      final newsRecomments = await AuthServiceNews.getNewsRecommentStockDetailPage(widget.StockSymbol);
-
+      final newsRecomments =
+          await AuthServiceNews.getNewsRecommentStockDetailPage(
+            widget.StockSymbol,
+          );
       setState(() {
         detailStock = data;
+        print(detailStock!['Overview']);
         newsRecommnet = newsRecomments;
         chartData = convertToCandleData(detailStock!);
       });
@@ -198,22 +201,40 @@ class _StockDetailState extends State<StockDetail> {
 
   @override
   Widget build(BuildContext context) {
-    final List<List<String>> allTitles = [
+    final List<List<String>> descriptionTitles = [
       ['Open', 'High', 'Low'],
       ['Vol', 'P/E', 'Mkt Cap'],
       ['Market', 'Sector', 'Industry'],
     ];
 
-    final List<List<String>> allData = [
-      ['24.50', '25.30', '23.80'],
-      ['1.5M', '120B', '15.2'],
-      ['1.5M', '120B', '15.2'],
+    String safeGet(Map? map, String key) {
+      final value = map?[key];
+      return value?.toString() ?? '-';
+    }
+
+    final List<List<String>> descriptionData = [
+      [
+        safeGet(detailStock?['Overview'], 'Open'),
+        safeGet(detailStock?['Overview'], 'High'),
+        safeGet(detailStock?['Overview'], 'Close'),
+      ],
+      [
+        safeGet(detailStock?['Overview'], 'AvgVolume30D'),
+        detailStock?['StockSymbol'] ?? '-',
+        detailStock?['Overview']['Marketcap'] ?? '-',
+      ],
+      [
+        safeGet(detailStock?['Profile'], 'Market'),
+        safeGet(detailStock?['Profile'], 'Sector'),
+        safeGet(detailStock?['Profile'], 'Industry'),
+      ],
     ];
+
     return Scaffold(
       backgroundColor: Theme.of(context).primaryColor,
       body:
           detailStock == null
-              ? Center(child: Loading())
+              ? Center(child: _Loading())
               : CustomScrollView(
                 slivers: [
                   SliverAppBar(
@@ -299,10 +320,12 @@ class _StockDetailState extends State<StockDetail> {
                                         children: [
                                           Text(
                                             detailStock?['StockSymbol'] ?? '',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleLarge
-                                                ?.copyWith(fontSize: 24),
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.titleLarge?.copyWith(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w900,
+                                            ),
                                           ),
                                           const SizedBox(width: 8),
                                         ],
@@ -326,11 +349,12 @@ class _StockDetailState extends State<StockDetail> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 5),
                                 Text(
                                   detailStock?['company'] ?? '',
                                   overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyLarge,
+                                  style: Theme.of(context).textTheme.bodyLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 10),
                                 Text(
@@ -518,13 +542,13 @@ class _StockDetailState extends State<StockDetail> {
                                     scrollDirection: Axis.horizontal,
                                     child: Row(
                                       children: List.generate(
-                                        allTitles.length,
+                                        descriptionTitles.length,
                                         (index) {
                                           return Row(
                                             children: [
                                               WidgetDetail(
-                                                title: allTitles[index],
-                                                data: allData[index],
+                                                title: descriptionTitles[index],
+                                                data: descriptionData[index],
                                               ),
                                               const VerticalDivider(
                                                 color: Colors.grey,
@@ -582,8 +606,7 @@ class _StockDetailState extends State<StockDetail> {
                                     ],
                                   ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
@@ -603,9 +626,10 @@ class _StockDetailState extends State<StockDetail> {
                                     ],
                                   ),
                                   const SizedBox(height: 20),
-                                  Column(mainAxisAlignment:
-                                  MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Related News',
@@ -614,28 +638,28 @@ class _StockDetailState extends State<StockDetail> {
                                               context,
                                             ).textTheme.titleMedium,
                                       ),
-                                      const SizedBox(height: 10,),
-                                      RecommentnewsStockdetail(news: newsRecommnet ?? []),
+                                      const SizedBox(height: 10),
+                                      RecommentnewsStockdetail(
+                                        news: newsRecommnet ?? [],
+                                      ),
                                     ],
                                   ),
                                 ],
                               ),
                             ),
-                          )
-,
+                          ),
                           const SizedBox(height: 50),
                         ],
                       ),
                     ),
                   ),
-                ]
+                ],
               ),
     );
   }
 }
 
-
-Widget Loading() {
+Widget _Loading() {
   return SizedBox(
     width: 200,
     child: LinearProgressIndicator(
@@ -660,7 +684,4 @@ class CandleData {
     required this.low,
     required this.close,
   });
-
-
-
 }
