@@ -1,3 +1,6 @@
+import 'dart:ffi';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -5,6 +8,7 @@ import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
+import 'package:trademine/page/news_detail/news_detail.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/page/widget/loop_typing_animation.dart';
 import 'package:trademine/services/constants/api_constants.dart';

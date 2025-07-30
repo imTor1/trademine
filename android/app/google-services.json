@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1000145622896",
+    "project_id": "trademine-a3921",
+    "storage_bucket": "trademine-a3921.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1000145622896:android:5c0ecace7539ab34f0e1b5",
+        "android_client_info": {
+          "package_name": "com.example.trademine"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdTO8467u1Hn3AOKjcw4rtvX5y1sjkWzk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

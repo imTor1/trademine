@@ -5,9 +5,15 @@ import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/page/splash/splash_screen.dart';
+import 'package:trademine/services/notification/notification.dart';
 import 'package:trademine/theme/app_styles.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await setupFirebaseMessaging();
+
   runApp(
     MultiBlocProvider(
       providers: [
@@ -21,7 +27,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

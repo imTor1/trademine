@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 import 'package:trademine/services/constants/api_constants.dart';
 import 'package:intl/intl.dart';
-import 'package:image_picker/image_picker.dart';
 
 class AuthService {
   static final Uri _LoginUrl = Uri.parse(ApiConstants.login);

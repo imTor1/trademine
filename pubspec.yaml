@@ -53,6 +53,7 @@ dependencies:
   equatable: ^2.0.7
   another_flushbar: ^1.12.30
   google_fonts: ^6.2.1
+  firebase_messaging: ^16.0.0
 
 
 dev_dependencies:
