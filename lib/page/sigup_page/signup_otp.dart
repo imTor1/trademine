@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/loading_page/loading_circle.dart';
@@ -15,11 +17,13 @@ class SignUpOtp extends StatefulWidget {
 
 class SignupOtpState extends State<SignUpOtp> {
   final TextEditingController _otpController = TextEditingController();
+  int _resendCountdown = 0;
+  Timer? _timer;
 
   bool isChecked = false;
   bool _isLoading = false;
 
-  Future<void> ApiConnect(String otp) async {
+  Future<void> SendOTP(String otp) async {
     try {
       setState(() {
         _isLoading = true;
@@ -54,8 +58,48 @@ class SignupOtpState extends State<SignUpOtp> {
     }
   }
 
+  void startResendCountdown() {
+    setState(() {
+      _resendCountdown = 60;
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _resendCountdown--;
+        if (_resendCountdown == 0) {
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  Future<void> ResendOtp(String otp) async {
+    startResendCountdown();
+    try {
+      final storage = FlutterSecureStorage();
+      String? _email = await storage.read(key: 'email');
+      final fullotp = otp.toString();
+      final token = await AuthService.OTPResendRegister(
+        _email.toString(),
+        fullotp,
+      );
+    } catch (e) {
+      FocusScope.of(context).unfocus();
+      AppSnackbar.showError(
+        context,
+        e.toString(),
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _timer?.cancel();
     _otpController.dispose();
     super.dispose();
   }
@@ -118,16 +162,29 @@ class SignupOtpState extends State<SignUpOtp> {
                   children: [
                     Center(
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap:
+                            (_resendCountdown > 0)
+                                ? null
+                                : () {
+                                  ResendOtp(_otpController.text);
+                                },
                         child: Text(
-                          'Resend OTP\t',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          _resendCountdown > 0
+                              ? 'Resend OTP ($_resendCountdown)'
+                              : 'Resend OTP',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleSmall!.copyWith(
+                            color:
+                                (_resendCountdown > 0)
+                                    ? Colors.grey
+                                    : Theme.of(context).primaryColor,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 15),
                 _isLoading
                     ? Center(child: LoadingCircle())
@@ -145,7 +202,7 @@ class SignupOtpState extends State<SignUpOtp> {
                                     Theme.of(context).colorScheme.error,
                                   );
                                 } else {
-                                  ApiConnect(_otpController.text);
+                                  SendOTP(_otpController.text);
                                 }
                               }
                               : null,

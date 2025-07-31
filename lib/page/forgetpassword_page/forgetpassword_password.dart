@@ -34,7 +34,7 @@ class _ForgetpasswordPasswordState extends State<ForgetpasswordPassword> {
       });
       final storage = FlutterSecureStorage();
       String? email = await storage.read(key: 'email');
-      final registertoken = await AuthService.PasswordRegister(
+      final registertoken = await AuthService.PasswordReset(
         email.toString(),
         _password_confirm.text,
       );

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pinput/pinput.dart';
@@ -15,10 +17,12 @@ class ForgetpasswordOtp extends StatefulWidget {
 
 class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
   final TextEditingController _otpController = TextEditingController();
+  int _resendCountdown = 0;
+  Timer? _timer;
   bool isChecked = false;
   bool _isLoading = false;
 
-  Future<void> ApiConnect(String otp) async {
+  Future<void> SendOTP(String otp) async {
     try {
       setState(() {
         _isLoading = true;
@@ -46,6 +50,44 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
         Theme.of(context).colorScheme.error,
       );
 
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void startResendCountdown() {
+    setState(() {
+      _resendCountdown = 60;
+    });
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _resendCountdown--;
+        if (_resendCountdown == 0) {
+          timer.cancel();
+        }
+      });
+    });
+  }
+
+  Future<void> ResendOtp(String otp) async {
+    startResendCountdown();
+    try {
+      final storage = FlutterSecureStorage();
+      String? _email = await storage.read(key: 'email');
+      final fullotp = otp.toString();
+      final token = await AuthService.OTPResendForgetPassword(
+        _email.toString(),
+      );
+    } catch (e) {
+      FocusScope.of(context).unfocus();
+      AppSnackbar.showError(
+        context,
+        e.toString(),
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
       setState(() {
         _isLoading = false;
       });
@@ -117,16 +159,29 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                   children: [
                     Center(
                       child: GestureDetector(
-                        onTap: () {},
+                        onTap:
+                            (_resendCountdown > 0)
+                                ? null
+                                : () {
+                                  ResendOtp(_otpController.text);
+                                },
                         child: Text(
-                          'Resend OTP\t',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          _resendCountdown > 0
+                              ? 'Resend OTP ($_resendCountdown)'
+                              : 'Resend OTP',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleSmall!.copyWith(
+                            color:
+                                (_resendCountdown > 0)
+                                    ? Colors.grey
+                                    : Theme.of(context).primaryColor,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 15),
                 _isLoading
                     ? Center(child: LoadingCircle())
@@ -144,7 +199,7 @@ class _ForgetpasswordOtpState extends State<ForgetpasswordOtp> {
                                     Theme.of(context).colorScheme.error,
                                   );
                                 } else {
-                                  ApiConnect(_otpController.text);
+                                  SendOTP(_otpController.text);
                                 }
                               }
                               : null,

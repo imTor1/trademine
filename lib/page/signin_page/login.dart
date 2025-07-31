@@ -1,14 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:trademine/page/forgetpassword_page/forgetpassword_email.dart';
 import 'package:trademine/page/loading_page/loading_circle.dart';
-import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/sigup_page/signup_email.dart';
 import 'package:trademine/page/splash/splash_screen.dart';
-import 'package:trademine/theme/app_styles.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:trademine/services/auth_service.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,6 +21,7 @@ class LoginPage extends StatefulWidget {
 class _LoginAppState extends State<LoginPage> {
   final TextEditingController _email = TextEditingController();
   final TextEditingController _password = TextEditingController();
+  bool _isValidEmail(String email) => EmailValidator.validate(email);
   var _obScureText = true;
   bool _isLoading = false;
   bool gmailAccount = false;
@@ -30,7 +32,35 @@ class _LoginAppState extends State<LoginPage> {
     });
   }
 
-  bool _isValidEmail(String email) => EmailValidator.validate(email);
+  final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
+  Future<void> loginWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        print('User cancelled login');
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final googleId = googleUser.id;
+      final email = googleUser.email;
+      final profile = googleUser.photoUrl;
+      final idToken = googleAuth.idToken;
+
+      print("ID: $googleId");
+      print("Email: $email");
+      print("Photo: $profile");
+      print("idToken: $idToken");
+
+      if (email.isNotEmpty && googleId.isNotEmpty) {
+        //final login_google = await AuthService.Login(email, googleId);
+      }
+    } catch (e) {
+      print("Google login error: $e");
+    }
+  }
 
   Future<void> _Login() async {
     if (_email.text.isEmpty && _password.text.isEmpty) {
@@ -78,8 +108,6 @@ class _LoginAppState extends State<LoginPage> {
     try {
       final data = await AuthService.Login(_email.text, _password.text);
       final storage = FlutterSecureStorage();
-
-      // Validate data before storing
       if (data['token'] == null ||
           data['user'] == null ||
           data['user']['id'] == null) {
@@ -318,12 +346,7 @@ class _LoginAppState extends State<LoginPage> {
                 const SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
-                    AppSnackbar.showError(
-                      context,
-                      'Login With Google Is Coming Soon.....',
-                      Icons.error,
-                      Theme.of(context).colorScheme.error,
-                    );
+                    loginWithGoogle();
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(MediaQuery.of(context).size.width, 50),

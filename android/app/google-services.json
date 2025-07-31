@@ -12,7 +12,20 @@
           "package_name": "com.example.trademine"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1000145622896-nomjsgvr8sr6m7l4bpdhile9uifsc157.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.trademine",
+            "certificate_hash": "ab8cd678e9b0679a992e578ebbce3c847a2c5d7c"
+          }
+        },
+        {
+          "client_id": "1000145622896-844fr427dtad5qd6av63eg46lh18djdt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCdTO8467u1Hn3AOKjcw4rtvX5y1sjkWzk"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1000145622896-844fr427dtad5qd6av63eg46lh18djdt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1000145622896-u5c7tnss2tbgjv26k258vtkbu289cfoi.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.trademine"
+              }
+            }
+          ]
         }
       }
     }
