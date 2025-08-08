@@ -8,6 +8,7 @@ class CreditCardState extends Equatable {
 
   CreditCardState copyWith({
     List<Map<String, String>>? cards,
+    List<Map<String, String>>? holdingStocks,
     bool? isLoading,
   }) {
     return CreditCardState(

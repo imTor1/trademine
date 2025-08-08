@@ -99,7 +99,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                     'DELETE',
                     style: Theme.of(
                       context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.white),
                   ),
                 ),
               ),
@@ -144,7 +144,7 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                       children: [
                         Text(
                           widget.symbol,
-                          style: Theme.of(context).textTheme.bodyMedium
+                          style: Theme.of(context).textTheme.bodyLarge
                               ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         SizedBox(
@@ -171,7 +171,9 @@ class _FavoriteStocklistState extends State<FavoriteStocklist> {
                         ),
                         Text(
                           widget.change,
-                          style: TextStyle(
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyLarge?.copyWith(
                             color:
                                 widget.change.trim().startsWith('-')
                                     ? Theme.of(context).colorScheme.error

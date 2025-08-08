@@ -46,10 +46,7 @@ class _RecommentStockState extends State<RecommentStock> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundImage: AssetImage('assets/avatar/man.png'),
-                  ),
+                  CircleAvatar(radius: 18, backgroundImage: NetworkImage('')),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -57,8 +54,8 @@ class _RecommentStockState extends State<RecommentStock> {
                       children: [
                         Text(
                           widget.symbol,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context).textTheme.bodyLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         Text(
                           widget.name,
@@ -81,8 +78,10 @@ class _RecommentStockState extends State<RecommentStock> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      widget.change,
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                      '${widget.change}%',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.white),
                     ),
                   ),
                 ],
@@ -108,9 +107,12 @@ class _RecommentStockState extends State<RecommentStock> {
                 children: [
                   Text(
                     widget.price,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(),
                   ),
-                  Text('USD', style: Theme.of(context).textTheme.bodyLarge),
+                  Text(
+                    'USD',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(),
+                  ),
                 ],
               ),
             ],

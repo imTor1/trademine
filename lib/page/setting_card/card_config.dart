@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:trademine/page/widget/credit_card.dart';
+import 'package:trademine/page/widget/credit_card/credit_card.dart';
 
 class DemoCard extends StatefulWidget {
   final List<Map<String, dynamic>>? CardData;

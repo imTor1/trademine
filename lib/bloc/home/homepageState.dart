@@ -23,6 +23,7 @@ class HomePageState extends Equatable {
     List<dynamic>? topStocks,
     List<dynamic>? latestNews,
     String? image,
+    String? username,
     bool? isUnauthenticated,
   }) {
     return HomePageState(

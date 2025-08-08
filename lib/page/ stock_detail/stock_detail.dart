@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:trademine/page/%20stock_detail/recommentNews_stockDetail.dart';
 import 'package:trademine/page/%20stock_detail/widget_detail.dart';
+import 'package:trademine/page/widget/trade_widget_bottomsheet.dart';
 import 'package:trademine/services/stock_service.dart';
 import 'package:intl/intl.dart';
+import 'package:trademine/services/trade_service.dart';
 import 'package:trademine/services/user_service.dart';
 import 'package:trademine/utils/snackbar.dart';
-
+import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
+import 'package:trademine/bloc/credit_card/creditCardState.dart';
 import '../../services/news_service.dart';
-import '../loading_page/news_shimmer.dart';
-import '../news_detail/news_detail.dart';
 
 class StockDetail extends StatefulWidget {
   final String StockSymbol;
@@ -29,6 +32,7 @@ class _StockDetailState extends State<StockDetail> {
   List<CandleData> chartData = [];
   String selectedTimeframe = "5D";
   bool isLoading = false;
+  String? TradeType;
 
   final Map<String, String> timeframeLabels = {
     "5D": "5D",
@@ -157,7 +161,6 @@ class _StockDetailState extends State<StockDetail> {
   List<CandleData> convertToCandleData(Map<String, dynamic> detailStock) {
     final List<dynamic> prices = detailStock['HistoricalPrices'] ?? [];
     final List<CandleData> candles = [];
-
     for (var item in prices) {
       try {
         final date = DateTime.parse(item['Date']);
@@ -178,9 +181,7 @@ class _StockDetailState extends State<StockDetail> {
         print(e);
       }
     }
-
     candles.sort((a, b) => a.date.compareTo(b.date));
-
     if (candles.length == 1) {
       final single = candles[0];
       final prevDate = single.date.subtract(Duration(days: 1));
@@ -195,8 +196,35 @@ class _StockDetailState extends State<StockDetail> {
         ),
       );
     }
-
     return candles;
+  }
+
+  void _openBottomSheet() async {
+    final result = await showModalBottomSheet<TradeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder:
+          (context) => TradeBottomSheet(
+            stockSymbol: detailStock?['StockSymbol'],
+            selectedTradeType: TradeType,
+          ),
+    );
+    if (result != null) {
+      try {
+        final storage = FlutterSecureStorage();
+        final token = await storage.read(key: 'auth_token');
+        final trade = await ServiceTrade.TradeDemo(
+          token!,
+          result.stockSymbol,
+          result.amount,
+          result.tradeType.toLowerCase(),
+        );
+        print(trade);
+      } catch (e) {
+        print('Trade failed: $e');
+      }
+    }
   }
 
   @override
@@ -229,432 +257,636 @@ class _StockDetailState extends State<StockDetail> {
         safeGet(detailStock?['Profile'], 'Industry'),
       ],
     ];
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body:
-          detailStock == null
-              ? Center(child: _Loading())
-              : CustomScrollView(
-                slivers: [
-                  SliverAppBar(
-                    floating: true,
-                    snap: true,
-                    pinned: false,
-                    expandedHeight: 60,
-                    backgroundColor: Theme.of(context).primaryColor,
-                    elevation: 1,
-                    leading: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    title: Text(
-                      detailStock?['StockSymbol'] ?? 'No Stock',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.titleMedium?.copyWith(color: Colors.white),
-                    ),
-                    centerTitle: true,
-                    actions: [
-                      IconButton(
-                        icon: Icon(
-                          follow ? Icons.favorite_sharp : Icons.favorite_border,
-                          color:
+    return BlocBuilder<CreditCardCubit, CreditCardState>(
+      builder: (context, state) {
+        final CardsData = state.cards;
+        return Scaffold(
+          backgroundColor: Theme.of(context).primaryColor,
+          body:
+              detailStock == null
+                  ? Center(child: _Loading())
+                  : CustomScrollView(
+                    slivers: [
+                      SliverAppBar(
+                        floating: true,
+                        snap: true,
+                        pinned: false,
+                        expandedHeight: 60,
+                        backgroundColor: Theme.of(context).primaryColor,
+                        elevation: 1,
+                        leading: IconButton(
+                          icon: const Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => Navigator.pop(context, true),
+                        ),
+                        title: Text(
+                          detailStock?['StockSymbol'] ?? 'No Stock',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(color: Colors.white),
+                        ),
+                        centerTitle: true,
+                        actions: [
+                          IconButton(
+                            icon: Icon(
                               follow
-                                  ? Theme.of(context).scaffoldBackgroundColor
-                                  : Theme.of(context).scaffoldBackgroundColor,
-                        ),
-                        onPressed: () async {
-                          AppSnackbar.showError(
-                            context,
-                            'This stock is already in your favorites.',
-                            Icons.error,
-                            Theme.of(context).colorScheme.error,
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-
-                  SliverToBoxAdapter(
-                    child: Container(
-                      width: double.infinity,
-                      constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height / 1.5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).scaffoldBackgroundColor,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(25),
-                          topRight: Radius.circular(25),
-                        ),
-                        boxShadow: const [
-                          BoxShadow(
-                            color: Colors.black12,
-                            blurRadius: 8,
-                            offset: Offset(0, -4),
+                                  ? Icons.favorite_sharp
+                                  : Icons.favorite_border,
+                              color:
+                                  follow
+                                      ? Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor
+                                      : Theme.of(
+                                        context,
+                                      ).scaffoldBackgroundColor,
+                            ),
+                            onPressed: () async {
+                              if (follow == true) {
+                                try {
+                                  final storage = FlutterSecureStorage();
+                                  final String? token = await storage.read(
+                                    key: 'auth_token',
+                                  );
+                                  await AuthServiceUser.unfollowStock(
+                                    token!,
+                                    detailStock?['StockSymbol'],
+                                  );
+                                  setState(() {
+                                    follow = false;
+                                  });
+                                } catch (e) {
+                                  AppSnackbar.showError(
+                                    context,
+                                    'Error: $e',
+                                    Icons.error,
+                                    Theme.of(context).colorScheme.error,
+                                  );
+                                }
+                              } else {
+                                try {
+                                  final storage = FlutterSecureStorage();
+                                  final String? token = await storage.read(
+                                    key: 'auth_token',
+                                  );
+                                  await AuthServiceUser.followStock(
+                                    token!,
+                                    detailStock?['StockSymbol'],
+                                  );
+                                  setState(() {
+                                    follow = !follow;
+                                  });
+                                  AppSnackbar.showError(
+                                    context,
+                                    'Follow : ${detailStock?['StockSymbol']} Success',
+                                    Icons.check,
+                                    Theme.of(context).colorScheme.secondary,
+                                  );
+                                } catch (e) {
+                                  AppSnackbar.showError(
+                                    context,
+                                    'Error : $e',
+                                    Icons.error,
+                                    Theme.of(context).colorScheme.error,
+                                  );
+                                }
+                              }
+                            },
                           ),
                         ],
                       ),
 
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  MediaQuery.of(context).size.width * 0.04,
-                              vertical:
-                                  MediaQuery.of(context).size.width * 0.04,
+                      SliverToBoxAdapter(
+                        child: Container(
+                          width: double.infinity,
+                          constraints: BoxConstraints(
+                            minHeight: MediaQuery.of(context).size.height / 1.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).scaffoldBackgroundColor,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(25),
+                              topRight: Radius.circular(25),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, -4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal:
+                                      MediaQuery.of(context).size.width * 0.04,
+                                  vertical:
+                                      MediaQuery.of(context).size.width * 0.04,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: Row(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Text(
-                                            detailStock?['StockSymbol'] ?? '',
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.titleLarge?.copyWith(
-                                              fontSize: 24,
-                                              fontWeight: FontWeight.w900,
-                                            ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Text(
+                                                detailStock?['StockSymbol'] ??
+                                                    '',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge
+                                                    ?.copyWith(
+                                                      fontSize: 24,
+                                                      fontWeight:
+                                                          FontWeight.w900,
+                                                    ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                            ],
                                           ),
-                                          const SizedBox(width: 8),
-                                        ],
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Chip(
+                                          label: Text(
+                                            detailStock?['Type'] ?? '',
+                                          ),
+                                          backgroundColor:
+                                              Theme.of(context).primaryColor,
+                                          labelStyle: Theme.of(context)
+                                              .textTheme
+                                              .bodyMedium
+                                              ?.copyWith(color: Colors.white),
+                                          side: BorderSide.none,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 0,
+                                          ),
+                                          visualDensity: VisualDensity.compact,
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      detailStock?['company'] ?? '',
+                                      overflow: TextOverflow.ellipsis,
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Chip(
-                                      label: Text(detailStock?['Type'] ?? ''),
-                                      backgroundColor:
-                                          Theme.of(context).primaryColor,
-                                      labelStyle: Theme.of(context)
-                                          .textTheme
-                                          .bodyMedium
-                                          ?.copyWith(color: Colors.white),
-                                      side: BorderSide.none,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 0,
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'Price: ${detailStock?['ClosePrice'] ?? '-'} USD (${detailStock?['ClosePriceTHB'] ?? '-'} THB)',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
                                       ),
-                                      visualDensity: VisualDensity.compact,
                                     ),
+                                    const SizedBox(height: 5),
+                                    Text(
+                                      'Date: ${detailStock?['Date'] ?? '-'}',
+                                      style: Theme.of(
+                                        context,
+                                      ).textTheme.bodyLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
                                   ],
                                 ),
-                                const SizedBox(height: 5),
-                                Text(
-                                  detailStock?['company'] ?? '',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: Theme.of(context).textTheme.bodyLarge
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  'Price: ${detailStock?['ClosePrice'] ?? '-'} (${detailStock?['ClosePriceTHB'] ?? '-'}) THB',
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Date: ${detailStock?['Date'] ?? '-'}',
-                                  style: Theme.of(context).textTheme.bodyLarge,
-                                ),
-                                const SizedBox(height: 20),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 300,
-                            child:
-                                detailStock?['HistoricalPrices'] == null
-                                    ? const Center(
-                                      child: CircularProgressIndicator(),
-                                    )
-                                    : Padding(
-                                      padding: EdgeInsets.zero,
-                                      child: SfCartesianChart(
-                                        margin: EdgeInsets.zero,
-                                        plotAreaBorderWidth: 0,
-                                        primaryXAxis: DateTimeAxis(
-                                          majorGridLines: const MajorGridLines(
-                                            width: 0,
+                              ),
+                              SizedBox(
+                                height: 300,
+                                child:
+                                    detailStock?['HistoricalPrices'] == null
+                                        ? const Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                        : Padding(
+                                          padding: EdgeInsets.zero,
+                                          child: SfCartesianChart(
+                                            margin: EdgeInsets.zero,
+                                            plotAreaBorderWidth: 0,
+                                            primaryXAxis: DateTimeAxis(
+                                              majorGridLines:
+                                                  const MajorGridLines(
+                                                    width: 0,
+                                                  ),
+                                              dateFormat: DateFormat(
+                                                'd MMM, yyyy',
+                                              ),
+                                              edgeLabelPlacement:
+                                                  EdgeLabelPlacement.shift,
+                                            ),
+                                            primaryYAxis: NumericAxis(
+                                              majorGridLines:
+                                                  const MajorGridLines(
+                                                    width: 0,
+                                                  ),
+                                              opposedPosition: true,
+                                              labelAlignment:
+                                                  LabelAlignment.end,
+                                              numberFormat: NumberFormat(
+                                                '#,###',
+                                              ),
+                                              labelStyle: TextStyle(
+                                                color: Colors.grey.shade600,
+                                                fontSize: 10,
+                                              ),
+                                            ),
+                                            trackballBehavior:
+                                                _trackballBehavior,
+                                            zoomPanBehavior: _zoomPanBehavior,
+                                            enableAxisAnimation: false,
+                                            series: <CartesianSeries>[
+                                              SplineAreaSeries<
+                                                CandleData,
+                                                DateTime
+                                              >(
+                                                dataSource: chartData,
+                                                xValueMapper:
+                                                    (CandleData data, _) =>
+                                                        data.date,
+                                                yValueMapper:
+                                                    (CandleData data, _) =>
+                                                        data.close,
+                                                splineType: SplineType.natural,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary
+                                                    .withOpacity(0.15),
+                                                borderColor: Theme.of(context)
+                                                    .colorScheme
+                                                    .secondary
+                                                    .withOpacity(0.7),
+                                                borderWidth: 2.5,
+                                                animationDuration: 0,
+                                                markerSettings:
+                                                    const MarkerSettings(
+                                                      isVisible: false,
+                                                    ),
+                                              ),
+                                            ],
                                           ),
-                                          dateFormat: DateFormat('d MMM, yyyy'),
-                                          edgeLabelPlacement:
-                                              EdgeLabelPlacement.shift,
                                         ),
-                                        primaryYAxis: NumericAxis(
-                                          majorGridLines: const MajorGridLines(
-                                            width: 0,
-                                          ),
-                                          opposedPosition: true,
-                                          labelAlignment: LabelAlignment.end,
-                                          numberFormat: NumberFormat('#,###'),
-                                          labelStyle: TextStyle(
-                                            color: Colors.grey.shade600,
-                                            fontSize: 10,
-                                          ),
-                                        ),
-                                        trackballBehavior: _trackballBehavior,
-                                        zoomPanBehavior: _zoomPanBehavior,
-                                        enableAxisAnimation: false,
-                                        series: <CartesianSeries>[
-                                          SplineAreaSeries<
-                                            CandleData,
-                                            DateTime
-                                          >(
-                                            dataSource: chartData,
-                                            xValueMapper:
-                                                (CandleData data, _) =>
-                                                    data.date,
-                                            yValueMapper:
-                                                (CandleData data, _) =>
-                                                    data.close,
-                                            splineType: SplineType.natural,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary
-                                                .withOpacity(0.15),
-                                            borderColor: Theme.of(context)
-                                                .colorScheme
-                                                .secondary
-                                                .withOpacity(0.7),
-                                            borderWidth: 2.5,
-                                            animationDuration: 0,
-                                            markerSettings:
-                                                const MarkerSettings(
-                                                  isVisible: false,
-                                                ),
-                                          ),
-                                        ],
+                              ),
+
+                              const SizedBox(height: 20),
+                              Container(
+                                height: 40,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                ),
+                                child: ListView.separated(
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: timeframeLabels.length,
+                                  separatorBuilder:
+                                      (_, __) => const SizedBox(width: 8),
+                                  itemBuilder: (context, index) {
+                                    final key = timeframeLabels.keys.elementAt(
+                                      index,
+                                    );
+                                    final label = timeframeLabels[key];
+                                    final isSelected = key == selectedTimeframe;
+
+                                    return ConstrainedBox(
+                                      constraints: const BoxConstraints(
+                                        minHeight: 30,
+                                        maxHeight: 30,
+                                        minWidth: 40,
                                       ),
-                                    ),
-                          ),
-
-                          const SizedBox(height: 20),
-                          Container(
-                            height: 40,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: timeframeLabels.length,
-                              separatorBuilder:
-                                  (_, __) => const SizedBox(width: 8),
-                              itemBuilder: (context, index) {
-                                final key = timeframeLabels.keys.elementAt(
-                                  index,
-                                );
-                                final label = timeframeLabels[key];
-                                final isSelected = key == selectedTimeframe;
-
-                                return ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    minHeight: 30,
-                                    maxHeight: 30,
-                                    minWidth: 40,
-                                  ),
-                                  child: ElevatedButton(
-                                    style: ButtonStyle(
-                                      backgroundColor:
-                                          MaterialStateProperty.resolveWith<
-                                            Color
-                                          >((states) {
-                                            if (states.contains(
-                                              MaterialState.pressed,
-                                            )) {
-                                              return Colors.white.withOpacity(
-                                                0.2,
-                                              );
-                                            }
-                                            return isSelected
-                                                ? Theme.of(context).primaryColor
-                                                : Colors.transparent;
-                                          }),
-                                      foregroundColor:
-                                          MaterialStateProperty.all<Color>(
-                                            isSelected
-                                                ? Colors.white
-                                                : Colors.black87,
-                                          ),
-                                      padding:
-                                          MaterialStateProperty.all<EdgeInsets>(
+                                      child: ElevatedButton(
+                                        style: ButtonStyle(
+                                          backgroundColor:
+                                              MaterialStateProperty.resolveWith<
+                                                Color
+                                              >((states) {
+                                                if (states.contains(
+                                                  MaterialState.pressed,
+                                                )) {
+                                                  return Colors.white
+                                                      .withOpacity(0.2);
+                                                }
+                                                return isSelected
+                                                    ? Theme.of(
+                                                      context,
+                                                    ).primaryColor
+                                                    : Colors.transparent;
+                                              }),
+                                          foregroundColor:
+                                              MaterialStateProperty.all<Color>(
+                                                isSelected
+                                                    ? Colors.white
+                                                    : Colors.black87,
+                                              ),
+                                          padding: MaterialStateProperty.all<
+                                            EdgeInsets
+                                          >(
                                             const EdgeInsets.symmetric(
                                               horizontal: 12,
                                               vertical: 4,
                                             ),
                                           ),
-                                      shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder
-                                      >(
-                                        RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
+                                          shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder
+                                          >(
+                                            RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              side: BorderSide.none,
+                                            ),
                                           ),
-                                          side: BorderSide.none,
+                                          elevation:
+                                              MaterialStateProperty.all<double>(
+                                                0,
+                                              ),
                                         ),
-                                      ),
-                                      elevation:
-                                          MaterialStateProperty.all<double>(0),
-                                    ),
-                                    onPressed: () {
-                                      if (selectedTimeframe != key) {
-                                        setState(() {
-                                          selectedTimeframe = key;
-                                        });
-                                        fetchData();
-                                      }
-                                    },
-                                    child: Text(
-                                      label ?? key,
-                                      style: TextStyle(
-                                        fontWeight:
-                                            isSelected
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal:
-                                  MediaQuery.of(context).size.width * 0.04,
-                              vertical:
-                                  MediaQuery.of(context).size.width * 0.04,
-                            ),
-                            child: Container(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  SingleChildScrollView(
-                                    scrollDirection: Axis.horizontal,
-                                    child: Row(
-                                      children: List.generate(
-                                        descriptionTitles.length,
-                                        (index) {
-                                          return Row(
-                                            children: [
-                                              WidgetDetail(
-                                                title: descriptionTitles[index],
-                                                data: descriptionData[index],
-                                              ),
-                                              const VerticalDivider(
-                                                color: Colors.grey,
-                                                thickness: 1,
-                                              ),
-                                            ],
-                                          );
+                                        onPressed: () {
+                                          if (selectedTimeframe != key) {
+                                            setState(() {
+                                              selectedTimeframe = key;
+                                            });
+                                            fetchData();
+                                          }
                                         },
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        'Price Prediction',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Tooltip(
-                                        message:
-                                            'Our AI-powered price prediction analyzes historical data and market trends to forecast the future stock price, helping you make smarter investment decisions.',
-                                        child: const Icon(
-                                          Icons.error_outline,
-                                          size: 18,
-                                          color: Colors.grey,
+                                        child: Text(
+                                          label ?? key,
+                                          style: TextStyle(
+                                            fontWeight:
+                                                isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                            fontSize: 14,
+                                          ),
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        'Date Prediction',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodyLarge,
-                                      ),
-                                      Text(
-                                        'BUY',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyLarge
-                                            ?.copyWith(color: Colors.green),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        'Price Prediction',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodyLarge,
-                                      ),
-                                      Text(
-                                        '${detailStock?['ClosePriceTHB'] ?? '-'}',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodyLarge,
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    );
+                                  },
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal:
+                                      MediaQuery.of(context).size.width * 0.04,
+                                  vertical:
+                                      MediaQuery.of(context).size.width * 0.04,
+                                ),
+                                child: Container(
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
-                                      Text(
-                                        'Related News',
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.titleMedium,
+                                      SingleChildScrollView(
+                                        scrollDirection: Axis.horizontal,
+                                        child: Row(
+                                          children: List.generate(
+                                            descriptionTitles.length,
+                                            (index) {
+                                              return Row(
+                                                children: [
+                                                  WidgetDetail(
+                                                    title:
+                                                        descriptionTitles[index],
+                                                    data:
+                                                        descriptionData[index],
+                                                  ),
+                                                  const VerticalDivider(
+                                                    color: Colors.grey,
+                                                    thickness: 1,
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 20),
+                                      if (CardsData.isNotEmpty)
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton.icon(
+                                                onPressed: () async {
+                                                  setState(() {
+                                                    TradeType = "Buy";
+                                                  });
+                                                  _openBottomSheet();
+                                                },
+                                                icon: const Icon(
+                                                  Icons.upload,
+                                                  color: Colors.white,
+                                                ),
+                                                label: Text(
+                                                  'Buy',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                      ),
+                                                ),
+                                                style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 16,
+                                                      ),
+                                                  backgroundColor:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.secondary,
+                                                  textStyle: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Expanded(
+                                              child: ElevatedButton.icon(
+                                                onPressed: () async {
+                                                  setState(() {});
+                                                  setState(() {
+                                                    TradeType = "Sell";
+                                                  });
+                                                  _openBottomSheet();
+                                                },
+                                                icon: const Icon(
+                                                  Icons.download,
+                                                  color: Colors.white,
+                                                ),
+                                                label: Text(
+                                                  'Sell',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyMedium
+                                                      ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                      ),
+                                                ),
+                                                style: ElevatedButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        vertical: 16,
+                                                      ),
+                                                  backgroundColor:
+                                                      Theme.of(
+                                                        context,
+                                                      ).colorScheme.error,
+                                                  textStyle: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      else
+                                        Container(
+                                          width: double.infinity,
+                                          height: 70,
+                                          child: Center(
+                                            child: Text(
+                                              'Open a demo account to practice trading.',
+                                              style:
+                                                  Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                      ?.copyWith(),
+                                            ),
+                                          ),
+                                        ),
+                                      const SizedBox(height: 20),
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            'Price Prediction',
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Tooltip(
+                                            message:
+                                                'Our AI-powered price prediction analyzes historical data and market trends to forecast the future stock price, helping you make smarter investment decisions.',
+                                            child: const Icon(
+                                              Icons.error_outline,
+                                              size: 18,
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       const SizedBox(height: 10),
-                                      RecommentnewsStockdetail(
-                                        news: newsRecommnet ?? [],
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            'Date Prediction',
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodyLarge,
+                                          ),
+                                          Text(
+                                            '-',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.copyWith(color: Colors.green),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            'Price Prediction',
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.bodyLarge,
+                                          ),
+                                          Text(
+                                            '${detailStock?['ClosePriceTHB'] ?? '-'}',
+                                            style: Theme.of(
+                                              context,
+                                            ).textTheme.bodyLarge?.copyWith(
+                                              fontWeight: FontWeight.w900,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 20),
+                                      Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Related News',
+                                            style:
+                                                Theme.of(
+                                                  context,
+                                                ).textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          RecommentnewsStockdetail(
+                                            news: newsRecommnet ?? [],
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                              const SizedBox(height: 50),
+                            ],
                           ),
-                          const SizedBox(height: 50),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+        );
+      },
     );
   }
 }

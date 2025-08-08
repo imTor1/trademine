@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
+import 'package:trademine/bloc/credit_card/HoldingStockCubit.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/splash/splash_screen.dart';
@@ -17,6 +18,7 @@ void main() async {
         BlocProvider(create: (_) => UserCubit()..loadUser()),
         BlocProvider(create: (_) => HomePageCubit()),
         BlocProvider(create: (_) => CreditCardCubit()),
+        BlocProvider(create: (_) => HoldingStocksCubit()),
       ],
       child: MyApp(),
     ),

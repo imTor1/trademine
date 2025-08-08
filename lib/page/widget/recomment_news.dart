@@ -18,9 +18,14 @@ class RecommentNews extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(right: 10),
+      padding: const EdgeInsets.only(right: 10),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 260),
+        constraints: const BoxConstraints(
+          minWidth: 100,
+          maxWidth: 260,
+          minHeight: 180,
+          maxHeight: 200,
+        ),
         child: InkWell(
           onTap: () {
             Navigator.push(
@@ -40,6 +45,9 @@ class RecommentNews extends StatelessWidget {
               children: [
                 Image.network(
                   Img,
+                  width: double.infinity,
+                  height: 100,
+                  fit: BoxFit.cover,
                   errorBuilder:
                       (context, error, stackTrace) => Container(
                         width: double.infinity,
@@ -47,9 +55,6 @@ class RecommentNews extends StatelessWidget {
                         color: Colors.grey[300],
                         child: const Icon(Icons.image_not_supported),
                       ),
-                  width: double.infinity,
-                  height: 100,
-                  fit: BoxFit.cover,
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10, 8, 10, 4),
@@ -65,7 +70,7 @@ class RecommentNews extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
                   child: Text(
-                    'Date : ${date}',
+                    'Date : $date',
                     style: Theme.of(
                       context,
                     ).textTheme.bodySmall?.copyWith(color: Colors.grey[700]),

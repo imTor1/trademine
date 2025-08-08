@@ -1,18 +1,27 @@
 class ApiConstants {
   //static const String baseUrl = "http://localhost:3000"; //10.0.2.2
   static const String baseUrl = "http://10.0.2.2:3000"; //10.0.2.2
+
+  //Login
   static const String login = "$baseUrl/api/login";
+
+  //Register
   static const String register_email = "$baseUrl/api/register/email";
   static const String register_otp = "$baseUrl/api/register/verify-otp";
   static const String register_resend_otp = "$baseUrl/api/resend-otp/register";
   static const String register_password = "$baseUrl/api/register/set-password";
   static const String register_profile = "$baseUrl/api/set-profile";
+
+  //ForgetPassword
   static const String forgetpassword_email = "$baseUrl/api/forgot-password";
   static const String forgetpassword_resend_otp =
       "$baseUrl/api/resend-otp/reset-password";
   static const String forgetpassword_reset_password =
       "$baseUrl/api/reset-password";
+
+  //Profile
   static const String profile = "$baseUrl";
+  static const String edit_profile = "$baseUrl";
   static const String stock_favorite = "$baseUrl/api/favorites";
   static const String latest_news = "$baseUrl/api/latest-news";
   static const String topStock = "$baseUrl/api/top-10-stocks";
@@ -21,4 +30,11 @@ class ApiConstants {
   static const String stock_detail = "$baseUrl/api/stock-detail/";
   static const String recomment_newStockDetailPage =
       "$baseUrl/api/recommentnews-stockdetail";
+
+  //Credit_Card
+  static const String creditDemo = "$baseUrl/api/create-demo";
+  static const String portfolio = "$baseUrl/api/portfolio";
+
+  //Trade
+  static const String tradeDemo = "$baseUrl/api/portfolio/trade";
 }

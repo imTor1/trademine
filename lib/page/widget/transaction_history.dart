@@ -46,14 +46,14 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                         children: [
                           Text(
                             widget.symbol,
-                            style: Theme.of(context).textTheme.bodyMedium
+                            style: Theme.of(context).textTheme.bodyLarge
                                 ?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Text(
                             widget.name,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: Theme.of(context).textTheme.bodySmall,
+                            style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ],
                       ),
@@ -64,9 +64,12 @@ class _TransactionHistoryState extends State<TransactionHistory> {
                       children: [
                         Text(
                           '${widget.price} USD',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                        Text(
+                          'Market Status : ${widget.date}',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        Text('Date : ${widget.date}'),
                       ],
                     ),
                   ],

@@ -28,7 +28,7 @@ class AuthService {
             body: {'email': email, 'password': password},
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
           )
-          .timeout(const Duration(seconds: 30)); // Add timeout
+          .timeout(const Duration(seconds: 30));
 
       final data = jsonDecode(response.body);
 
@@ -80,7 +80,7 @@ class AuthService {
             body: {'email': email, 'googleId': googleId},
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
           )
-          .timeout(const Duration(seconds: 30)); // Add timeout
+          .timeout(const Duration(seconds: 30));
 
       final data = jsonDecode(response.body);
 

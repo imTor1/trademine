@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
+import 'package:trademine/bloc/credit_card/HoldingStockCubit.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
@@ -36,6 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.microtask(() {
       context.read<HomePageCubit>().fetchData();
       context.read<CreditCardCubit>().fetchCards();
+      context.read<HoldingStocksCubit>().fetchHolding();
     });
 
     await _loadingData();
@@ -60,11 +62,9 @@ class _SplashScreenState extends State<SplashScreen> {
           _goToLogin();
           return;
         }
-
         final profile = await AuthServiceUser.ProfileFecthData(userId, token);
         final image =
             ApiConstants.baseUrl + (profile['profileImage'] ?? '/default.jpg');
-
         if (!mounted || _navigated) return;
 
         context.read<UserCubit>().setUser(

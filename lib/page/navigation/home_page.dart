@@ -5,7 +5,6 @@ import 'package:shimmer/shimmer.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/home/homepageState.dart';
 import 'package:trademine/bloc/user_cubit.dart';
-import 'package:trademine/page/navigation/news_page.dart';
 import 'package:trademine/page/search/search.dart';
 import 'package:trademine/page/widget/recomment_stock.dart';
 import 'package:trademine/page/widget/favorite_stocklist.dart';

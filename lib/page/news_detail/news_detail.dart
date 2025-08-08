@@ -266,16 +266,17 @@ class _NewsDetailState extends State<NewsDetail> {
                                       ),
                                     ),
                                     WidgetSpan(
-                                      child: InkWell(
-                                        onTap: () => _openUrl(news!['URL']),
-                                        child: Text(
-                                          news!['Title'] ?? '',
-                                          style: Theme.of(
-                                            context,
-                                          ).textTheme.bodySmall?.copyWith(
-                                            color: Colors.red.shade400,
-                                            decoration:
-                                                TextDecoration.underline,
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () => _openUrl(news!['URL']),
+                                          child: Text(
+                                            news!['Title'] ?? '',
+                                            style: TextStyle(
+                                              color: Colors.red.shade400,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
                                           ),
                                         ),
                                       ),

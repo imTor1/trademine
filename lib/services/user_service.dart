@@ -1,10 +1,14 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'package:trademine/page/setting/edit_profile.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 
 class AuthServiceUser {
   static final Uri _Profile = Uri.parse(ApiConstants.profile);
   static final Uri _StockFavorite = Uri.parse(ApiConstants.stock_favorite);
+  static final Uri _EditProfile = Uri.parse(ApiConstants.edit_profile);
 
   static Future<Map<String, dynamic>> ProfileFecthData(
     String userId,
@@ -19,6 +23,36 @@ class AuthServiceUser {
       return data;
     } else {
       throw (data['error']);
+    }
+  }
+
+  static Future<void> editProfile(
+    String token,
+    String userId,
+    String username,
+    DateTime birthday,
+    String gender,
+    File? imageFile,
+  ) async {
+    final url = Uri.parse('$_EditProfile/api/users/$userId/profile');
+
+    var request = http.MultipartRequest('PUT', url);
+    request.headers['Authorization'] = 'Bearer $token';
+    request.fields['username'] = username;
+    request.fields['birthday'] = DateFormat('yyyy-MM-dd').format(birthday);
+    request.fields['gender'] = gender;
+
+    if (imageFile != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath('profileImage', imageFile.path),
+      );
+    }
+    final response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    final data = jsonDecode(respStr);
+
+    if (response.statusCode != 200) {
+      throw Exception(data['error'] ?? 'Failed to update profile');
     }
   }
 
