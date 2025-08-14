@@ -19,14 +19,13 @@ class _SettingPageState extends State<SettingPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
-
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: Colors.white,
+            backgroundColor: theme.scaffoldBackgroundColor,
             elevation: 1,
             leading: IconButton(
               icon: const Icon(FontAwesomeIcons.arrowLeft, color: Colors.black),
@@ -41,8 +40,8 @@ class _SettingPageState extends State<SettingPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 25),
-                  Text('User Settings', style: theme.textTheme.titleSmall),
-                  const SizedBox(height: 10),
+                  Text('User Settings', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 15),
                   _buildMenuItem(
                     icon: FontAwesomeIcons.solidUser,
                     title: 'Edit Profile',
@@ -55,51 +54,76 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   Divider(color: Theme.of(context).dividerColor, height: 15),
                   const SizedBox(height: 20),
-                  Text('App Settings', style: theme.textTheme.titleSmall),
-                  const SizedBox(height: 10),
+                  Text('App Settings', style: theme.textTheme.titleMedium),
+                  const SizedBox(height: 15),
                   _buildMenuItem(
                     icon: FontAwesomeIcons.lock,
                     title: 'Privacy & Security',
                     onTap: () {},
                   ),
                   Divider(color: Theme.of(context).dividerColor, height: 15),
-                  ListTile(
-                    contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                    leading: Icon(
-                      FontAwesomeIcons.solidBell,
-                      color: Colors.black,
-                    ),
-                    title: Text(
-                      'Notification',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    trailing: Transform.scale(
-                      scale: 0.75,
-                      child: Switch(
-                        value: _isNotificationOn,
-                        onChanged: (bool value) {
-                          setState(() {
-                            _isNotificationOn = value;
-                            if (value == true) {
-                              AppSnackbar.showError(
-                                context,
-                                'Notification : ON',
+                  Material(
+                    borderRadius: BorderRadius.circular(14),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: (Theme.of(context).colorScheme.primary)
+                                    .withOpacity(0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
                                 FontAwesomeIcons.solidBell,
-                                Theme.of(context).colorScheme.secondary,
-                              );
-                            } else {
-                              AppSnackbar.showError(
-                                context,
-                                'Notification : OFF',
-                                FontAwesomeIcons.solidBell,
-                                Theme.of(context).colorScheme.error,
-                              );
-                            }
-                          });
-                        },
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 20,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Notification',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                            Switch(
+                              value: _isNotificationOn,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  _isNotificationOn = value;
+                                  if (value == true) {
+                                    AppSnackbar.showError(
+                                      context,
+                                      'Notification : ON',
+                                      FontAwesomeIcons.solidBell,
+                                      Theme.of(context).colorScheme.secondary,
+                                    );
+                                  } else {
+                                    AppSnackbar.showError(
+                                      context,
+                                      'Notification : OFF',
+                                      FontAwesomeIcons.solidBell,
+                                      Theme.of(context).colorScheme.error,
+                                    );
+                                  }
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
+
                   Divider(color: Theme.of(context).dividerColor, height: 15),
                   _buildMenuItem(
                     icon: FontAwesomeIcons.earthAsia,
@@ -135,13 +159,44 @@ class _SettingPageState extends State<SettingPage> {
     required VoidCallback onTap,
     Color? iconColor,
     Color? textColor,
+    Color? backgroundColor,
   }) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-      leading: Icon(icon, color: iconColor ?? Colors.black),
-      title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-      onTap: onTap,
+    final cs = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: (iconColor ?? cs.primary).withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor ?? cs.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: textColor ?? cs.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const Icon(FontAwesomeIcons.angleRight, size: 16),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

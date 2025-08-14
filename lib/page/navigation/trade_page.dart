@@ -14,7 +14,7 @@ import 'package:trademine/page/setting_card/create_card.dart';
 import 'package:trademine/page/widget/credit_card/addnewDemoCard.dart';
 import 'package:trademine/page/widget/credit_card/credit_card.dart';
 import 'package:trademine/page/widget/transactionHistory.dart';
-import 'package:trademine/page/widget/transaction_history.dart';
+import 'package:trademine/page/widget/holdingStocks.dart';
 import 'package:trademine/page/widget/trade_widget_bottomsheet.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/services/trade_service.dart';
@@ -34,8 +34,6 @@ class _TradePageState extends State<TradePage> {
   late PageController _pageController;
   final List<String> currencies = ['USD', 'THB'];
   String _selectedCurrency = 'USD';
-
-  // Remove unused demo data
   List<Map<String, String>> _currentTransactionList = [];
 
   @override
@@ -51,22 +49,17 @@ class _TradePageState extends State<TradePage> {
   String _formatDate(dynamic value) {
     try {
       if (value == null) return '-';
-      // If it's already DateTime
       if (value is DateTime) {
         return DateFormat('d MMM yyyy').format(value.toLocal());
       }
-      // If it's an int (timestamp seconds or ms)
       if (value is int) {
-        // Heuristic: treat > 10^12 as ms
         final isMs = value > 1000000000000;
         final dt = DateTime.fromMillisecondsSinceEpoch(
           isMs ? value : value * 1000,
         );
         return DateFormat('d MMM yyyy').format(dt.toLocal());
       }
-      // If it's string parseable
       if (value is String) {
-        // Try ISO-8601
         final dt = DateTime.parse(value);
         return DateFormat('d MMM yyyy').format(dt.toLocal());
       }
@@ -78,11 +71,7 @@ class _TradePageState extends State<TradePage> {
 
   Future<void> _loadInitialData() async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     try {
       await Future.wait<void>([
         Future.microtask(() => context.read<CreditCardCubit>().fetchCards()),
@@ -103,21 +92,12 @@ class _TradePageState extends State<TradePage> {
         );
       }
     }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    if (mounted) setState(() => _isLoading = false);
   }
 
   Future<void> _refreshHoldingStocks() async {
     if (!mounted) return;
-
-    setState(() {
-      _isLoading = true;
-    });
-
+    setState(() => _isLoading = true);
     try {
       await Future.wait<void>([
         Future.microtask(
@@ -138,12 +118,7 @@ class _TradePageState extends State<TradePage> {
         );
       }
     }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+    if (mounted) setState(() => _isLoading = false);
   }
 
   @override
@@ -157,7 +132,6 @@ class _TradePageState extends State<TradePage> {
     return BlocBuilder<CreditCardCubit, CreditCardState>(
       builder: (context, state) {
         final cardsData = state.cards ?? [];
-
         return Scaffold(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           body: CustomScrollView(
@@ -249,11 +223,7 @@ class _TradePageState extends State<TradePage> {
         controller: _pageController,
         itemCount: cardsData.length,
         onPageChanged: (index) {
-          if (mounted) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          }
+          if (mounted) setState(() => _selectedIndex = index);
         },
         itemBuilder: (context, index) {
           final card = cardsData[index];
@@ -323,7 +293,6 @@ class _TradePageState extends State<TradePage> {
 
   Future<void> _handleActionButton(int index) async {
     final cardsData = context.read<CreditCardCubit>().state.cards ?? [];
-
     switch (index) {
       case 0:
         await _openTradeSheet(context, type: 'Buy');
@@ -349,78 +318,134 @@ class _TradePageState extends State<TradePage> {
 
   Widget _buildTotalValueCard() {
     return BlocBuilder<CreditCardCubit, CreditCardState>(
-      builder: (context, state) {
-        final cardsData = state.cards ?? [];
-        if (cardsData.isEmpty) {
-          return const SizedBox();
-        }
-
+      builder: (context, creditState) {
+        final cardsData = creditState.cards ?? [];
+        if (cardsData.isEmpty) return const SizedBox.shrink();
         return Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.05,
           ),
           child: BlocBuilder<HoldingStocksCubit, HoldingStocksState>(
-            builder: (context, state) {
-              final holdingStocks = state.holdingStocks ?? [];
-              final isLoading = state.isLoading;
-
+            builder: (context, holdingState) {
+              final holdingStocks = holdingState.holdingStocks ?? [];
+              final isLoading = holdingState.isLoading;
               double totalValue = 0.0;
               if (holdingStocks.isNotEmpty) {
-                for (var stock in holdingStocks) {
+                for (final stock in holdingStocks) {
                   final price =
                       double.tryParse(
                         stock['AvgBuyPriceUSD']?.toString() ?? '0',
                       ) ??
                       0.0;
-                  final quantity =
+                  final qty =
                       double.tryParse(stock['Quantity']?.toString() ?? '0') ??
                       0.0;
-                  totalValue += price * quantity;
+                  totalValue += price * qty;
                 }
               }
-
+              final currencyText = _formatUsd(totalValue);
               return Card(
-                elevation: 1,
-                margin: const EdgeInsets.only(bottom: 5, top: 5),
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 6),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 10,
-                  ),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const FaIcon(FontAwesomeIcons.moneyBill),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Total Value of Holdings',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                      isLoading
-                          ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : Text(
-                            '\$${totalValue.toStringAsFixed(2)}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                    ],
-                  ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
                   onTap: () {},
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 14,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          alignment: Alignment.center,
+                          child: const FaIcon(
+                            FontAwesomeIcons.moneyBill,
+                            size: 18,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Total Value of Holdings',
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(fontWeight: FontWeight.w600),
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(
+                                    FontAwesomeIcons.box,
+                                    size: 16,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.6),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Text(
+                                    '${holdingStocks.length} Stock Holdings',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.onSurface.withOpacity(0.7),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          transitionBuilder:
+                              (child, anim) =>
+                                  FadeTransition(opacity: anim, child: child),
+                          child:
+                              isLoading
+                                  ? SizedBox(
+                                    key: const ValueKey('loading'),
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(
+                                        Theme.of(context).colorScheme.primary,
+                                      ),
+                                    ),
+                                  )
+                                  : Text(
+                                    currencyText,
+                                    key: ValueKey(currencyText),
+                                    textAlign: TextAlign.right,
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.titleMedium?.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               );
             },
@@ -428,6 +453,22 @@ class _TradePageState extends State<TradePage> {
         );
       },
     );
+  }
+
+  String _formatUsd(double value) {
+    final compact = NumberFormat.compactCurrency(
+      locale: 'en_US',
+      symbol: '\$',
+      decimalDigits: 2,
+    );
+    if (value.abs() < 1000) {
+      return NumberFormat.currency(
+        locale: 'en_US',
+        symbol: '\$',
+        decimalDigits: 2,
+      ).format(value);
+    }
+    return compact.format(value);
   }
 
   Widget _buildToggleButtons() {
@@ -444,11 +485,7 @@ class _TradePageState extends State<TradePage> {
               _transactionViewIndex == 1,
             ],
             onPressed: (int index) {
-              if (mounted) {
-                setState(() {
-                  _transactionViewIndex = index;
-                });
-              }
+              if (mounted) setState(() => _transactionViewIndex = index);
             },
             borderRadius: BorderRadius.circular(8),
             selectedColor: Colors.white,
@@ -456,11 +493,10 @@ class _TradePageState extends State<TradePage> {
             color: Theme.of(context).colorScheme.onSurface,
             constraints: BoxConstraints(
               minHeight: 40,
-              minWidth: MediaQuery.of(context).size.width * 0.45,
+              minWidth: MediaQuery.of(context).size.width * 0.44,
             ),
             children: const [Text('Transactions'), Text('Holding Stocks')],
           ),
-          const SizedBox(height: 10),
         ],
       ),
     );
@@ -470,19 +506,16 @@ class _TradePageState extends State<TradePage> {
     if (cardsData.isEmpty) {
       return const SliverToBoxAdapter(child: SizedBox());
     }
-
     return BlocBuilder<HoldingStocksCubit, HoldingStocksState>(
       builder: (context, holdingState) {
         final holdingStocks = holdingState.holdingStocks ?? [];
         final isHoldingLoading = holdingState.isLoading;
-
         if (_transactionViewIndex == 0) {
           return BlocBuilder<TransactionCubit, TransactionState>(
             builder: (context, transactionState) {
               final transactionHistory =
                   transactionState.transactionHistory ?? [];
               final isTransactionLoading = transactionState.isLoading;
-
               if (isTransactionLoading) {
                 return SliverList(
                   delegate: SliverChildBuilderDelegate(
@@ -491,13 +524,11 @@ class _TradePageState extends State<TradePage> {
                   ),
                 );
               }
-
               if (transactionHistory.isEmpty) {
                 return const SliverToBoxAdapter(
                   child: Center(child: Text('No Transactions available')),
                 );
               }
-
               return SliverPadding(
                 padding: EdgeInsets.symmetric(
                   horizontal: MediaQuery.of(context).size.width * 0.03,
@@ -529,13 +560,11 @@ class _TradePageState extends State<TradePage> {
               ),
             );
           }
-
           if (holdingStocks.isEmpty) {
             return const SliverToBoxAdapter(
               child: Center(child: Text('No Stock Holding available')),
             );
           }
-
           return SliverPadding(
             padding: EdgeInsets.symmetric(
               horizontal: MediaQuery.of(context).size.width * 0.03,
@@ -555,7 +584,6 @@ class _TradePageState extends State<TradePage> {
                 final priceSumQuantity = price * quantity;
                 final finalPriceSumQuantity =
                     (priceSumQuantity * 1000).truncateToDouble() / 1000;
-
                 return HoldingStocks(
                   symbol: history['StockSymbol']?.toString() ?? '',
                   name: history['StockSymbol']?.toString() ?? '',
@@ -585,26 +613,19 @@ class _TradePageState extends State<TradePage> {
         builder:
             (_) => TradeBottomSheet(stockSymbol: '', selectedTradeType: type),
       );
-
       if (result == null || !mounted) return;
-
       const storage = FlutterSecureStorage();
       final token = await storage.read(key: 'auth_token');
-
       if (token == null) {
-        if (mounted) {
-          AppSnackbar.showWarning(context, 'Please login');
-        }
+        if (mounted) AppSnackbar.showWarning(context, 'Please login');
         return;
       }
-
       final message = await ServiceTrade.TradeDemo(
         token,
         result.stockSymbol,
         result.amount,
         result.tradeType.toLowerCase(),
       );
-
       if (mounted) {
         AppSnackbar.showSuccess(context, message ?? 'Trade success');
         await _refreshHoldingStocks();

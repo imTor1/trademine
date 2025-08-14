@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:trademine/page/widget/transaction_history.dart';
+import 'package:trademine/page/widget/holdingStocks.dart';
 import 'package:trademine/services/constants/api_constants.dart';
 
 class AuthServicePortfolio {

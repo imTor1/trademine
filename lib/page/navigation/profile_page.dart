@@ -32,7 +32,7 @@ class _ProfilePageState extends State<ProfilePage> {
       await storage.deleteAll();
       context.read<NotificationCubit>().deleteAllNotifications();
       context.read<CreditCardCubit>().deleteAllCards();
-      await context.read<HoldingStocksCubit>().ResetHoldingStocks();
+      await context.read<HoldingStocksCubit>().resetHoldingStocks();
       context.read<NavigationCubit>().goToPage(0);
 
       Navigator.pushReplacement(
@@ -193,12 +193,42 @@ class _ProfilePageState extends State<ProfilePage> {
     Color? iconColor,
     Color? textColor,
   }) {
-    return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 10),
-      leading: Icon(icon, color: iconColor ?? Colors.black),
-      title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: const Icon(FontAwesomeIcons.angleRight, size: 16),
-      onTap: onTap,
+    final cs = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: (iconColor ?? cs.primary).withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: iconColor ?? cs.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: textColor ?? cs.onSurface,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+              const Icon(FontAwesomeIcons.angleRight, size: 16),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

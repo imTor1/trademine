@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 final ThemeData lightTheme = ThemeData(
   brightness: Brightness.light,
-  scaffoldBackgroundColor: const Color(0xFFF9FAFB),
+  scaffoldBackgroundColor: Colors.white,
   cardColor: Colors.white,
   primaryColor: const Color(0xFF2C5282),
   colorScheme: const ColorScheme.light(

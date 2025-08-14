@@ -6,30 +6,53 @@ import '../../services/portfolio.dart';
 class HoldingStocksCubit extends Cubit<HoldingStocksState> {
   HoldingStocksCubit() : super(const HoldingStocksState());
 
-  void fetchHolding() async {
-    emit(state.copyWith(isLoading: true));
+  Future<void> fetchHolding() async {
+    if (!isClosed) emit(state.copyWith(isLoading: true));
 
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'auth_token');
-    final portfolio = await AuthServicePortfolio.Portfolio(token!);
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
 
-    final holdingStocksList = portfolio['data']['holdings'] as List;
+      if (token == null || token.isEmpty) {
+        if (!isClosed) {
+          emit(state.copyWith(holdingStocks: const [], isLoading: false));
+        }
+        return;
+      }
 
-    final holdingStocks =
-        holdingStocksList.map<Map<String, String>>((item) {
-          return {
-            'StockSymbol': item['StockSymbol'].toString(),
-            'Quantity': item['Quantity'].toString(),
-            'AvgBuyPriceUSD': item['AvgBuyPriceUSD'].toString(),
-            'MarketStatus': item['MarketStatus'].toString(),
-            'UnrealizedPLPercent': item['UnrealizedPLPercent'].toString(),
-          };
-        }).toList();
+      final resp = await AuthServicePortfolio.Portfolio(token);
 
-    emit(state.copyWith(holdingStocks: holdingStocks, isLoading: false));
+      final data = (resp is Map<String, dynamic>) ? resp['data'] : null;
+      final holdingsRaw =
+          (data is Map<String, dynamic>) ? data['holdings'] : null;
+      final List<dynamic> holdingsList =
+          (holdingsRaw is List) ? holdingsRaw : const [];
+
+      final holdingStocks =
+          holdingsList.map<Map<String, String>>((item) {
+            final m = (item is Map) ? item : const <String, dynamic>{};
+            return {
+              'StockSymbol': m['StockSymbol']?.toString() ?? '',
+              'Quantity': m['Quantity']?.toString() ?? '0',
+              'AvgBuyPriceUSD': m['AvgBuyPriceUSD']?.toString() ?? '0',
+              'MarketStatus':
+                  (m['MarketStatus'] ?? m['Market'] ?? '').toString(),
+              'UnrealizedPLPercent':
+                  m['UnrealizedPLPercent']?.toString() ?? '0',
+            };
+          }).toList();
+
+      if (!isClosed) {
+        emit(state.copyWith(holdingStocks: holdingStocks, isLoading: false));
+      }
+    } catch (e) {
+      if (!isClosed) {
+        emit(state.copyWith(isLoading: false));
+      }
+    }
   }
 
-  Future<void> ResetHoldingStocks() async {
-    emit(const HoldingStocksState());
+  Future<void> resetHoldingStocks() async {
+    if (!isClosed) emit(const HoldingStocksState());
   }
 }

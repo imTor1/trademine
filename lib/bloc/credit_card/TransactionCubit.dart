@@ -6,36 +6,49 @@ import '../../services/portfolio.dart';
 class TransactionCubit extends Cubit<TransactionState> {
   TransactionCubit() : super(const TransactionState());
 
-  void fetchTransaction() async {
+  Future<void> fetchTransaction() async {
     emit(state.copyWith(isLoading: true));
 
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'auth_token');
-    final transactionHistory = await AuthServicePortfolio.TransactionHistory(
-      token!,
-    );
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
 
-    final transactionHistoryList = transactionHistory['data'] as List;
+      if (token == null || token.isEmpty) {
+        if (!isClosed) {
+          emit(state.copyWith(isLoading: false, transactionHistory: const []));
+        }
+        return;
+      }
 
-    print(transactionHistoryList);
+      final resp = await AuthServicePortfolio.TransactionHistory(token);
 
-    final TransactionHistory =
-        transactionHistoryList.map<Map<String, String>>((item) {
-          return {
-            'StockSymbol': item['StockSymbol'].toString(),
-            'TradeType': item['TradeType'].toString(),
-            'Quantity': item['Quantity'].toString(),
-            'Price': item['Price'].toString(),
-            'TradeDate': item['TradeDate'].toString(),
-          };
-        }).toList();
+      final dynamic rawData =
+          (resp is Map<String, dynamic>) ? resp['data'] : null;
+      final List<dynamic> list = (rawData is List) ? rawData : const [];
 
-    emit(
-      state.copyWith(transactionHistory: TransactionHistory, isLoading: false),
-    );
+      final history =
+          list.map<Map<String, String>>((item) {
+            final m = (item is Map) ? item : const <String, dynamic>{};
+            return {
+              'StockSymbol': m['StockSymbol']?.toString() ?? '',
+              'TradeType': m['TradeType']?.toString() ?? '',
+              'Quantity': m['Quantity']?.toString() ?? '0',
+              'Price': m['Price']?.toString() ?? '0',
+              'TradeDate': m['TradeDate']?.toString() ?? '',
+            };
+          }).toList();
+
+      if (!isClosed) {
+        emit(state.copyWith(transactionHistory: history, isLoading: false));
+      }
+    } catch (e) {
+      if (!isClosed) {
+        emit(state.copyWith(isLoading: false));
+      }
+    }
   }
 
-  Future<void> ResetTransactionStocks() async {
-    emit(const TransactionState());
+  Future<void> resetTransactionStocks() async {
+    if (!isClosed) emit(const TransactionState());
   }
 }

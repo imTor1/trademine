@@ -341,6 +341,8 @@ class _StockDetailState extends State<StockDetail> {
       return value?.toString() ?? '-';
     }
 
+    print(detailStock?['Overview']);
+
     final List<List<String>> descriptionData = [
       [
         safeGet(detailStock?['Overview'], 'Open'),

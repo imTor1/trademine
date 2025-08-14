@@ -1,32 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 
-class TransactionHistory extends StatelessWidget {
+class HoldingStocks extends StatelessWidget {
   final String symbol;
-  final String tradetype;
+  final String name;
   final String price;
-  final String quantity;
-  final String tradedate;
+  final String marketstatus;
+  final int quantity;
+  final String unrealizedPLPercent;
 
-  const TransactionHistory({
+  const HoldingStocks({
     super.key,
     required this.symbol,
-    required this.tradetype,
+    required this.name,
     required this.price,
+    required this.marketstatus,
     required this.quantity,
-    required this.tradedate,
+    required this.unrealizedPLPercent,
   });
 
-  bool get _isSell => tradetype.toLowerCase() == 'sell';
+  bool get _isMarketClosed => marketstatus.toLowerCase() == 'closed';
+  bool get _isLoss => unrealizedPLPercent.trim().startsWith('-');
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final cs = theme.colorScheme;
 
-    final orderColor = _isSell ? Colors.red : Colors.green;
-    final orderTint = orderColor.withOpacity(0.12);
+    final statusColor = _isMarketClosed ? Colors.red : Colors.green;
+    final plColor = _isLoss ? cs.error : Colors.green;
+    final statusText = _isMarketClosed ? 'Closed' : 'Open';
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -35,8 +38,8 @@ class TransactionHistory extends StatelessWidget {
       ),
       child: Material(
         color: theme.cardColor,
-        borderRadius: BorderRadius.circular(14),
         elevation: 0.6,
+        borderRadius: BorderRadius.circular(14),
         child: InkWell(
           borderRadius: BorderRadius.circular(14),
           onTap: () {
@@ -51,7 +54,7 @@ class TransactionHistory extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: theme.dividerColor.withOpacity(0.5)),
+              border: Border.all(color: theme.dividerColor.withOpacity(0.45)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.03),
@@ -79,55 +82,10 @@ class TransactionHistory extends StatelessWidget {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: orderTint,
-                              borderRadius: BorderRadius.circular(999),
-                              border: Border.all(
-                                color: orderColor.withOpacity(0.5),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                FaIcon(
-                                  _isSell
-                                      ? FontAwesomeIcons.tag
-                                      : FontAwesomeIcons.cartShopping,
-                                  size: 10,
-                                  color: orderColor,
-                                ),
-                                const SizedBox(width: 5),
-                                Text(
-                                  _isSell ? 'SELL' : 'BUY',
-                                  style: theme.textTheme.labelSmall?.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: orderColor,
-                                    letterSpacing: 0.6,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          FaIcon(
-                            FontAwesomeIcons.clock,
-                            size: 10,
-                            color: theme.textTheme.bodySmall?.color
-                                ?.withOpacity(0.6),
-                          ),
                           const SizedBox(width: 6),
                           Flexible(
                             child: Text(
-                              tradedate,
+                              '— $name',
                               overflow: TextOverflow.ellipsis,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.textTheme.bodySmall?.color
@@ -136,6 +94,43 @@ class TransactionHistory extends StatelessWidget {
                             ),
                           ),
                         ],
+                      ),
+                      const SizedBox(height: 6),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withOpacity(0.12),
+                          borderRadius: BorderRadius.circular(999),
+                          border: Border.all(
+                            color: statusColor.withOpacity(0.45),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: statusColor,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Market $statusText',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: statusColor,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.4,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -149,16 +144,17 @@ class TransactionHistory extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FaIcon(
-                          FontAwesomeIcons.dollarSign,
-                          size: 12,
-                          color: theme.textTheme.titleSmall?.color,
+                        Icon(
+                          _isLoss ? Icons.south_east : Icons.north_east,
+                          size: 16,
+                          color: plColor,
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          '$price USD',
-                          style: theme.textTheme.titleSmall?.copyWith(
+                          _formatPercent(unrealizedPLPercent),
+                          style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.w900,
+                            color: plColor,
                           ),
                         ),
                       ],
@@ -167,19 +163,13 @@ class TransactionHistory extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        FaIcon(
-                          FontAwesomeIcons.moneyBill,
-                          size: 12,
-                          color: colorScheme.outline,
-                        ),
-                        const SizedBox(width: 6),
                         Text(
-                          'x $quantity',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: colorScheme.outline,
-                            fontWeight: FontWeight.w600,
+                          '$price USD (${quantity})',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
+                        const SizedBox(width: 6),
                       ],
                     ),
                   ],
@@ -190,5 +180,11 @@ class TransactionHistory extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatPercent(String raw) {
+    final s = raw.trim();
+    if (s.startsWith('-')) return s;
+    return s.startsWith('+') ? s : '+$s';
   }
 }

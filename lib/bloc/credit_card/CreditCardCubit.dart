@@ -1,41 +1,52 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/bloc/credit_card/creditCardState.dart';
-import 'package:trademine/bloc/user_cubit.dart';
-import 'dart:math';
-
 import '../../services/portfolio.dart';
 
 class CreditCardCubit extends Cubit<CreditCardState> {
   CreditCardCubit() : super(const CreditCardState());
 
-  void fetchCards() async {
-    emit(state.copyWith(isLoading: true));
+  Future<void> fetchCards() async {
+    if (!isClosed) emit(state.copyWith(isLoading: true));
 
-    final storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'auth_token');
-    final portfolio = await AuthServicePortfolio.Portfolio(token!);
+    try {
+      const storage = FlutterSecureStorage();
+      final token = await storage.read(key: 'auth_token');
 
-    final list = 1;
-    final creditCards = List.generate(list, (index) {
-      final typeCard = 'Demo';
-      final number = portfolio['data']['Balance'].toString();
-      final name = 'XXXX XXXX';
-      final expMonth = 'XX';
-      final expYear = 'XX';
+      if (token == null || token.isEmpty) {
+        if (!isClosed) {
+          emit(state.copyWith(isLoading: false, cards: const []));
+        }
+        return;
+      }
 
-      return {
-        'typeCard': typeCard,
-        'number': number,
-        'name': name,
-        'exp': '${expMonth.toString().padLeft(2, '0')}/$expYear',
-      };
-    });
+      final resp = await AuthServicePortfolio.Portfolio(token);
 
-    emit(state.copyWith(cards: creditCards, isLoading: false));
+      final data = (resp is Map<String, dynamic>) ? resp['data'] : null;
+      final balanceRaw =
+          (data is Map<String, dynamic>) ? data['Balance'] : null;
+      final balanceStr = (balanceRaw == null) ? '0.00' : balanceRaw.toString();
+
+      final creditCards = <Map<String, String>>[
+        {
+          'typeCard': 'Demo',
+          'number': balanceStr,
+          'name': 'XXXX XXXX',
+          'exp': 'XX/XX',
+        },
+      ];
+
+      if (!isClosed) {
+        emit(state.copyWith(cards: creditCards, isLoading: false));
+      }
+    } catch (e) {
+      if (!isClosed) {
+        emit(state.copyWith(isLoading: false));
+      }
+    }
   }
 
   void deleteAllCards() {
-    emit(state.copyWith(cards: []));
+    if (!isClosed) emit(state.copyWith(cards: []));
   }
 }

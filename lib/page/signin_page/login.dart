@@ -50,7 +50,7 @@ class _LoginAppState extends State<LoginPage> {
       final idToken = googleAuth.idToken;
 
       if (email.isNotEmpty && googleId.isNotEmpty) {
-        //final login_google = await AuthService.Login(email, googleId);
+        final login_google = await AuthService.LoginWithGoogle(email, googleId);
       }
     } catch (e) {
       print("Google login error: $e");
