@@ -12,14 +12,14 @@ class CreditCardCubit extends Cubit<CreditCardState> {
   void fetchCards() async {
     emit(state.copyWith(isLoading: true));
 
-    final storage = await FlutterSecureStorage();
+    final storage = FlutterSecureStorage();
     final token = await storage.read(key: 'auth_token');
-    final Portfolio = await AuthServicePortfolio.Portfolio(token!);
+    final portfolio = await AuthServicePortfolio.Portfolio(token!);
 
     final list = 1;
-    final CreditCard = List.generate(list, (index) {
+    final creditCards = List.generate(list, (index) {
       final typeCard = 'Demo';
-      final number = Portfolio['data']['Balance'].toString();
+      final number = portfolio['data']['Balance'].toString();
       final name = 'XXXX XXXX';
       final expMonth = 'XX';
       final expYear = 'XX';
@@ -32,6 +32,10 @@ class CreditCardCubit extends Cubit<CreditCardState> {
       };
     });
 
-    emit(state.copyWith(cards: CreditCard, isLoading: false));
+    emit(state.copyWith(cards: creditCards, isLoading: false));
+  }
+
+  void deleteAllCards() {
+    emit(state.copyWith(cards: []));
   }
 }

@@ -6,13 +6,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
 import 'package:trademine/bloc/credit_card/HoldingStockCubit.dart';
+import 'package:trademine/bloc/credit_card/TransactionCubit.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
+import 'package:trademine/bloc/notification/notificationCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
-import 'package:trademine/page/news_detail/news_detail.dart';
 import 'package:trademine/page/signin_page/login.dart';
 import 'package:trademine/page/widget/loop_typing_animation.dart';
 import 'package:trademine/services/constants/api_constants.dart';
+import 'package:trademine/services/notification/notification.dart';
 import 'package:trademine/services/user_service.dart';
 import 'package:trademine/utils/snackbar.dart';
 
@@ -38,6 +40,8 @@ class _SplashScreenState extends State<SplashScreen> {
       context.read<HomePageCubit>().fetchData();
       context.read<CreditCardCubit>().fetchCards();
       context.read<HoldingStocksCubit>().fetchHolding();
+      context.read<NotificationCubit>().fetchLatestNotifications();
+      context.read<TransactionCubit>().fetchTransaction();
     });
 
     await _loadingData();
@@ -74,6 +78,13 @@ class _SplashScreenState extends State<SplashScreen> {
           profile['birthday'].toString(),
           profile['age'].toString(),
           image,
+        );
+        await setupFirebaseMessaging();
+        String? NotificationClient_Token =
+            await FirebaseMessaging.instance.getToken();
+        await AuthServiceUser.NotificationclientToken(
+          token,
+          NotificationClient_Token!,
         );
 
         await Future.delayed(const Duration(milliseconds: 1300));

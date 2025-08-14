@@ -11,6 +11,7 @@ class SearchStock extends StatefulWidget {
   final String name;
   final String price;
   final String change;
+  final VoidCallback? onFollowChanged;
 
   const SearchStock({
     Key? key,
@@ -18,6 +19,7 @@ class SearchStock extends StatefulWidget {
     required this.name,
     required this.price,
     required this.change,
+    this.onFollowChanged,
   }) : super(key: key);
   @override
   _SearchStockState createState() => _SearchStockState();
@@ -69,6 +71,7 @@ class _SearchStockState extends State<SearchStock> {
       setState(() {
         follow = !follow;
       });
+      widget.onFollowChanged?.call();
     } catch (e) {
       AppSnackbar.showError(
         context,
@@ -81,140 +84,136 @@ class _SearchStockState extends State<SearchStock> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        GestureDetector(
-          onTap:
-              () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => StockDetail(StockSymbol: widget.symbol),
-                ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap:
+            () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => StockDetail(StockSymbol: widget.symbol),
               ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            follow
-                                ? Icons.favorite_sharp
-                                : Icons.favorite_border,
-                            color:
-                                follow
-                                    ? Theme.of(context).colorScheme.error
-                                    : Colors.grey,
-                          ),
-                          onPressed: () async {
-                            if (follow) {
-                              final confirm = await showCupertinoDialog<bool>(
-                                context: context,
-                                builder:
-                                    (context) => CupertinoAlertDialog(
-                                      title: const Text('Confirm'),
-                                      content: Text(
-                                        'Are you sure you want to unfollow ${widget.symbol}?',
-                                      ),
-                                      actions: [
-                                        CupertinoDialogAction(
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, false),
-                                          child: const Text('Cancel'),
-                                        ),
-                                        CupertinoDialogAction(
-                                          isDestructiveAction: true,
-                                          onPressed:
-                                              () =>
-                                                  Navigator.pop(context, true),
-                                          child: const Text('Unfollow'),
-                                        ),
-                                      ],
-                                    ),
-                              );
-                              if (confirm == true) {
-                                try {
-                                  final storage = FlutterSecureStorage();
-                                  final String? token = await storage.read(
-                                    key: 'auth_token',
-                                  );
-                                  await AuthServiceUser.unfollowStock(
-                                    token!,
-                                    widget.symbol,
-                                  );
-                                  setState(() {
-                                    follow = false;
-                                  });
-                                } catch (e) {
-                                  AppSnackbar.showError(
-                                    context,
-                                    'Error: $e',
-                                    Icons.error,
-                                    Theme.of(context).colorScheme.error,
-                                  );
-                                }
-                              }
-                            } else {
-                              FollowStock();
-                            }
-                          },
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              widget.symbol,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                            ),
-                            SizedBox(
-                              width: 150,
-                              child: Text(
-                                widget.name,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style:
-                                    Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall?.copyWith(),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          '${widget.price} USD',
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          widget.change,
-                          style: TextStyle(
-                            color:
-                                widget.change.trim().startsWith('-')
-                                    ? Theme.of(context).colorScheme.error
-                                    : Theme.of(context).colorScheme.secondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                Divider(color: Theme.of(context).dividerColor),
-              ],
             ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          follow ? Icons.favorite_sharp : Icons.favorite_border,
+                          color:
+                              follow
+                                  ? Theme.of(context).colorScheme.error
+                                  : Colors.grey,
+                        ),
+                        onPressed: () async {
+                          if (follow) {
+                            final confirm = await showCupertinoDialog<bool>(
+                              context: context,
+                              builder:
+                                  (context) => CupertinoAlertDialog(
+                                    title: const Text('Confirm'),
+                                    content: Text(
+                                      'Are you sure you want to unfollow ${widget.symbol}?',
+                                    ),
+                                    actions: [
+                                      CupertinoDialogAction(
+                                        onPressed:
+                                            () => Navigator.pop(context, false),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      CupertinoDialogAction(
+                                        isDestructiveAction: true,
+                                        onPressed:
+                                            () => Navigator.pop(context, true),
+                                        child: const Text('Unfollow'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                            if (confirm == true) {
+                              try {
+                                final storage = FlutterSecureStorage();
+                                final String? token = await storage.read(
+                                  key: 'auth_token',
+                                );
+                                await AuthServiceUser.unfollowStock(
+                                  token!,
+                                  widget.symbol,
+                                );
+                                setState(() {
+                                  follow = false;
+                                });
+                              } catch (e) {
+                                AppSnackbar.showError(
+                                  context,
+                                  'Error: $e',
+                                  Icons.error,
+                                  Theme.of(context).colorScheme.error,
+                                );
+                              }
+                            }
+                          } else {
+                            FollowStock();
+                          }
+                        },
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.symbol,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            width: 150,
+                            child: Text(
+                              widget.name,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style:
+                                  Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${widget.price} USD',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        widget.change,
+                        style: TextStyle(
+                          color:
+                              widget.change.trim().startsWith('-')
+                                  ? Theme.of(context).colorScheme.error
+                                  : Theme.of(context).colorScheme.secondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Divider(color: Theme.of(context).dividerColor),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

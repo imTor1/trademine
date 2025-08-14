@@ -19,19 +19,13 @@ class TransactionHistoryShimmer extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Shimmer.fromColors(
-                  baseColor: Colors.grey.shade300,
-                  highlightColor: Colors.grey.shade100,
-                  child: Icon(Icons.circle, color: Colors.grey, size: 24),
-                ),
-                const SizedBox(width: 8),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ShimmerBox(width: width * 0.2, height: 14),
+                      ShimmerBox(width: width * 0.3, height: 14),
                       const SizedBox(height: 4),
-                      ShimmerBox(width: width * 0.3, height: 12),
+                      ShimmerBox(width: width * 0.2, height: 12),
                     ],
                   ),
                 ),

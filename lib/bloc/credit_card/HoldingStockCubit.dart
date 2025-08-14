@@ -22,9 +22,14 @@ class HoldingStocksCubit extends Cubit<HoldingStocksState> {
             'Quantity': item['Quantity'].toString(),
             'AvgBuyPriceUSD': item['AvgBuyPriceUSD'].toString(),
             'MarketStatus': item['MarketStatus'].toString(),
+            'UnrealizedPLPercent': item['UnrealizedPLPercent'].toString(),
           };
         }).toList();
 
     emit(state.copyWith(holdingStocks: holdingStocks, isLoading: false));
+  }
+
+  Future<void> ResetHoldingStocks() async {
+    emit(const HoldingStocksState());
   }
 }

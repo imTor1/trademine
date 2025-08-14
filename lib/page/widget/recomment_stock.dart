@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 import 'package:trademine/theme/app_styles.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:trademine/bloc/home/HomepageCubit.dart';
 
 class RecommentStock extends StatefulWidget {
   final String symbol;
@@ -24,13 +26,16 @@ class _RecommentStockState extends State<RecommentStock> {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        final changed = await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (_) => StockDetail(StockSymbol: widget.symbol),
           ),
         );
+        if (changed == true) {
+          context.read<HomePageCubit>().fetchData();
+        }
       },
       child: IntrinsicHeight(
         child: Container(
@@ -46,8 +51,6 @@ class _RecommentStockState extends State<RecommentStock> {
             children: [
               Row(
                 children: [
-                  CircleAvatar(radius: 18, backgroundImage: NetworkImage('')),
-                  const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +58,7 @@ class _RecommentStockState extends State<RecommentStock> {
                         Text(
                           widget.symbol,
                           style: Theme.of(context).textTheme.bodyLarge
-                              ?.copyWith(fontWeight: FontWeight.w600),
+                              ?.copyWith(fontWeight: FontWeight.w500),
                         ),
                         Text(
                           widget.name,
@@ -81,7 +84,7 @@ class _RecommentStockState extends State<RecommentStock> {
                       '${widget.change}%',
                       style: Theme.of(
                         context,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+                      ).textTheme.bodyLarge?.copyWith(color: Colors.white),
                     ),
                   ),
                 ],

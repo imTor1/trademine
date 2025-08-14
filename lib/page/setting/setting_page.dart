@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:trademine/page/setting/edit_profile.dart';
 import 'package:trademine/theme/app_styles.dart';
 import 'package:another_flushbar/flushbar.dart';
+import 'package:trademine/utils/snackbar.dart';
 
 class SettingPage extends StatefulWidget {
   const SettingPage({super.key});
@@ -27,10 +29,10 @@ class _SettingPageState extends State<SettingPage> {
             backgroundColor: Colors.white,
             elevation: 1,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.black),
+              icon: const Icon(FontAwesomeIcons.arrowLeft, color: Colors.black),
               onPressed: () => Navigator.pop(context),
             ),
-            title: Text('Setting', style: theme.textTheme.titleMedium),
+            title: Text('Setting', style: theme.textTheme.titleLarge),
           ),
           SliverToBoxAdapter(
             child: Padding(
@@ -42,7 +44,7 @@ class _SettingPageState extends State<SettingPage> {
                   Text('User Settings', style: theme.textTheme.titleSmall),
                   const SizedBox(height: 10),
                   _buildMenuItem(
-                    icon: Icons.person,
+                    icon: FontAwesomeIcons.solidUser,
                     title: 'Edit Profile',
                     onTap: () {
                       Navigator.push(
@@ -56,14 +58,17 @@ class _SettingPageState extends State<SettingPage> {
                   Text('App Settings', style: theme.textTheme.titleSmall),
                   const SizedBox(height: 10),
                   _buildMenuItem(
-                    icon: Icons.lock,
+                    icon: FontAwesomeIcons.lock,
                     title: 'Privacy & Security',
                     onTap: () {},
                   ),
                   Divider(color: Theme.of(context).dividerColor, height: 15),
                   ListTile(
                     contentPadding: EdgeInsets.symmetric(horizontal: 10),
-                    leading: Icon(Icons.notifications, color: Colors.black),
+                    leading: Icon(
+                      FontAwesomeIcons.solidBell,
+                      color: Colors.black,
+                    ),
                     title: Text(
                       'Notification',
                       style: Theme.of(context).textTheme.bodyLarge,
@@ -76,33 +81,19 @@ class _SettingPageState extends State<SettingPage> {
                           setState(() {
                             _isNotificationOn = value;
                             if (value == true) {
-                              Flushbar(
-                                message: "Notification : ON",
-                                icon: const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                ),
-                                duration: const Duration(seconds: 2),
-                                backgroundColor: Colors.black87,
-                                flushbarPosition:
-                                    FlushbarPosition.TOP, // หรือ .BOTTOM
-                                borderRadius: BorderRadius.circular(8),
-                                margin: const EdgeInsets.all(16),
-                              ).show(context);
+                              AppSnackbar.showError(
+                                context,
+                                'Notification : ON',
+                                FontAwesomeIcons.solidBell,
+                                Theme.of(context).colorScheme.secondary,
+                              );
                             } else {
-                              Flushbar(
-                                message: "Notification : OFF",
-                                icon: const Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                ),
-                                duration: const Duration(seconds: 2),
-                                backgroundColor: Colors.black87,
-                                flushbarPosition:
-                                    FlushbarPosition.TOP, // หรือ .BOTTOM
-                                borderRadius: BorderRadius.circular(8),
-                                margin: const EdgeInsets.all(16),
-                              ).show(context);
+                              AppSnackbar.showError(
+                                context,
+                                'Notification : OFF',
+                                FontAwesomeIcons.solidBell,
+                                Theme.of(context).colorScheme.error,
+                              );
                             }
                           });
                         },
@@ -111,19 +102,19 @@ class _SettingPageState extends State<SettingPage> {
                   ),
                   Divider(color: Theme.of(context).dividerColor, height: 15),
                   _buildMenuItem(
-                    icon: Icons.language,
+                    icon: FontAwesomeIcons.earthAsia,
                     title: 'Language',
                     onTap: () {},
                   ),
                   Divider(color: Theme.of(context).dividerColor, height: 15),
                   _buildMenuItem(
-                    icon: Icons.support_agent,
+                    icon: FontAwesomeIcons.headset,
                     title: 'Support',
                     onTap: () {},
                   ),
                   Divider(color: Theme.of(context).dividerColor, height: 15),
                   _buildMenuItem(
-                    icon: Icons.info_outline,
+                    icon: FontAwesomeIcons.info,
                     title: 'About',
                     onTap: () {},
                   ),

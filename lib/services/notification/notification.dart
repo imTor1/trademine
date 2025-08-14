@@ -17,10 +17,8 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 Future<void> setupFirebaseMessaging() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 📦 Background handler
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // 🔧 Android notification channel
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin
@@ -30,9 +28,7 @@ Future<void> setupFirebaseMessaging() async {
   // 🔔 Local notification init
   await flutterLocalNotificationsPlugin.initialize(
     const InitializationSettings(
-      android: AndroidInitializationSettings(
-        '@mipmap/ic_launcher',
-      ), // เปลี่ยน icon ได้หากไม่มี
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       iOS: DarwinInitializationSettings(),
     ),
   );
@@ -40,18 +36,13 @@ Future<void> setupFirebaseMessaging() async {
   // ✅ ขอสิทธิ์การแจ้งเตือน (Android 13+, iOS)
   NotificationSettings settings = await FirebaseMessaging.instance
       .requestPermission(alert: true, badge: true, sound: true);
-  print('🔔 Permission status: ${settings.authorizationStatus}');
 
   // ✅ Foreground message handler
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('🔥 Foreground message received');
-    print('🔔 Title: ${message.notification?.title}');
-    print('📦 Data: ${message.data}');
-
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
 
-    if (notification != null && android != null) {
+    if (notification != null) {
       flutterLocalNotificationsPlugin.show(
         notification.hashCode,
         notification.title,
@@ -72,13 +63,15 @@ Future<void> setupFirebaseMessaging() async {
   });
 
   // ✅ เมื่อคลิก notification
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('🟡 Notification clicked: ${message.notification?.title}');
-  });
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
 }
 
 // ✅ Background message handler
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print('🔙 Background message: ${message.messageId}');
+
+  // Process background notifications
+  if (message.notification != null) {
+    // Handle background notification
+  }
 }

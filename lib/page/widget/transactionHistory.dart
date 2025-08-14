@@ -2,22 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:trademine/page/%20stock_detail/stock_detail.dart';
 import 'package:trademine/theme/app_styles.dart';
 
-class HoldingStocks extends StatelessWidget {
+class TransactionHistory extends StatelessWidget {
   final String symbol;
-  final String name;
+  final String tradetype;
   final String price;
-  final String marketstatus;
-  final int quantity;
-  final String unrealizedPLPercent;
+  final String quantity;
+  final String tradedate;
 
-  const HoldingStocks({
+  const TransactionHistory({
     super.key,
     required this.symbol,
-    required this.name,
+    required this.tradetype,
     required this.price,
-    required this.marketstatus,
     required this.quantity,
-    required this.unrealizedPLPercent,
+    required this.tradedate,
   });
 
   @override
@@ -41,7 +39,18 @@ class HoldingStocks extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Symbol & name
+                Container(
+                  width: 17,
+                  height: 17,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        tradetype.toLowerCase() == 'sell'
+                            ? Colors.red
+                            : Colors.green,
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,21 +63,9 @@ class HoldingStocks extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          Container(
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color:
-                                  marketstatus.toLowerCase() == 'closed'
-                                      ? Colors.red
-                                      : Colors.green,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
                           Text(
-                            ': Market Status',
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            'Type : ${tradetype.toUpperCase()}',
+                            style: Theme.of(context).textTheme.bodyLarge,
                           ),
                         ],
                       ),
@@ -76,25 +73,17 @@ class HoldingStocks extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                // Price & date
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      '${unrealizedPLPercent}',
+                      '${price} USD (${quantity})',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color:
-                            (unrealizedPLPercent?.toString().trim().startsWith(
-                                      '-',
-                                    ) ??
-                                    false)
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).colorScheme.secondary,
                       ),
                     ),
                     Text(
-                      '$price USD (${quantity})',
+                      '$tradedate',
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],

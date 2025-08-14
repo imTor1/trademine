@@ -11,6 +11,7 @@ class ApiConstants {
   static const String register_resend_otp = "$baseUrl/api/resend-otp/register";
   static const String register_password = "$baseUrl/api/register/set-password";
   static const String register_profile = "$baseUrl/api/set-profile";
+  static const String notification_token = "$baseUrl/api/update-fcm-token";
 
   //ForgetPassword
   static const String forgetpassword_email = "$baseUrl/api/forgot-password";
@@ -30,6 +31,7 @@ class ApiConstants {
   static const String stock_detail = "$baseUrl/api/stock-detail/";
   static const String recomment_newStockDetailPage =
       "$baseUrl/api/recommentnews-stockdetail";
+  static const String notification_lastest = "$baseUrl/api/latest-notification";
 
   //Credit_Card
   static const String creditDemo = "$baseUrl/api/create-demo";
@@ -37,4 +39,5 @@ class ApiConstants {
 
   //Trade
   static const String tradeDemo = "$baseUrl/api/portfolio/trade";
+  static const String transaction_history = "$baseUrl/api/portfolio/history";
 }

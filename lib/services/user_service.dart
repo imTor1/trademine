@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:trademine/page/setting/edit_profile.dart';
@@ -9,6 +10,12 @@ class AuthServiceUser {
   static final Uri _Profile = Uri.parse(ApiConstants.profile);
   static final Uri _StockFavorite = Uri.parse(ApiConstants.stock_favorite);
   static final Uri _EditProfile = Uri.parse(ApiConstants.edit_profile);
+  static final Uri _NotificaitonClientToken = Uri.parse(
+    ApiConstants.notification_token,
+  );
+  static final Uri _NotificationFetch = Uri.parse(
+    ApiConstants.notification_lastest,
+  );
 
   static Future<Map<String, dynamic>> ProfileFecthData(
     String userId,
@@ -108,6 +115,48 @@ class AuthServiceUser {
     } else {
       final data = jsonDecode(response.body);
       throw (data['error'] ?? 'Unfollow failed');
+    }
+  }
+
+  static Future<void> NotificationclientToken(
+    String token,
+    String fcm_token,
+  ) async {
+    final url = _NotificaitonClientToken;
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'fcm_token': fcm_token}),
+    );
+
+    if (response.statusCode == 200) {
+      return;
+    } else {
+      final data = jsonDecode(response.body);
+      throw (data['error']);
+    }
+  }
+
+  static Future<List<dynamic>> NotificationFetch(String token) async {
+    final url = _NotificationFetch;
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['notifications'] ?? [];
+    } else {
+      final data = jsonDecode(response.body);
+      throw Exception(data['error'] ?? 'Failed to fetch notifications');
     }
   }
 }

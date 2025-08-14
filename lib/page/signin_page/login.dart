@@ -49,17 +49,23 @@ class _LoginAppState extends State<LoginPage> {
       final profile = googleUser.photoUrl;
       final idToken = googleAuth.idToken;
 
-      print("ID: $googleId");
-      print("Email: $email");
-      print("Photo: $profile");
-      print("idToken: $idToken");
-
       if (email.isNotEmpty && googleId.isNotEmpty) {
         //final login_google = await AuthService.Login(email, googleId);
       }
     } catch (e) {
       print("Google login error: $e");
     }
+  }
+
+  bool _navigated = false;
+  void _navigateTo(Widget page) {
+    if (_navigated) return;
+    _navigated = true;
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => page),
+    );
   }
 
   Future<void> _Login() async {
@@ -125,10 +131,7 @@ class _LoginAppState extends State<LoginPage> {
         _isLoading = !_isLoading;
       });
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-      );
+      _navigateTo(SplashScreen());
     } catch (e) {
       _password.clear();
 

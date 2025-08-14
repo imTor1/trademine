@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
+import 'package:trademine/bloc/credit_card/HoldingStockCubit.dart';
+import 'package:trademine/bloc/notification/notificationCubit.dart';
 import 'package:trademine/bloc/user_cubit.dart';
+import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/setting/edit_profile.dart';
 import 'package:trademine/page/setting/setting_page.dart';
 import 'package:trademine/page/signin_page/login.dart';
@@ -19,11 +24,17 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   DateTime? _selectedDate;
+
   Future<void> Logout() async {
     try {
       final storage = FlutterSecureStorage();
-      context.read<UserCubit>().clearUser();
+      await context.read<UserCubit>().clearUser();
       await storage.deleteAll();
+      context.read<NotificationCubit>().deleteAllNotifications();
+      context.read<CreditCardCubit>().deleteAllCards();
+      await context.read<HoldingStocksCubit>().ResetHoldingStocks();
+      context.read<NavigationCubit>().goToPage(0);
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => LoginPage()),
@@ -96,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           const SizedBox(height: 20),
                           _buildMenuItem(
-                            icon: Icons.history,
+                            icon: FontAwesomeIcons.clockRotateLeft,
                             title: 'History',
                             onTap: () {},
                           ),
@@ -105,7 +116,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             height: 15,
                           ),
                           _buildMenuItem(
-                            icon: Icons.newspaper,
+                            icon: FontAwesomeIcons.newspaper,
                             title: 'Liked News',
                             onTap: () {},
                           ),
@@ -114,7 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             height: 15,
                           ),
                           _buildMenuItem(
-                            icon: Icons.settings,
+                            icon: FontAwesomeIcons.gear,
                             title: 'Setting',
                             onTap: () {
                               Navigator.push(
@@ -131,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             height: 15,
                           ),
                           _buildMenuItem(
-                            icon: Icons.logout,
+                            icon: FontAwesomeIcons.arrowRightFromBracket,
                             title: 'Logout',
                             onTap: () {
                               Logout();
@@ -186,7 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
       contentPadding: EdgeInsets.symmetric(horizontal: 10),
       leading: Icon(icon, color: iconColor ?? Colors.black),
       title: Text(title, style: Theme.of(context).textTheme.bodyLarge),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+      trailing: const Icon(FontAwesomeIcons.angleRight, size: 16),
       onTap: onTap,
     );
   }

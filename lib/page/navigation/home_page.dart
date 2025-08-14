@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:trademine/bloc/credit_card/CreditCardCubit.dart';
+import 'package:trademine/bloc/credit_card/creditCardState.dart';
 import 'package:trademine/bloc/home/HomepageCubit.dart';
 import 'package:trademine/bloc/home/homepageState.dart';
 import 'package:trademine/bloc/user_cubit.dart';
+import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/search/search.dart';
 import 'package:trademine/page/widget/recomment_stock.dart';
 import 'package:trademine/page/widget/favorite_stocklist.dart';
@@ -123,13 +127,11 @@ class _HomePageState extends State<HomePage> {
                             );
                             if (search_page == true) {
                               _refreshHomePage();
-                              HomePageCubit();
                             }
                           },
                           child: const Icon(
-                            Icons.search,
+                            FontAwesomeIcons.magnifyingGlass,
                             color: Colors.white,
-                            size: 25,
                           ),
                         ),
                       ],
@@ -169,11 +171,18 @@ class _HomePageState extends State<HomePage> {
                                             horizontalOffset: 50.0,
                                             child: FadeInAnimation(
                                               child: RecommentStock(
-                                                symbol: stock['StockSymbol']!,
-                                                name: stock['StockSymbol']!,
-                                                price: stock['ClosePrice']!,
+                                                symbol:
+                                                    stock['StockSymbol'] ??
+                                                    'N/A',
+                                                name:
+                                                    stock['StockSymbol'] ??
+                                                    'N/A',
+                                                price:
+                                                    stock['ClosePrice'] ??
+                                                    'N/A',
                                                 change:
-                                                    stock['ChangePercentage']!,
+                                                    stock['ChangePercentage'] ??
+                                                    'N/A',
                                               ),
                                             ),
                                           ),
@@ -236,14 +245,19 @@ class _HomePageState extends State<HomePage> {
                                             ),
                                             if (stocks.isEmpty)
                                               GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder:
-                                                          (_) => SearchPage(),
-                                                    ),
-                                                  );
+                                                onTap: () async {
+                                                  final changed =
+                                                      await Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder:
+                                                              (_) =>
+                                                                  SearchPage(),
+                                                        ),
+                                                      );
+                                                  if (changed == true) {
+                                                    _refreshHomePage();
+                                                  }
                                                 },
                                                 child: Icon(
                                                   Icons.add,
@@ -309,10 +323,11 @@ class _HomePageState extends State<HomePage> {
                                                 ),
                                               ),
                                               const SizedBox(height: 5),
+
                                               stocks.isEmpty
                                                   ? Center(
                                                     child: Text(
-                                                      'Add stock to your favorites',
+                                                      'Add Stock to Favorites',
                                                       style:
                                                           Theme.of(context)
                                                               .textTheme
@@ -326,19 +341,258 @@ class _HomePageState extends State<HomePage> {
                                                             !_isVisibleListView;
                                                       });
                                                     },
-                                                    child: Center(
-                                                      child: Text(
-                                                        _isVisibleListView
-                                                            ? 'Hide detail'
-                                                            : 'Show detail',
-                                                        style:
-                                                            Theme.of(context)
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.symmetric(
+                                                            vertical: 8,
+                                                            horizontal: 16,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .primary
+                                                            .withOpacity(0.05),
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              20,
+                                                            ),
+                                                        border: Border.all(
+                                                          color:
+                                                              Theme.of(context)
+                                                                  .colorScheme
+                                                                  .primary,
+                                                          width: 1.2,
+                                                        ),
+                                                        boxShadow: [
+                                                          BoxShadow(
+                                                            color: Colors.black
+                                                                .withOpacity(
+                                                                  0.05,
+                                                                ),
+                                                            offset:
+                                                                const Offset(
+                                                                  0,
+                                                                  2,
+                                                                ),
+                                                            blurRadius: 4,
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      child: Row(
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          FaIcon(
+                                                            _isVisibleListView
+                                                                ? FontAwesomeIcons
+                                                                    .arrowUp
+                                                                : FontAwesomeIcons
+                                                                    .arrowDown,
+                                                            size: 20,
+                                                            color:
+                                                                Theme.of(
+                                                                      context,
+                                                                    )
+                                                                    .colorScheme
+                                                                    .primary,
+                                                          ),
+                                                          const SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Text(
+                                                            _isVisibleListView
+                                                                ? 'Hide'
+                                                                : 'Show',
+                                                            style: Theme.of(
+                                                                  context,
+                                                                )
                                                                 .textTheme
-                                                                .bodyMedium,
+                                                                .bodyMedium
+                                                                ?.copyWith(
+                                                                  color:
+                                                                      Theme.of(
+                                                                        context,
+                                                                      ).colorScheme.primary,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                ),
+                                                          ),
+                                                        ],
                                                       ),
                                                     ),
                                                   ),
+                                              const SizedBox(height: 15),
+                                              //Create New Account recomment
+                                              BlocBuilder<
+                                                CreditCardCubit,
+                                                CreditCardState
+                                              >(
+                                                builder: (context, state) {
+                                                  final CardsData =
+                                                      state.cards ?? [];
 
+                                                  if (CardsData.isEmpty) {
+                                                    return Column(
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            const SizedBox(
+                                                              height: 15,
+                                                            ),
+                                                            FaIcon(
+                                                              FontAwesomeIcons
+                                                                  .moneyCheck,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 15,
+                                                            ),
+                                                            Text(
+                                                              'Create an Account to Start Trading',
+                                                              style:
+                                                                  Theme.of(
+                                                                        context,
+                                                                      )
+                                                                      .textTheme
+                                                                      .titleMedium,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        GestureDetector(
+                                                          onTap:
+                                                              () => context
+                                                                  .read<
+                                                                    NavigationCubit
+                                                                  >()
+                                                                  .goToPage(2),
+                                                          child: Container(
+                                                            margin:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal: 0,
+                                                                  vertical: 15,
+                                                                ),
+                                                            padding:
+                                                                const EdgeInsets.all(
+                                                                  50,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    20,
+                                                                  ),
+                                                              gradient: const LinearGradient(
+                                                                colors: [
+                                                                  Color(
+                                                                    0xFF0F2027,
+                                                                  ),
+                                                                  Color(
+                                                                    0xFF203A43,
+                                                                  ),
+                                                                  Color(
+                                                                    0xFF2C5364,
+                                                                  ),
+                                                                ],
+                                                                begin:
+                                                                    Alignment
+                                                                        .topLeft,
+                                                                end:
+                                                                    Alignment
+                                                                        .bottomRight,
+                                                              ),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                        0.25,
+                                                                      ),
+                                                                  spreadRadius:
+                                                                      2,
+                                                                  blurRadius:
+                                                                      10,
+                                                                  offset:
+                                                                      const Offset(
+                                                                        0,
+                                                                        5,
+                                                                      ),
+                                                                ),
+                                                              ],
+                                                              border: Border.all(
+                                                                color:
+                                                                    Colors
+                                                                        .white,
+                                                                width: 3,
+                                                              ),
+                                                            ),
+                                                            child: Center(
+                                                              child: Column(
+                                                                mainAxisAlignment:
+                                                                    MainAxisAlignment
+                                                                        .center,
+                                                                children: [
+                                                                  const Icon(
+                                                                    Icons
+                                                                        .add_circle_outline,
+                                                                    size: 50,
+                                                                    color:
+                                                                        Colors
+                                                                            .white,
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 12,
+                                                                  ),
+                                                                  Text(
+                                                                    "Create Account",
+                                                                    style: Theme.of(
+                                                                      context,
+                                                                    ).textTheme.titleLarge?.copyWith(
+                                                                      color:
+                                                                          Colors
+                                                                              .white,
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    height: 6,
+                                                                  ),
+                                                                  Text(
+                                                                    "Start your investment journey",
+                                                                    style: Theme.of(
+                                                                          context,
+                                                                        )
+                                                                        .textTheme
+                                                                        .bodyMedium
+                                                                        ?.copyWith(
+                                                                          color:
+                                                                              Colors.white70,
+                                                                        ),
+                                                                    textAlign:
+                                                                        TextAlign
+                                                                            .center,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  } else {
+                                                    return const SizedBox();
+                                                  }
+                                                },
+                                              ),
                                               const SizedBox(height: 15),
                                               Row(
                                                 crossAxisAlignment:
@@ -353,6 +607,21 @@ class _HomePageState extends State<HomePage> {
                                                         Theme.of(
                                                           context,
                                                         ).textTheme.titleMedium,
+                                                  ),
+                                                  GestureDetector(
+                                                    onTap: () {
+                                                      context
+                                                          .read<
+                                                            NavigationCubit
+                                                          >()
+                                                          .goToPage(
+                                                            1,
+                                                          ); // เปลี่ยนไป TradePage
+                                                    },
+                                                    child: FaIcon(
+                                                      FontAwesomeIcons
+                                                          .angleRight,
+                                                    ),
                                                   ),
                                                 ],
                                               ),

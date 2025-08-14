@@ -25,33 +25,39 @@ final ThemeData lightTheme = ThemeData(
   textTheme: GoogleFonts.robotoTextTheme().copyWith(
     titleLarge: const TextStyle(
       color: Color(0xFF1F2937),
-      fontSize: 24, // หัวข้อใหญ่
+      fontSize: 22, // หัวข้อใหญ่ (เหมาะกับมือถือ)
       fontWeight: FontWeight.w700,
+      height: 1.25,
     ),
     titleMedium: const TextStyle(
       color: Color(0xFF1F2937),
       fontSize: 18, // หัวข้อระดับกลาง
       fontWeight: FontWeight.w600,
+      height: 1.3,
     ),
     titleSmall: const TextStyle(
       color: Color(0xFF1F2937),
       fontSize: 16, // หัวข้อระดับย่อย เช่น ชื่อกล่อง
       fontWeight: FontWeight.w500,
+      height: 1.3,
     ),
     bodyLarge: const TextStyle(
       color: Color(0xFF374151),
       fontSize: 16, // ข้อความเนื้อหา
       fontWeight: FontWeight.w400,
+      height: 1.5,
     ),
     bodyMedium: const TextStyle(
       color: Color(0xFF4B5563),
       fontSize: 14, // ใช้ในกล่อง ข่าว หรือฟอร์ม
       fontWeight: FontWeight.w400,
+      height: 1.4,
     ),
     bodySmall: const TextStyle(
       color: Color(0xFF6B7280),
       fontSize: 12, // ใช้ในรายละเอียดเล็ก เช่น วันที่ เวลา
       fontWeight: FontWeight.w400,
+      height: 1.3,
     ),
   ),
 

@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -141,21 +142,41 @@ class _EditProfileState extends State<EditProfile> {
       );
       return;
     }
+
     try {
       final userId = await storage.read(key: 'user_Id');
+
+      final updatedUsername =
+          _usernameController.text.trim().isNotEmpty
+              ? _usernameController.text.trim()
+              : user.name ?? '';
+
+      DateTime updatedBirthday;
+      if (_selectedDate != null) {
+        updatedBirthday = _selectedDate!;
+      } else {
+        try {
+          updatedBirthday = DateFormat(
+            'yyyy-MM-dd',
+          ).parse(user.birthday ?? '2000-01-01');
+        } catch (_) {
+          updatedBirthday = DateTime(2000, 1, 1); // fallback
+        }
+      }
+
+      final updatedGender = (selectedGender ?? user.gender ?? 'Other').trim();
+
       await AuthServiceUser.editProfile(
         token,
         userId!,
-        _usernameController.text.isEmpty
-            ? user.name ?? ''
-            : _usernameController.text,
-        _selectedDate ??
-            DateFormat('yyyy-MM-dd').parse(user.birthday ?? '2000-01-01'),
-        selectedGender ?? user.gender ?? 'Other',
+        updatedUsername,
+        updatedBirthday,
+        updatedGender,
         _imageFile,
       );
-      _loadingData();
-      Navigator.pop(context);
+
+      await _loadingData();
+      if (mounted) Navigator.pop(context);
     } catch (e) {
       AppSnackbar.showError(context, e.toString(), Icons.error, Colors.red);
     }
@@ -214,7 +235,7 @@ class _EditProfileState extends State<EditProfile> {
           style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(FontAwesomeIcons.arrowLeft, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -292,7 +313,8 @@ class _EditProfileState extends State<EditProfile> {
               padding: padding,
               child: Column(
                 children: [
-                  const SizedBox(height: 20),
+                  Text('Click Image to change.'),
+                  const SizedBox(height: 30),
                   TextField(
                     controller: _usernameController,
                     decoration: const InputDecoration(

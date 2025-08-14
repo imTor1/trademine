@@ -19,6 +19,7 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
   bool _isValidEmail(String email) => EmailValidator.validate(email);
 
   Future<void> ApiConnect() async {
+    if (_isLoading) return;
     if (!_isValidEmail(_email.text)) {
       AppSnackbar.showError(
         context,
@@ -26,6 +27,7 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
         Icons.error,
         Theme.of(context).colorScheme.error,
       );
+      return;
     }
 
     setState(() {
@@ -38,7 +40,7 @@ class _ForgetpasswordEmailState extends State<ForgetpasswordEmail> {
       await storage.write(key: 'email', value: _email.text);
       await AuthService.ForgetPassword(_email.text);
       setState(() {
-        _isLoading = !_isLoading;
+        _isLoading = false;
       });
       Navigator.push(
         context,

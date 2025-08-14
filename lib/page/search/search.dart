@@ -18,6 +18,7 @@ class _SearchPageState extends State<SearchPage> {
   bool isLoading = false;
   List<dynamic> searchResults = [];
   List<String> searchHistory = [];
+  bool favoritesChanged = false;
 
   @override
   void initState() {
@@ -106,123 +107,135 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-
-    return Scaffold(
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Search bar
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context, true),
-                    child: const Icon(Icons.arrow_back_ios_new),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: TextFormField(
-                      controller: search,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(),
-                      decoration: InputDecoration(
-                        hintText: 'Search',
-                        hintStyle: Theme.of(context).textTheme.bodyLarge,
-                        filled: true,
-                        fillColor: Theme.of(context).dividerColor,
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 10.0,
-                          horizontal: 20.0,
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Theme.of(context).primaryColor,
-                            width: 1,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, favoritesChanged);
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: width * 0.05,
+              vertical: 10,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search bar
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context, favoritesChanged),
+                      child: const Icon(Icons.arrow_back_ios_new),
+                    ),
+                    const SizedBox(width: 15),
+                    Expanded(
+                      child: TextFormField(
+                        controller: search,
+                        style:
+                            Theme.of(context).textTheme.bodyLarge?.copyWith(),
+                        decoration: InputDecoration(
+                          hintText: 'Search',
+                          hintStyle: Theme.of(context).textTheme.bodyLarge,
+                          filled: true,
+                          fillColor: Theme.of(context).dividerColor,
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 10.0,
+                            horizontal: 20.0,
                           ),
-                          borderRadius: BorderRadius.circular(15),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Theme.of(context).primaryColor,
+                              width: 1,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child:
-                    isLoading
-                        ? ListView.builder(
-                          itemCount: 10,
-                          itemBuilder: (_, __) => ShimmerSearchStock(),
-                        )
-                        : search.text.trim().isEmpty
-                        ? searchHistory.isEmpty
-                            ? const Center(child: Text('No search history'))
-                            : ListView.builder(
-                              itemCount: searchHistory.length,
-                              itemBuilder: (context, index) {
-                                final keyword = searchHistory[index];
-                                return Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.only(
-                                    top: 10,
-                                    left: 10,
-                                  ),
-                                  constraints: const BoxConstraints(
-                                    minHeight: 40,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      const SizedBox(height: 10),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () => search.text = keyword,
-                                          child: Text(
-                                            keyword,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: Theme.of(
-                                              context,
-                                            ).textTheme.titleSmall?.copyWith(
-                                              color:
-                                                  Theme.of(
-                                                    context,
-                                                  ).colorScheme.onBackground,
+                  ],
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child:
+                      isLoading
+                          ? ListView.builder(
+                            itemCount: 10,
+                            itemBuilder: (_, __) => ShimmerSearchStock(),
+                          )
+                          : search.text.trim().isEmpty
+                          ? searchHistory.isEmpty
+                              ? const Center(child: Text('No search history'))
+                              : ListView.builder(
+                                itemCount: searchHistory.length,
+                                itemBuilder: (context, index) {
+                                  final keyword = searchHistory[index];
+                                  return Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.only(
+                                      top: 10,
+                                      left: 10,
+                                    ),
+                                    constraints: const BoxConstraints(
+                                      minHeight: 40,
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(height: 10),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () => search.text = keyword,
+                                            child: Text(
+                                              keyword,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.titleSmall?.copyWith(
+                                                color:
+                                                    Theme.of(
+                                                      context,
+                                                    ).colorScheme.onBackground,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      GestureDetector(
-                                        onTap: () => _deleteKeyword(keyword),
-                                        child: Icon(Icons.clear, size: 20),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            )
-                        : searchResults.isEmpty
-                        ? const Center(child: Text('No results'))
-                        : ListView.builder(
-                          itemCount: searchResults.length,
-                          itemBuilder: (context, index) {
-                            final stock = searchResults[index];
-                            return SearchStock(
-                              symbol: stock['StockSymbol']?.toString() ?? '',
-                              name: stock['CompanyName']?.toString() ?? '',
-                              price: stock['ClosePrice']?.toString() ?? '',
-                              change: stock['ChangePercen']?.toString() ?? '',
-                            );
-                          },
-                        ),
-              ),
-            ],
+                                        GestureDetector(
+                                          onTap: () => _deleteKeyword(keyword),
+                                          child: Icon(Icons.clear, size: 20),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              )
+                          : searchResults.isEmpty
+                          ? const Center(child: Text('No results'))
+                          : ListView.builder(
+                            itemCount: searchResults.length,
+                            itemBuilder: (context, index) {
+                              final stock = searchResults[index];
+                              return SearchStock(
+                                symbol: stock['StockSymbol']?.toString() ?? '',
+                                name: stock['CompanyName']?.toString() ?? '',
+                                price: stock['ClosePrice']?.toString() ?? '',
+                                change: stock['ChangePercen']?.toString() ?? '',
+                                onFollowChanged: () {
+                                  favoritesChanged = true;
+                                },
+                              );
+                            },
+                          ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
