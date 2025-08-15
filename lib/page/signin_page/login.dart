@@ -32,28 +32,52 @@ class _LoginAppState extends State<LoginPage> {
     });
   }
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn.standard();
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
+
   Future<void> loginWithGoogle() async {
+    if (_isLoading) return;
+    setState(() => _isLoading = true);
+
     try {
+      await _googleSignIn.signOut();
+
+      // 1) ให้ผู้ใช้เลือกบัญชี Google
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
       if (googleUser == null) {
-        print('User cancelled login');
+        setState(() => _isLoading = false);
         return;
       }
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      // 2) ดึงข้อมูลที่ต้องการส่งให้ backend
+      final String email = googleUser.email;
+      final String googleId = googleUser.id;
 
-      final googleId = googleUser.id;
-      final email = googleUser.email;
-      final profile = googleUser.photoUrl;
-      final idToken = googleAuth.idToken;
+      // 3) ส่งให้ AuthService ตามรูปแบบที่คุณใช้เดิม
+      final data = await AuthService.LoginWithGoogle(email, googleId);
 
-      if (email.isNotEmpty && googleId.isNotEmpty) {
-        final login_google = await AuthService.LoginWithGoogle(email, googleId);
+      // 4) ตรวจ response และเก็บ token
+      if (data['token'] == null ||
+          data['user'] == null ||
+          data['user']['id'] == null) {
+        throw Exception('Invalid response from server');
       }
+
+      const storage = FlutterSecureStorage();
+      await storage.write(key: 'auth_token', value: data['token']);
+      await storage.write(key: 'user_Id', value: data['user']['id'].toString());
+
+      _email.clear();
+      _password.clear();
+      _navigateTo(const SplashScreen());
     } catch (e) {
-      print("Google login error: $e");
+      AppSnackbar.showError(
+        context,
+        'Google Sign-In failed: ${e.toString()}',
+        Icons.error,
+        Theme.of(context).colorScheme.error,
+      );
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 

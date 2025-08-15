@@ -83,7 +83,7 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                               child: Icon(
                                 FontAwesomeIcons.solidBell,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Colors.black,
                                 size: 20,
                               ),
                             ),
@@ -180,14 +180,13 @@ class _SettingPageState extends State<SettingPage> {
                   color: (iconColor ?? cs.primary).withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: iconColor ?? cs.primary, size: 20),
+                child: Icon(icon, color: iconColor ?? Colors.black, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   title,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: textColor ?? cs.onSurface,
                     fontWeight: FontWeight.w500,
                   ),
                 ),

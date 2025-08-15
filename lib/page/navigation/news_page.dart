@@ -83,7 +83,6 @@ class _NewsPageState extends State<NewsPage> {
         sortOptions: sortOptions,
         selectedSentiment: selectedSentiment,
       );
-      await Future.delayed(const Duration(seconds: 1));
       final fetchedNews = result['news'];
       if (mounted) {
         setState(() {

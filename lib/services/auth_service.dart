@@ -74,18 +74,44 @@ class AuthService {
     String googleId,
   ) async {
     try {
-      final response = await http
+      // 1) ลองแบบ form-urlencoded (ตามเดิม)
+      var response = await http
           .post(
             _LoginUrl,
-            body: {'email': email, 'googleId': googleId},
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: {'email': email, 'googleId': googleId},
           )
           .timeout(const Duration(seconds: 30));
 
-      final data = jsonDecode(response.body);
+      // ถ้าไม่สำเร็จ และน่าจะเป็นปัญหาการ parse body → fallback เป็น JSON
+      if (response.statusCode >= 400 &&
+          response.statusCode < 500 &&
+          (response.statusCode == 400 ||
+              response.statusCode == 415 ||
+              response.statusCode == 422 ||
+              (response.body.isEmpty))) {
+        // ยิงซ้ำแบบ JSON (ยังส่ง field เดิม: email + googleId)
+        response = await http
+            .post(
+              _LoginUrl,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode({'email': email, 'googleId': googleId}),
+            )
+            .timeout(const Duration(seconds: 30));
+      }
+
+      Map<String, dynamic> data = {};
+      try {
+        data =
+            response.body.isNotEmpty
+                ? jsonDecode(response.body)
+                : <String, dynamic>{};
+      } catch (_) {
+        // ถ้า parse ไม่ได้ ให้โยน FormatException ด้านล่าง
+        throw const FormatException('Invalid JSON from server');
+      }
 
       if (response.statusCode == 200) {
-        // Validate response structure
         if (data['token'] == null || data['user'] == null) {
           throw Exception('Invalid response format from server');
         }
@@ -94,7 +120,7 @@ class AuthService {
         }
         return data;
       } else {
-        // Handle different error types
+        // โยน error ให้อ่านง่าย + แนบ status/body ช่วยดีบัก
         String errorMessage = 'Login failed';
         if (data['error'] != null) {
           errorMessage = data['error'].toString();
@@ -105,7 +131,9 @@ class AuthService {
         } else if (response.statusCode >= 400 && response.statusCode < 500) {
           errorMessage = 'Invalid request. Please check your input';
         }
-        throw Exception(errorMessage);
+        throw Exception(
+          '$errorMessage (status: ${response.statusCode}, body: ${response.body})',
+        );
       }
     } on SocketException {
       throw Exception('No internet connection. Please check your network.');
@@ -114,9 +142,7 @@ class AuthService {
     } on FormatException {
       throw Exception('Invalid response from server');
     } catch (e) {
-      if (e is Exception) {
-        rethrow;
-      }
+      if (e is Exception) rethrow;
       throw Exception('An unexpected error occurred');
     }
   }

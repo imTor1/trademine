@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:trademine/page/loading_page/loading_circle.dart';
 import 'package:trademine/page/signin_page/login.dart';
+import 'package:trademine/page/splash/splash_screen.dart';
 import 'package:trademine/utils/snackbar.dart';
 import 'package:trademine/services/auth_service.dart';
 
@@ -25,13 +26,6 @@ class _SignupProfileState extends State<SignUpProfile> {
   String? selectedGender;
   DateTime? _selectedDate;
   bool _isLoading = false;
-
-  @override
-  void dispose() {
-    _birthdayController.dispose();
-    _usernameController.dispose();
-    super.dispose();
-  }
 
   void _showCupertinoDatePicker() {
     showModalBottomSheet(
@@ -88,7 +82,7 @@ class _SignupProfileState extends State<SignUpProfile> {
       );
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => LoginPage()),
+        MaterialPageRoute(builder: (context) => SplashScreen()),
       );
     } catch (e) {
       AppSnackbar.showError(
@@ -121,6 +115,13 @@ class _SignupProfileState extends State<SignUpProfile> {
     } else {
       _submitProfile();
     }
+  }
+
+  @override
+  void dispose() {
+    _birthdayController.dispose();
+    _usernameController.dispose();
+    super.dispose();
   }
 
   @override

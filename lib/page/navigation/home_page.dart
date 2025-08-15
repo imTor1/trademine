@@ -10,6 +10,7 @@ import 'package:trademine/bloc/home/homepageState.dart';
 import 'package:trademine/bloc/user_cubit.dart';
 import 'package:trademine/page/navigation/navigation_bar.dart';
 import 'package:trademine/page/search/search.dart';
+import 'package:trademine/page/setting_card/create_card.dart';
 import 'package:trademine/page/widget/recomment_stock.dart';
 import 'package:trademine/page/widget/favorite_stocklist.dart';
 import 'package:trademine/page/widget/recomment_news.dart';
@@ -98,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                                     (user.profileImage?.isNotEmpty ?? false)
                                         ? NetworkImage(user.profileImage!)
                                         : const AssetImage(
-                                              'assets/avatar/man.png',
+                                              'assets/defaultProfile.png',
                                             )
                                             as ImageProvider,
                               ),
@@ -469,11 +470,14 @@ class _HomePageState extends State<HomePage> {
                                                         ),
                                                         GestureDetector(
                                                           onTap:
-                                                              () => context
-                                                                  .read<
-                                                                    NavigationCubit
-                                                                  >()
-                                                                  .goToPage(2),
+                                                              () => Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder:
+                                                                      (_) =>
+                                                                          CreateCard(),
+                                                                ),
+                                                              ),
                                                           child: Container(
                                                             margin:
                                                                 const EdgeInsets.symmetric(

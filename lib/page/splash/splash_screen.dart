@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -80,12 +78,15 @@ class _SplashScreenState extends State<SplashScreen> {
           image,
         );
         await setupFirebaseMessaging();
-        String? NotificationClient_Token =
+        final notificationClientToken =
             await FirebaseMessaging.instance.getToken();
-        await AuthServiceUser.NotificationclientToken(
-          token,
-          NotificationClient_Token!,
-        );
+        if (notificationClientToken != null &&
+            notificationClientToken.isNotEmpty) {
+          await AuthServiceUser.NotificationclientToken(
+            token,
+            notificationClientToken,
+          );
+        }
 
         await Future.delayed(const Duration(milliseconds: 1300));
         if (!mounted || _navigated) return;

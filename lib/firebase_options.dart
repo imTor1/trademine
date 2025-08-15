@@ -63,7 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '1000145622896',
     projectId: 'trademine-a3921',
     storageBucket: 'trademine-a3921.firebasestorage.app',
-    iosBundleId: 'com.example.trademine',
+    iosBundleId: 'com.project.trademine',
   );
-
 }

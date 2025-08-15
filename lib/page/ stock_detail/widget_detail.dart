@@ -1,89 +1,47 @@
 import 'package:flutter/material.dart';
 
-class WidgetDetail extends StatefulWidget {
-  final List title;
-  final List data;
+class WidgetDetail extends StatelessWidget {
+  final List<String> title;
+  final List<String> data;
+
   const WidgetDetail({super.key, required this.title, required this.data});
 
   @override
-  State<WidgetDetail> createState() => _WidgetDetailState();
-}
-
-class _WidgetDetailState extends State<WidgetDetail> {
-  @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          Container(
-            constraints: BoxConstraints(maxWidth: 250),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+    return Row(
+      children: [
+        Container(
+          constraints: const BoxConstraints(maxWidth: 250),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: List.generate(title.length, (i) {
+              return Padding(
+                padding: EdgeInsets.only(bottom: i == title.length - 1 ? 0 : 8),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      widget.title[0],
+                      title[i],
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     Text(
-                      widget.data[0],
+                      data[i],
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.title[1],
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Text(
-                      widget.data[1],
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.title[2],
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    SizedBox(width: 20),
-                    Text(
-                      widget.data[2],
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+              );
+            }),
           ),
-          const SizedBox(width: 20),
-          Container(width: 1, height: 70, color: Colors.grey),
-        ],
-      ),
+        ),
+        const SizedBox(width: 20),
+        Container(width: 1, height: 70, color: Colors.grey),
+      ],
     );
   }
 }

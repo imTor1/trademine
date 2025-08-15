@@ -33,11 +33,9 @@ Future<void> setupFirebaseMessaging() async {
     ),
   );
 
-  // ✅ ขอสิทธิ์การแจ้งเตือน (Android 13+, iOS)
   NotificationSettings settings = await FirebaseMessaging.instance
       .requestPermission(alert: true, badge: true, sound: true);
 
-  // ✅ Foreground message handler
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;

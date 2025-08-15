@@ -9,6 +9,7 @@ import 'package:trademine/bloc/credit_card/creditCardState.dart';
 import 'package:trademine/bloc/credit_card/holdingStocksState.dart';
 import 'package:trademine/bloc/credit_card/transactionState.dart';
 import 'package:trademine/page/loading_page/TransactionHistoryShimmer.dart';
+import 'package:trademine/page/search/search.dart';
 import 'package:trademine/page/setting_card/card_config.dart';
 import 'package:trademine/page/setting_card/create_card.dart';
 import 'package:trademine/page/widget/credit_card/addnewDemoCard.dart';
@@ -205,7 +206,7 @@ class _TradePageState extends State<TradePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const CreateCard()),
+                        MaterialPageRoute(builder: (_) => CreateCard()),
                       );
                     },
                   ),
@@ -295,7 +296,10 @@ class _TradePageState extends State<TradePage> {
     final cardsData = context.read<CreditCardCubit>().state.cards ?? [];
     switch (index) {
       case 0:
-        await _openTradeSheet(context, type: 'Buy');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => SearchPage()),
+        );
         break;
       case 1:
         await _openTradeSheet(context, type: 'Sell');

@@ -175,7 +175,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   backgroundImage:
                       user.profileImage?.isNotEmpty ?? false
                           ? NetworkImage(user.profileImage!)
-                          : const AssetImage('assets/avatar/man.png')
+                          : const AssetImage('assets/defaultProfile.png')
                               as ImageProvider,
                 ),
               ),
@@ -212,7 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   color: (iconColor ?? cs.primary).withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(icon, color: iconColor ?? cs.primary, size: 20),
+                child: Icon(icon, color: iconColor ?? Colors.black, size: 20),
               ),
               const SizedBox(width: 12),
               Expanded(

@@ -3,8 +3,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:trademine/bloc/credit_card/holdingStocksState.dart';
 import 'package:trademine/page/%20stock_detail/recommentNews_stockDetail.dart';
 import 'package:trademine/page/%20stock_detail/widget_detail.dart';
+import 'package:trademine/page/loading_page/TransactionHistoryShimmer.dart';
+import 'package:trademine/page/widget/holdingStocks.dart';
+import 'package:trademine/page/widget/prediction.dart';
 import 'package:trademine/page/widget/trade_widget_bottomsheet.dart';
 import 'package:trademine/services/stock_service.dart';
 import 'package:intl/intl.dart';
@@ -35,7 +39,7 @@ class _StockDetailState extends State<StockDetail> {
   late TrackballBehavior _trackballBehavior;
   late ZoomPanBehavior _zoomPanBehavior;
   List<CandleData> chartData = [];
-  String selectedTimeframe = "5D";
+  String selectedTimeframe = "ALL";
   bool isLoading = false;
   String? TradeType;
 
@@ -61,14 +65,15 @@ class _StockDetailState extends State<StockDetail> {
     _trackballBehavior = TrackballBehavior(
       enable: true,
       activationMode: ActivationMode.singleTap,
-      tooltipSettings: InteractiveTooltip(enable: true),
+      tooltipDisplayMode: TrackballDisplayMode.nearestPoint,
+      tooltipSettings: const InteractiveTooltip(enable: false),
+
       lineType: TrackballLineType.vertical,
-      markerSettings: TrackballMarkerSettings(
+      markerSettings: const TrackballMarkerSettings(
         markerVisibility: TrackballVisibilityMode.visible,
       ),
       builder: (BuildContext context, TrackballDetails details) {
-        if (details == null || details.pointIndex == null)
-          return const SizedBox();
+        if (details.pointIndex == null) return const SizedBox();
 
         final int pointIndex = details.pointIndex!;
         if (pointIndex < 0 || pointIndex >= chartData.length)
@@ -76,6 +81,7 @@ class _StockDetailState extends State<StockDetail> {
 
         final CandleData data = chartData[pointIndex];
         final dateStr = DateFormat('d MMM yyyy').format(data.date);
+
         return Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
@@ -222,22 +228,17 @@ class _StockDetailState extends State<StockDetail> {
   String _formatDate(dynamic value) {
     try {
       if (value == null) return '-';
-      // If it's already DateTime
       if (value is DateTime) {
         return DateFormat('d MMM yyyy').format(value.toLocal());
       }
-      // If it's an int (timestamp seconds or ms)
       if (value is int) {
-        // Heuristic: treat > 10^12 as ms
         final isMs = value > 1000000000000;
         final dt = DateTime.fromMillisecondsSinceEpoch(
           isMs ? value : value * 1000,
         );
         return DateFormat('d MMM yyyy').format(dt.toLocal());
       }
-      // If it's string parseable
       if (value is String) {
-        // Try ISO-8601
         final dt = DateTime.parse(value);
         return DateFormat('d MMM yyyy').format(dt.toLocal());
       }
@@ -307,7 +308,6 @@ class _StockDetailState extends State<StockDetail> {
           Icons.check,
           Theme.of(context).colorScheme.secondary,
         );
-        // Refresh related data
         context.read<CreditCardCubit>().fetchCards();
         context.read<HoldingStocksCubit>().fetchHolding();
       } catch (e) {
@@ -331,8 +331,9 @@ class _StockDetailState extends State<StockDetail> {
   @override
   Widget build(BuildContext context) {
     final List<List<String>> descriptionTitles = [
-      ['Open', 'High', 'Low'],
-      ['Vol', 'P/E', 'Mkt Cap'],
+      ['Volume', 'PERatio', 'MarketCap'],
+      ['P_BV_Ratio', 'NetProfit', 'ROE'],
+      ['Dividend_Yield', 'QoQGrowth', 'YoYGrowth'],
       ['Market', 'Sector', 'Industry'],
     ];
 
@@ -341,18 +342,21 @@ class _StockDetailState extends State<StockDetail> {
       return value?.toString() ?? '-';
     }
 
-    print(detailStock?['Overview']);
-
     final List<List<String>> descriptionData = [
       [
-        safeGet(detailStock?['Overview'], 'Open'),
-        safeGet(detailStock?['Overview'], 'High'),
-        safeGet(detailStock?['Overview'], 'Close'),
+        safeGet(detailStock?['Overview'], 'Volume'),
+        safeGet(detailStock?['Overview'], 'PERatio'),
+        safeGet(detailStock?['Overview'], 'MarketCap'),
       ],
       [
-        safeGet(detailStock?['Overview'], 'AvgVolume30D'),
-        detailStock?['StockSymbol'] ?? '-',
-        detailStock?['Overview']['Marketcap'] ?? '-',
+        safeGet(detailStock?['Profile'], 'P_BV_Ratio'),
+        safeGet(detailStock?['Profile'], 'NetProfit'),
+        safeGet(detailStock?['Profile'], 'ROE'),
+      ],
+      [
+        safeGet(detailStock?['Profile'], 'Dividend_Yield'),
+        safeGet(detailStock?['Profile'], 'QoQGrowth'),
+        safeGet(detailStock?['Profile'], 'YoYGrowth'),
       ],
       [
         safeGet(detailStock?['Profile'], 'Market'),
@@ -854,6 +858,7 @@ class _StockDetailState extends State<StockDetail> {
                                     ],
                                   ),
                                 ),
+
                                 SizedBox(
                                   height: 320,
                                   child:
@@ -922,6 +927,39 @@ class _StockDetailState extends State<StockDetail> {
                                                       _zoomPanBehavior,
                                                   enableAxisAnimation: false,
                                                   series: <CartesianSeries>[
+                                                    AreaSeries<
+                                                      CandleData,
+                                                      DateTime
+                                                    >(
+                                                      dataSource: chartData,
+                                                      xValueMapper:
+                                                          (CandleData d, _) =>
+                                                              d.date,
+                                                      yValueMapper:
+                                                          (CandleData d, _) =>
+                                                              d.close,
+                                                      opacity: 0.25,
+                                                      gradient: LinearGradient(
+                                                        begin:
+                                                            Alignment.topCenter,
+                                                        end:
+                                                            Alignment
+                                                                .bottomCenter,
+                                                        colors: [
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .secondary,
+                                                          Theme.of(context)
+                                                              .colorScheme
+                                                              .secondary
+                                                              .withOpacity(0.7),
+                                                        ],
+                                                        stops: const [0.0, 1.0],
+                                                      ),
+                                                      borderWidth: 0,
+                                                      enableTooltip: false,
+                                                      animationDuration: 0,
+                                                    ),
                                                     LineSeries<
                                                       CandleData,
                                                       DateTime
@@ -937,29 +975,9 @@ class _StockDetailState extends State<StockDetail> {
                                                           Theme.of(context)
                                                               .colorScheme
                                                               .secondary,
-                                                      width: 2.5,
+                                                      width: 2.2,
                                                       animationDuration: 0,
-                                                    ),
-                                                    LineSeries<
-                                                      AveragePoint,
-                                                      DateTime
-                                                    >(
-                                                      xValueMapper:
-                                                          (AveragePoint p, _) =>
-                                                              p.date,
-                                                      yValueMapper:
-                                                          (AveragePoint p, _) =>
-                                                              p.value,
-                                                      color:
-                                                          Theme.of(
-                                                            context,
-                                                          ).colorScheme.primary,
-                                                      width: 1.8,
-                                                      dashArray: const <double>[
-                                                        6,
-                                                        3,
-                                                      ],
-                                                      animationDuration: 0,
+                                                      enableTooltip: false,
                                                     ),
                                                   ],
                                                 ),
@@ -1238,7 +1256,7 @@ class _StockDetailState extends State<StockDetail> {
                                               ),
                                             ),
                                           ),
-                                        const SizedBox(height: 20),
+                                        const SizedBox(height: 25),
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
@@ -1249,7 +1267,7 @@ class _StockDetailState extends State<StockDetail> {
                                                     context,
                                                   ).textTheme.titleMedium,
                                             ),
-                                            const SizedBox(width: 4),
+                                            const SizedBox(width: 5),
                                             Tooltip(
                                               message:
                                                   'Our AI-powered price prediction analyzes historical data and market trends to forecast the future stock price, helping you make smarter investment decisions.',
@@ -1261,53 +1279,12 @@ class _StockDetailState extends State<StockDetail> {
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              'Date Prediction',
-                                              style:
-                                                  Theme.of(
-                                                    context,
-                                                  ).textTheme.bodyLarge,
-                                            ),
-                                            Text(
-                                              '-',
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.bodyLarge?.copyWith(
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                          ],
+                                        PredictionCard(
+                                          datePrediction: '-',
+                                          pricePrediction:
+                                              '${detailStock?['PricePredictionChange'] ?? '-'}',
                                         ),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            Text(
-                                              'Price Prediction',
-                                              style:
-                                                  Theme.of(
-                                                    context,
-                                                  ).textTheme.bodyLarge,
-                                            ),
-                                            Text(
-                                              '${detailStock?['ClosePriceTHB'] ?? '-'}',
-                                              style: Theme.of(
-                                                context,
-                                              ).textTheme.bodyLarge?.copyWith(
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+
                                         const SizedBox(height: 20),
                                         Column(
                                           mainAxisAlignment:
@@ -1378,4 +1355,57 @@ class AveragePoint {
   final double value;
 
   AveragePoint({required this.date, required this.value});
+}
+
+Widget _buildTransactionsList(List<Map<String, dynamic>> cardsData) {
+  if (cardsData.isEmpty) {
+    return const SliverToBoxAdapter(child: SizedBox());
+  }
+  return BlocBuilder<HoldingStocksCubit, HoldingStocksState>(
+    builder: (context, holdingState) {
+      final holdingStocks = holdingState.holdingStocks ?? [];
+      final isHoldingLoading = holdingState.isLoading;
+      if (isHoldingLoading) {
+        return SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) => const TransactionHistoryShimmer(),
+            childCount: 10,
+          ),
+        );
+      }
+      if (holdingStocks.isEmpty) {
+        return const SliverToBoxAdapter(
+          child: Center(child: Text('No Stock Holding available')),
+        );
+      }
+      return SliverPadding(
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.03,
+          vertical: 8,
+        ),
+        sliver: SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final history = holdingStocks[index];
+            final price =
+                double.tryParse(history['AvgBuyPriceUSD']?.toString() ?? '0') ??
+                0.0;
+            final quantity =
+                double.tryParse(history['Quantity']?.toString() ?? '0') ?? 0.0;
+            final priceSumQuantity = price * quantity;
+            final finalPriceSumQuantity =
+                (priceSumQuantity * 1000).truncateToDouble() / 1000;
+            return HoldingStocks(
+              symbol: history['StockSymbol']?.toString() ?? '',
+              name: history['StockSymbol']?.toString() ?? '',
+              price: finalPriceSumQuantity.toString(),
+              marketstatus: history['MarketStatus']?.toString() ?? '',
+              quantity: quantity.toInt(),
+              unrealizedPLPercent:
+                  history['UnrealizedPLPercent']?.toString() ?? '',
+            );
+          }, childCount: holdingStocks.length),
+        ),
+      );
+    },
+  );
 }
