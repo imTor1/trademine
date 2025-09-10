@@ -32,7 +32,7 @@
 
 ### 📰 หน้าข่าว (News Page)
 
-<img src="./assets/Trademine_Preview/NewsPage.png" alt="NewsPage" width="300"/>
+<img src="./assets/Trademine_Preview/News.png" alt="NewsPage" width="300"/>
 
 ### 📝 หน้ารายละเอียดข่าว (News Detail)
 
@@ -48,7 +48,7 @@
 
 ### 🔎 หน้าค้นหาหุ้น (Search)
 
-<img src="./assets/Trademine_Preview/SearchPage.png" alt="SearchPage" width="300"/>
+<img src="./assets/Trademine_Preview/Search.png" alt="SearchPage" width="300"/>
 
 ---
 
